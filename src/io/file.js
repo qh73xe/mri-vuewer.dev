@@ -38,11 +38,15 @@ const toUnit8Array = file =>
     reader.onerror = error => reject(error);
   });
 
-const fetch = async function(url, filename, metadata) {
-  const response = await fetch(url);
-  const data = await response.blob();
-  const file = new File([data], filename, metadata);
-  return file;
+const fetchFile = async function(url, filename, metadata) {
+  const response = await fetch(url, { mode: "cors", method: "GET" });
+  if (response.status == 200) {
+    const data = await response.blob();
+    const file = new File([data], filename, metadata);
+    return file;
+  } else {
+    throw new Error(response.statusText);
+  }
 };
 
 export default {
@@ -50,5 +54,5 @@ export default {
   toBlob: toBlob,
   toBuff: toBuff,
   toUnit8Array: toUnit8Array,
-  fetch: fetch
+  fetch: fetchFile
 };

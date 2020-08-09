@@ -1,6 +1,6 @@
 <template>
   <m-view-layout :heading="heading" :desc="desc">
-    <v-col>
+    <v-col cols="12">
       <v-card class="mx-auto">
         <v-toolbar color="primary" dark>
           <v-toolbar-title>Sample Videos</v-toolbar-title>
@@ -21,23 +21,119 @@
         </v-list>
       </v-card>
     </v-col>
+    <v-col cols="12" v-if="sample !== null">
+      <v-card class="mx-auto">
+        <v-toolbar color="primary" dark>
+          <v-toolbar-title>Live Demo</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-card-text class="text-center" v-if="loading.isloading">
+          <v-progress-circular
+            :size="100"
+            :width="10"
+            color="primary"
+            indeterminate
+          />
+          <div class="font-weight-light subtitle-1">
+            {{ loading.status }}
+          </div>
+        </v-card-text>
+        <w-vuewer
+          ref="video"
+          v-else-if="video.source"
+          :src="video.source"
+          :fps="video.fps"
+        />
+      </v-card>
+    </v-col>
   </m-view-layout>
 </template>
 <script>
 import MViewLayout from "@/components/base/MViewLayout";
+import WVuewer from "@/components/wavesurfer/WVuewer.vue";
+import io from "@/io";
 export default {
   name: "Demo",
   components: {
-    MViewLayout
+    MViewLayout,
+    WVuewer
   },
   data: () => ({
     heading: "Live Demo",
     sample: null,
-    samples: ["sample1.mp4", "sample2.mp4", "sample3.mp4"]
+    samples: ["sample1.mp4", "sample2.mp4", "sample3.mp4"],
+    loading: {
+      isloading: false,
+      status: null
+    },
+    video: {
+      filename: null,
+      source: null,
+      fps: null,
+      videoStream: null,
+      audioStream: null,
+      originSize: null,
+      duration: null
+    }
   }),
+  watch: {
+    sample: function(val, oldval) {
+      if (val !== null) {
+        if (val != oldval) {
+          this.initVideo();
+          const filename = this.samples[val];
+          this.fetchVideo(filename);
+        }
+      }
+    }
+  },
   methods: {
-    filename2url: function(filename) {
-      return `https://github.com/qh73xe/mri-vuewer.dev/blob/master/misc/${filename}?raw=true`;
+    initVideo: function() {
+      this.video = {
+        source: null,
+        fps: null,
+        videoStream: null,
+        audioStream: null,
+        originSize: null,
+        duration: null
+      };
+    },
+    fetchVideo: async function(filename) {
+      this.loading.isloading = true;
+      this.loading.status = "file downloading...";
+      const url = this.toUrl(filename);
+      const file = await io.file
+        .fetch(url, filename, { type: "video/mp4" })
+        .catch(() => {
+          this.loading.isloading = false;
+          return null;
+        });
+      if (file) {
+        this.loading.status = "load vide info...";
+        if (file.arrayBuffer) {
+          const buff = await file.arrayBuffer();
+          io.video.info(buff, res => {
+            this.video.fps = res.videoStream.fps;
+            this.video.videoStream = res.videoStream;
+            this.video.audioStream = res.audioStream;
+            this.video.originSize = res.size;
+            this.video.duration = res.duration;
+            this.loading.status = "load vide file...";
+            io.file.toBase64(file).then(res => {
+              if (res) {
+                this.video.source = res;
+                this.video.filename = filename;
+              }
+              this.loading.isloading = false;
+            });
+          });
+        } else {
+          this.loading.isloading = false;
+        }
+      }
+    },
+    toUrl: function(filename) {
+      return `https://raw.githubusercontent.com/qh73xe/mri-vuewer.dev/master/misc/${filename}`;
     }
   },
   computed: {
