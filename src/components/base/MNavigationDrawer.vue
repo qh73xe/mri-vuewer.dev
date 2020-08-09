@@ -41,7 +41,9 @@ export default {
           this.current = i;
           x.current = true;
         }
-        x.title = x.name;
+        x.title = this.$vuetify.lang.t(
+          `$vuetify.pages.${x.name.toLowerCase()}`
+        );
         x.to = () => {
           this.to({ name: x.name });
         };

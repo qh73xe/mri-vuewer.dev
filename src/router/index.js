@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import MetaManager from "../views/MetaManager.vue";
+import Setting from "../views/Setting.vue";
 import Demo from "../views/Demo.vue";
 
 Vue.use(VueRouter);
@@ -24,6 +25,12 @@ const routes = [
     name: "Demo",
     icon: "mdi-code-brackets",
     component: Demo
+  },
+  {
+    path: "/setting",
+    name: "Setting",
+    icon: "mdi-cog",
+    component: Setting
   },
   {
     path: "/about",

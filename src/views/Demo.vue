@@ -2,7 +2,7 @@
   <m-view-layout :heading="heading" :desc="desc">
     <v-col>
       <v-card class="mx-auto">
-        <v-toolbar color="indigo" dark>
+        <v-toolbar color="primary" dark>
           <v-toolbar-title>Sample Videos</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
