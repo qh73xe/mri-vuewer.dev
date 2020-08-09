@@ -45,7 +45,7 @@ import Card from "./Card";
 import MCard from "./MCard.vue";
 
 export default {
-  name: "MaterialStatsCard",
+  name: "MHCard",
   inheritAttrs: false,
   components: {
     MCard

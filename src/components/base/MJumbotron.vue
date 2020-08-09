@@ -1,7 +1,7 @@
 <template>
   <section class="text-center">
     <h1 class="font-weight-light display-3" v-text="`${heading}`" />
-    <span v-if="desc" class="font-weight-light subtitle-1" v-html="desc" />
+    <div v-if="desc" class="font-weight-light subtitle-1" v-html="desc" />
   </section>
 </template>
 <script>

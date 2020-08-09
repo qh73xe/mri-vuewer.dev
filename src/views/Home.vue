@@ -1,33 +1,26 @@
 <template>
-  <v-container class="home grey lighten-2 fill-height" fluid>
-    <v-row v-if="!$vuetify.breakpoint.smAndDown">
-      <v-col>
-        <m-jumbotron :heading="heading" :desc="desc" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" :md="cardCols" v-for="(nav, key) in navs" :key="key">
-        <m-s-card
-          :color="nav.color"
-          :icon="nav.icon"
-          :title="nav.title"
-          sub-icon="mdi-information"
-          :sub-text="nav.subText"
-          :actions="nav.actions"
-        />
-      </v-col>
-    </v-row>
-  </v-container>
+  <m-view-layout :heading="heading" :desc="desc">
+    <v-col cols="12" :md="cardCols" v-for="(nav, key) in navs" :key="key">
+      <m-h-card
+        :color="nav.color"
+        :icon="nav.icon"
+        :title="nav.title"
+        sub-icon="mdi-information"
+        :sub-text="nav.subText"
+        :actions="nav.actions"
+      />
+    </v-col>
+  </m-view-layout>
 </template>
 
 <script>
-import MJumbotron from "@/components/base/MJumbotron.vue";
-import MSCard from "@/components/base/card/MSCard.vue";
+import MHCard from "@/components/base/card/MHCard.vue";
+import MViewLayout from "@/components/base/MViewLayout";
 export default {
   name: "Home",
   components: {
-    MJumbotron,
-    MSCard
+    MViewLayout,
+    MHCard
   },
   data: () => ({}),
   methods: {
@@ -85,7 +78,9 @@ export default {
           actions: [
             {
               icon: "mdi-dots-vertical",
-              function: () => {}
+              function: () => {
+                vm.to({ name: "Demo" });
+              }
             }
           ]
         }

@@ -101,6 +101,11 @@ export default {
     </br>
     メタ情報は動画ファイル検索時に使用されます.
     `
+  },
+  demo: {
+    disc: `
+    このページではサンプル動画を使って MRI Vuewer の機能を確認することができます.
+    `
   }
 };
 //# sourceMappingURL=ja.js.map

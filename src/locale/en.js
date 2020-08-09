@@ -101,6 +101,11 @@ export default {
     </br>
     Meta information is used when searching video files.
     `
+  },
+  demo: {
+    disc: `
+    In this page, you can check the functions of MRI Vuewer with sample videos.
+    `
   }
 };
 //# sourceMappingURL=en.js.map

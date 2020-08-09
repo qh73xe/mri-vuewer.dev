@@ -1,5 +1,6 @@
 <template>
   <v-app-bar app color="primary" dark style="z-index:99">
+    <v-app-bar-nav-icon @click="drawer = !drawer" />
     <v-toolbar-title>{{ name }} ver. {{ version }}</v-toolbar-title>
     <v-spacer></v-spacer>
     <v-btn icon @click="to({ name: 'Home' })">
@@ -37,6 +38,14 @@ export default {
     version: {
       get() {
         return this.$store.state.appVersion;
+      }
+    },
+    drawer: {
+      get() {
+        return this.$store.state.drawer;
+      },
+      set(val) {
+        this.$store.commit("setDrawer", val);
       }
     }
   },

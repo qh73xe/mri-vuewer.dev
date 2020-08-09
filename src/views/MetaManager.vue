@@ -1,18 +1,12 @@
 <template>
-  <v-container class="meta-manager grey lighten-2 fill-height" fluid>
-    <v-row v-if="!$vuetify.breakpoint.smAndDown">
-      <v-col>
-        <m-jumbotron :heading="heading" :desc="desc" />
-      </v-col>
-    </v-row>
-  </v-container>
+  <m-view-layout :heading="heading" :desc="desc"> </m-view-layout>
 </template>
 <script>
-import MJumbotron from "@/components/base/MJumbotron.vue";
+import MViewLayout from "@/components/base/MViewLayout";
 export default {
   name: "MetaManager",
   components: {
-    MJumbotron
+    MViewLayout
   },
   data: () => ({
     heading: "Meta Data Manager"
