@@ -43,6 +43,7 @@
           v-else-if="video.source"
           :src="video.source"
           :fps="video.fps"
+          :duration="video.duration"
         />
       </v-card>
     </v-col>
@@ -70,10 +71,10 @@ export default {
       filename: null,
       source: null,
       fps: null,
+      duration: null,
       videoStream: null,
       audioStream: null,
-      originSize: null,
-      duration: null
+      originSize: null
     }
   }),
   watch: {

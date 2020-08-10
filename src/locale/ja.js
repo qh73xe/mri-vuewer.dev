@@ -61,7 +61,48 @@ export default {
     `
   },
   setting: {
-    disc: `このページでは MRI Vuewer の設定を行うことができます.`
+    disc: `このページでは MRI Vuewer の設定を行うことができます.`,
+    form: {
+      wavesurfer: {
+        waveform: {
+          label: "波形表示設定",
+          minPxPerSec: {
+            label: "pixels per sec",
+            hint:
+              "1 sec を何ピクセルで表示するか? 大まかに時刻方向の拡大比率になります"
+          },
+          cursorColor: {
+            label: "カーソル色"
+          },
+          waveColor: {
+            label: "未再生波形色"
+          },
+          progressColor: {
+            label: "再生済み波形色"
+          },
+          showTimeLine: {
+            label: "時間軸を表示する"
+          },
+          showSpectrogram: {
+            label: "スペクトログラムを表示する"
+          }
+        },
+        spectrogram: {
+          label: "スペクトログラム表示設定",
+          targetChannel: {
+            label: "対象チャンネル"
+          },
+          freqRate: {
+            label: "表示周波数率",
+            hint:
+              "周波数表示比率. fft の解析結果を低域何パーセントまで表示するかです. 0.25 - 1 までの値にしてください"
+          },
+          showFreqLabel: {
+            label: "周波数軸ラベルを表示する"
+          }
+        }
+      }
+    }
   }
 };
 //# sourceMappingURL=ja.js.map

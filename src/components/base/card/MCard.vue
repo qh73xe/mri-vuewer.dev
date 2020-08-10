@@ -9,7 +9,6 @@
       >
         <v-img :src="avatar" />
       </v-avatar>
-
       <v-sheet
         v-else
         :class="{

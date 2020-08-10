@@ -59,6 +59,47 @@ export default {
     disc: `In this page, you can check the functions of MRI Vuewer with sample videos.`
   },
   setting: {
-    disc: `In this page, you can configure the MRI Vuewer.`
+    disc: `In this page, you can configure the MRI Vuewer.`,
+    form: {
+      wavesurfer: {
+        waveform: {
+          label: "Wave form settings",
+          minPxPerSec: {
+            label: "pixels per sec",
+            hint:
+              "How many pixels do you want to display 1 sec? It is roughly the enlargement ratio in the time direction."
+          },
+          cursorColor: {
+            label: "Cursor Color"
+          },
+          waveColor: {
+            label: "Wave Color"
+          },
+          progressColor: {
+            label: "Progress Color"
+          },
+          showTimeLine: {
+            label: "Display Time Axis"
+          },
+          showSpectrogram: {
+            label: "Display spectrogram"
+          }
+        },
+        spectrogram: {
+          label: "Spectrogram Settings",
+          targetChannel: {
+            label: "Target Channel"
+          },
+          freqRate: {
+            label: "Frequency Rate",
+            hint:
+              "Frequency display ratio. What percentage of the fft analysis result is displayed.Set a value between 0.25 and 1."
+          },
+          showFreqLabel: {
+            label: "Display Frequency Axis Label"
+          }
+        }
+      }
+    }
   }
 };

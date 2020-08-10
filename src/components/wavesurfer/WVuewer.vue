@@ -20,18 +20,24 @@
     <wave-surfer
       ref="wavesurfer"
       v-if="videoSource"
+      backend="MediaElement"
       splitChannels
       normalize
       responsive
       scrollParent
-      showTimeLine
-      showSpectrogram
       showTextGrid
-      backend="MediaElement"
       :source="videoSource"
+      :skipLength="skipLength"
       :minPxPerSec="minPxPerSec"
       :freqRate="freqRate"
       :targetChannel="targetChannel"
+      :spectrogramHeight="spectrogramHeight"
+      :showTimeLine="showTimeLine"
+      :showSpectrogram="showSpectrogram"
+      :showFreqLabel="showFreqLabel"
+      :cursorColor="cursorColor"
+      :waveColor="waveColor"
+      :progressColor="progressColor"
       @spectrogram-render-start="onSpectrogramRenderStart"
       @spectrogram-render-end="onSpectrogramRenderEnd"
       @textgrid-dblclick="onDblclick"
@@ -70,6 +76,7 @@
 import WVideo from "@/components/wavesurfer/WVideo.vue";
 import WVuwerActions from "@/components/wavesurfer/WVuewerActions.vue";
 import WaveSurfer from "wavesurfer.vue";
+import settingMixin from "./settingMixin";
 export default {
   name: "WVuwer",
   components: { WVideo, WaveSurfer, WVuwerActions },
@@ -79,6 +86,10 @@ export default {
       requested: true
     },
     fps: {
+      type: Number,
+      requested: true
+    },
+    duration: {
       type: Number,
       requested: true
     },
@@ -100,21 +111,11 @@ export default {
     videoSource: null,
     videoHeight: 0
   }),
+  mixins: [settingMixin],
   computed: {
-    minPxPerSec: {
-      get() {
-        return this.$store.state.ws.minPxPerSec;
-      }
-    },
-    freqRate: {
-      get() {
-        return this.$store.state.ws.freqRate;
-      }
-    },
-    targetChannel: {
-      get() {
-        return this.$store.state.ws.targetChannel;
-      }
+    skipLength: function() {
+      console.log(this.fps / this.duration);
+      return this.fps / this.duration;
     }
   },
   methods: {
