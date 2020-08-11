@@ -1,85 +1,131 @@
 <template>
-  <v-container v-resize="onResize" fluid class="pa-0">
-    <v-row>
-      <v-col class="flex-grow-1 flex-shrink-1">
-        <v-card ref="videoCard" flat>
-          <w-video
-            ref="videoArray"
-            :src="src"
-            :frameOffset="frameOffset"
-            :fps="fps"
-            @loadeddata="onLoadeddata"
-            @syncCanvas="onSyncCanvas"
+  <w-vuwer-layout>
+    <template v-slot:video>
+      <w-video
+        :src="src"
+        :frameOffset="frameOffset"
+        :fps="fps"
+        @loadeddata="onLoadeddata"
+        @syncCanvas="onSyncCanvas"
+      />
+      <w-vuwer-actions v-if="wavesurfer" />
+    </template>
+    <template v-slot:setting>
+      <m-t-card tile dense title="Setting">
+        <v-card-text>
+          <v-slider
+            append-icon="mdi-magnify-plus-cursor"
+            prepend-icon="mdi-magnify-minus-cursor"
+            step="100"
+            :min="0"
+            :max="500"
+            :thumb-size="24"
+            label="Zoom"
+          >
+            <template v-slot:thumb-label="{ value }">
+              {{ (value / 100).toFixed(1) }}
+            </template>
+          </v-slider>
+          <v-slider
+            append-icon="mdi-magnify-plus-cursor"
+            prepend-icon="mdi-magnify-minus-cursor"
+            step="0.25"
+            :min="0.25"
+            :max="1"
+            label="MaxFreq"
+          >
+            <template v-slot:thumb-label="{ value }">
+              {{ value }}
+            </template>
+          </v-slider>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary">New tier</v-btn>
+          <v-spacer />
+          <v-btn color="primary">Redraw</v-btn>
+        </v-card-actions>
+      </m-t-card>
+    </template>
+    <v-card>
+      <wave-surfer
+        ref="wavesurfer"
+        v-if="videoSource"
+        backend="MediaElement"
+        splitChannels
+        normalize
+        responsive
+        scrollParent
+        showTextGrid
+        :source="videoSource"
+        :skipLength="skipLength"
+        :minPxPerSec="minPxPerSec"
+        :freqRate="freqRate"
+        :targetChannel="targetChannel"
+        :spectrogramHeight="spectrogramHeight"
+        :showTimeLine="showTimeLine"
+        :showSpectrogram="showSpectrogram"
+        :showFreqLabel="showFreqLabel"
+        :cursorColor="cursorColor"
+        :waveColor="waveColor"
+        :progressColor="progressColor"
+        @spectrogram-render-start="onSpectrogramRenderStart"
+        @spectrogram-render-end="onSpectrogramRenderEnd"
+        @textgrid-dblclick="onDblclick"
+        @textgrid-click="onClick"
+        @textgrid-update="onTextGridUpdate"
+        @textgrid-current-update="onTextGridCurrentUpdate"
+      >
+        <template v-slot:textform>
+          <v-text-field
+            v-if="current.key"
+            v-model="current.text"
+            class="ma-0"
+            label="text"
+            outline
+            hide-details
+            :disabled="current.key == null"
+            @keydown.enter="saveTierValue"
           />
-          <w-vuwer-actions v-if="ws" :ws="ws" />
-        </v-card>
-      </v-col>
-      <v-col cols="7" class="flex-grow-1 flex-shrink-1 d-none d-sm-flex">
-      </v-col>
-    </v-row>
-    <wave-surfer
-      ref="wavesurfer"
-      v-if="videoSource"
-      backend="MediaElement"
-      splitChannels
-      normalize
-      responsive
-      scrollParent
-      showTextGrid
-      :source="videoSource"
-      :skipLength="skipLength"
-      :minPxPerSec="minPxPerSec"
-      :freqRate="freqRate"
-      :targetChannel="targetChannel"
-      :spectrogramHeight="spectrogramHeight"
-      :showTimeLine="showTimeLine"
-      :showSpectrogram="showSpectrogram"
-      :showFreqLabel="showFreqLabel"
-      :cursorColor="cursorColor"
-      :waveColor="waveColor"
-      :progressColor="progressColor"
-      @spectrogram-render-start="onSpectrogramRenderStart"
-      @spectrogram-render-end="onSpectrogramRenderEnd"
-      @textgrid-dblclick="onDblclick"
-      @textgrid-click="onClick"
-      @textgrid-update="onTextGridUpdate"
-      @textgrid-current-update="onTextGridCurrentUpdate"
-    >
-      <template v-slot:textform>
-        <v-text-field
-          v-if="current.key"
-          v-model="current.text"
-          class="ma-0"
-          label="text"
-          outline
-          hide-details
-          :disabled="current.key == null"
-          @keydown.enter="saveTierValue"
-        />
-      </template>
-      <div class="text-center" v-if="isLoading">
-        <v-progress-circular
-          :size="100"
-          :width="10"
-          color="primary"
-          indeterminate
-        />
-        <div class="font-weight-light subtitle-1">
-          Sound Analyzing ...
+        </template>
+        <div class="text-center" v-if="isLoading">
+          <v-progress-circular
+            :size="100"
+            :width="10"
+            color="primary"
+            indeterminate
+          />
+          <div class="font-weight-light subtitle-1">
+            Sound Analyzing ...
+          </div>
         </div>
-      </div>
-    </wave-surfer>
-  </v-container>
+      </wave-surfer>
+    </v-card>
+    <template v-slot:table>
+      <w-text-grid />
+    </template>
+  </w-vuwer-layout>
 </template>
 
 <script>
-import WVideo from "@/components/wavesurfer/WVideo.vue";
-import WVuwerActions from "@/components/wavesurfer/WVuewerActions.vue";
 import WaveSurfer from "wavesurfer.vue";
-import settingMixin from "./settingMixin";
+import MTCard from "@/components/base/card/MTCard.vue";
+import WVuwerLayout from "./WVuewerLayout.vue";
+import WVideo from "./WVideo.vue";
+import WTextGrid from "./WTextGrid.vue";
+import WVuwerActions from "./WVuewerActions.vue";
+import SettingMixin from "./settingMixin";
+import WavesurferMixin from "./wavesurferMixin";
 export default {
   name: "WVuwer",
-  components: { WVideo, WaveSurfer, WVuwerActions },
+  mixins: [SettingMixin, WavesurferMixin],
+  components: {
+    WVuwerLayout,
+    MTCard,
+    WVideo,
+    WaveSurfer,
+    WVuwerActions,
+    WTextGrid
+  },
   props: {
     src: {
       type: String,
@@ -99,7 +145,6 @@ export default {
     }
   },
   data: () => ({
-    ws: null,
     current: {
       key: null,
       text: null,
@@ -111,7 +156,6 @@ export default {
     videoSource: null,
     videoHeight: 0
   }),
-  mixins: [settingMixin],
   computed: {
     skipLength: function() {
       console.log(this.fps / this.duration);
@@ -119,17 +163,6 @@ export default {
     }
   },
   methods: {
-    setVideoHeight() {
-      this.$nextTick(() => {
-        const el = this.$refs.videoCard ? this.$refs.videoCard.$el : null;
-        if (el) {
-          this.videoHeight = el.clientHeight;
-        }
-      });
-    },
-    onResize() {
-      this.setVideoHeight();
-    },
     onSyncCanvas(payload) {
       console.log(payload);
     },
@@ -137,7 +170,7 @@ export default {
       if (payload) {
         this.videoSource = payload;
         this.$nextTick(() => {
-          this.ws = this.$refs.wavesurfer;
+          this.wavesurfer = this.$refs.wavesurfer;
         });
       }
     },
@@ -146,7 +179,7 @@ export default {
     },
     onSpectrogramRenderEnd() {
       this.isLoading = false;
-      this.ws.addTier("IPU", "interval");
+      this.wavesurfer.addTier("IPU", "interval");
     },
     onDblclick: function(obj) {
       const key = obj.key;
@@ -154,7 +187,7 @@ export default {
         time: obj.time,
         text: ""
       };
-      this.ws.addTierValue(key, item);
+      this.wavesurfer.addTierValue(key, item);
     },
     onClick: function(obj) {
       if (obj.item) {
@@ -165,7 +198,6 @@ export default {
     },
     onTextGridUpdate: function(textgrid) {
       this.textgrid = textgrid;
-      this.tabs = Object.keys(this.textgrid);
     },
     onTextGridCurrentUpdate: function(current) {
       this.current.key = current.key;

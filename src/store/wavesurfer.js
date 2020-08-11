@@ -18,10 +18,11 @@ const DS = DEFAULTSTATE;
 export default {
   namespaced: true,
   state: () => ({
-    minPxPerSec: S.get("minPxPerSec") || DS.minPxPerSec,
-    freqRate: S.get("freqRate") || DS.freqRate,
-    targetChannel: S.get("targetChannel") || DS.targetChannel,
-    spectrogramHeight: S.get("spectrogramHeight") || DS.spectrogramHeight,
+    minPxPerSec: Number(S.get("minPxPerSec")) || DS.minPxPerSec,
+    freqRate: Number(S.get("freqRate")) || DS.freqRate,
+    targetChannel: Number(S.get("targetChannel")) || DS.targetChannel,
+    spectrogramHeight:
+      Number(S.get("spectrogramHeight")) || DS.spectrogramHeight,
     showTimeLine:
       S.get("showTimeLine") == null ? DS.showTimeLine : S.get("showTimeLine"),
     showSpectrogram:

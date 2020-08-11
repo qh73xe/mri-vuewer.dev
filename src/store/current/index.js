@@ -3,12 +3,12 @@ import frame from "./frame.js";
 export default {
   namespaced: true,
   state: () => ({
-    ws: null,
+    wavesurfer: null,
     textgrid: null
   }),
   mutations: {
-    setWs(state, payload) {
-      state.ws = payload;
+    setWaveSurfer(state, payload) {
+      state.wavesurfer = payload;
     },
     setTextGrid(state, payload) {
       state.textgrid = payload;

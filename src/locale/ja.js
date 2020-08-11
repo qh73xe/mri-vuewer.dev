@@ -36,6 +36,17 @@ const home = {
 
 export default {
   ...ja,
+  wVideo: {
+    videoPre: {
+      label: "前画像"
+    },
+    video: {
+      label: "現画像"
+    },
+    videoPos: {
+      label: "後画像"
+    }
+  },
   io: {
     mVideoInput: {
       title: "Your movie",

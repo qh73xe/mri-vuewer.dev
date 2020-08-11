@@ -1,6 +1,6 @@
 <template>
-  <v-card class="mx-auto">
-    <v-toolbar :color="titleColor" dark v-if="title">
+  <v-card class="mx-auto" :color="color" :flat="flat" :tile="tile">
+    <v-toolbar :dense="dense" :color="titleColor" dark v-if="title">
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <slot name="toolbarActions">
@@ -18,6 +18,22 @@ export default {
   props: {
     title: {
       type: String
+    },
+    tile: {
+      type: Boolean,
+      default: false
+    },
+    flat: {
+      type: Boolean,
+      default: false
+    },
+    dense: {
+      type: Boolean,
+      default: false
+    },
+    color: {
+      type: String,
+      default: "white"
     },
     titleColor: {
       type: String,

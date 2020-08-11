@@ -1,11 +1,7 @@
 <template>
   <m-view-layout :heading="heading" :desc="desc">
     <v-col cols="12">
-      <v-card class="mx-auto">
-        <v-toolbar color="primary" dark>
-          <v-toolbar-title>Sample Videos</v-toolbar-title>
-          <v-spacer></v-spacer>
-        </v-toolbar>
+      <m-t-card title="Sample Videos">
         <v-list flat>
           <v-subheader>Select one item for the live demo.</v-subheader>
           <v-list-item-group v-model="sample" color="primary">
@@ -19,14 +15,10 @@
             </v-list-item>
           </v-list-item-group>
         </v-list>
-      </v-card>
+      </m-t-card>
     </v-col>
     <v-col cols="12" v-if="sample !== null">
-      <v-card class="mx-auto">
-        <v-toolbar color="primary" dark>
-          <v-toolbar-title>Live Demo</v-toolbar-title>
-          <v-spacer></v-spacer>
-        </v-toolbar>
+      <m-t-card title="Live Demo">
         <v-card-text class="text-center" v-if="loading.isloading">
           <v-progress-circular
             :size="100"
@@ -38,25 +30,28 @@
             {{ loading.status }}
           </div>
         </v-card-text>
-        <w-vuewer
-          ref="video"
-          v-else-if="video.source"
-          :src="video.source"
-          :fps="video.fps"
-          :duration="video.duration"
-        />
-      </v-card>
+        <v-container fluid v-else-if="video.source">
+          <w-vuewer
+            ref="video"
+            :src="video.source"
+            :fps="video.fps"
+            :duration="video.duration"
+          />
+        </v-container>
+      </m-t-card>
     </v-col>
   </m-view-layout>
 </template>
 <script>
 import MViewLayout from "@/components/base/MViewLayout";
+import MTCard from "@/components/base/card/MTCard.vue";
 import WVuewer from "@/components/wavesurfer/WVuewer.vue";
 import io from "@/io";
 export default {
   name: "Demo",
   components: {
     MViewLayout,
+    MTCard,
     WVuewer
   },
   data: () => ({

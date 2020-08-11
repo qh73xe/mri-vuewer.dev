@@ -1,10 +1,17 @@
 <template>
-  <v-container fluid class="pa-0">
-    <v-row class="py-0">
-      <v-col cols="4" class="py-0">
-        <v-card flat color="background">
-          <v-system-bar dark color="accent">
-            {{ frameOffset }}フレーム前の画像
+  <v-container fluid class="py-0">
+    <v-row>
+      <v-col cols="4" class="pa-0">
+        <v-card tile flat color="transparent">
+          <v-system-bar
+            dark
+            :color="headerColor"
+            :class="systemBarClass"
+            v-if="$vuetify.breakpoint.mdAndUp"
+          >
+            <v-spacer />
+            {{ t("videoPre.label") }}
+            <v-spacer />
           </v-system-bar>
           <video
             v-if="src"
@@ -15,10 +22,17 @@
           />
         </v-card>
       </v-col>
-      <v-col cols="4" class="py-0">
-        <v-card flat color="background">
-          <v-system-bar dark color="accent">
-            現在画像
+      <v-col cols="4" class="pa-0">
+        <v-card tile flat color="transparent">
+          <v-system-bar
+            dark
+            v-if="$vuetify.breakpoint.mdAndUp"
+            :color="headerColor"
+            :class="systemBarClass"
+          >
+            <v-spacer />
+            {{ t("video.label") }}
+            <v-spacer />
           </v-system-bar>
           <video
             v-if="src"
@@ -31,10 +45,17 @@
           <canvas ref="canvas" v-show="false" :style="videoStyle" />
         </v-card>
       </v-col>
-      <v-col cols="4" class="py-0">
-        <v-card flat color="background">
-          <v-system-bar dark color="accent">
-            {{ frameOffset }}フレーム後の画像
+      <v-col cols="4" class="pa-0">
+        <v-card tile flat color="transparent">
+          <v-system-bar
+            dark
+            v-if="$vuetify.breakpoint.mdAndUp"
+            :color="headerColor"
+            :class="systemBarClass"
+          >
+            <v-spacer />
+            {{ t("videoPos.label") }}
+            <v-spacer />
           </v-system-bar>
           <video
             muted
@@ -64,11 +85,15 @@ export default {
     frameOffset: {
       type: Number,
       default: 1
+    },
+    headerColor: {
+      type: String,
+      default: "primary"
     }
   },
   data: () => ({
     el: null,
-    background: "grey lighten-3",
+    systemBarClass: "caption text-truncate",
     videoStyle: {
       width: "100%",
       height: "auto"
@@ -80,6 +105,9 @@ export default {
     }
   },
   methods: {
+    t: function(key) {
+      return this.$vuetify.lang.t(`$vuetify.wVideo.${key}`);
+    },
     syncVideos: function(currentTime) {
       this.syncCanvas();
       const offsetTime = this.frameOffset * this.frameRate;

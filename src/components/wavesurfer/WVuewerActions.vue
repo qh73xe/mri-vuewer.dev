@@ -1,43 +1,52 @@
 <template>
-  <v-card-actions>
-    <v-btn dark icon color="primary" @click="skipBackward">
-      <v-icon dark>mdi-skip-backward</v-icon>
-    </v-btn>
-    <v-spacer />
-    <v-btn dark icon color="primary" @click="playPause">
-      <v-icon dark>mdi-play-pause</v-icon>
-    </v-btn>
-    <v-btn dark icon color="primary" @click="play">
-      <v-icon dark>mdi-play</v-icon>
-    </v-btn>
-    <v-btn dark icon color="primary" @click="pause">
-      <v-icon dark>mdi-pause</v-icon>
-    </v-btn>
-    <v-spacer />
-    <v-btn dark icon color="primary" @click="skipForward">
-      <v-icon dark>mdi-skip-forward</v-icon>
-    </v-btn>
-  </v-card-actions>
+  <v-hover v-slot:default="{ hover }">
+    <v-card-actions :class="`elevation-${hover ? 4 : 1}`">
+      <v-btn
+        dark
+        icon
+        color="primary"
+        :class="`elevation-${hover ? 4 : 0}`"
+        @click="skipBackward"
+      >
+        <v-icon dark>mdi-skip-backward</v-icon>
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        dark
+        icon
+        color="primary"
+        :class="`elevation-${hover ? 4 : 0}`"
+        @click="playPause"
+      >
+        <v-icon dark>mdi-play-pause</v-icon>
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        dark
+        icon
+        color="primary"
+        :class="`elevation-${hover ? 4 : 0}`"
+        @click="skipForward"
+      >
+        <v-icon dark>mdi-skip-forward</v-icon>
+      </v-btn>
+    </v-card-actions>
+  </v-hover>
 </template>
 <script>
+import WavesurferMixin from "./wavesurferMixin";
 export default {
   name: "WVuewerActions",
-  props: ["ws"],
+  mixins: [WavesurferMixin],
   methods: {
-    play: function() {
-      this.ws.play();
-    },
-    pause: function() {
-      this.ws.pause();
-    },
     playPause: function() {
-      this.ws.playPause();
+      this.wavesurfer.playPause();
     },
     skipBackward: function() {
-      this.ws.skipBackward();
+      this.wavesurfer.skipBackward();
     },
     skipForward: function() {
-      this.ws.skipForward();
+      this.wavesurfer.skipForward();
     }
   }
 };
