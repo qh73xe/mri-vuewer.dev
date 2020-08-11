@@ -30,12 +30,12 @@
             {{ loading.status }}
           </div>
         </v-card-text>
-        <v-container fluid v-else-if="video.source">
+        <v-container fluid v-else-if="videoSource">
           <w-vuewer
             ref="video"
-            :src="video.source"
-            :fps="video.fps"
-            :duration="video.duration"
+            :src="videoSource"
+            :fps="fps"
+            :duration="duration"
           />
         </v-container>
       </m-t-card>
@@ -44,11 +44,13 @@
 </template>
 <script>
 import MViewLayout from "@/components/base/MViewLayout";
-import MTCard from "@/components/base/card/MTCard.vue";
-import WVuewer from "@/components/wavesurfer/WVuewer.vue";
+import MTCard from "@/components/base/card/MTCard";
+import WVuewer from "@/components/wavesurfer/WVuewer";
+import VideoMixin from "@/components/wavesurfer/mixins/videoMixin";
 import io from "@/io";
 export default {
   name: "Demo",
+  mixins: [VideoMixin],
   components: {
     MViewLayout,
     MTCard,
@@ -61,15 +63,6 @@ export default {
     loading: {
       isloading: false,
       status: null
-    },
-    video: {
-      filename: null,
-      source: null,
-      fps: null,
-      duration: null,
-      videoStream: null,
-      audioStream: null,
-      originSize: null
     }
   }),
   watch: {
@@ -84,16 +77,6 @@ export default {
     }
   },
   methods: {
-    initVideo: function() {
-      this.video = {
-        source: null,
-        fps: null,
-        videoStream: null,
-        audioStream: null,
-        originSize: null,
-        duration: null
-      };
-    },
     fetchVideo: async function(filename) {
       this.loading.isloading = true;
       this.loading.status = "file downloading...";
@@ -109,16 +92,17 @@ export default {
         if (file.arrayBuffer) {
           const buff = await file.arrayBuffer();
           io.video.info(buff, res => {
-            this.video.fps = res.videoStream.fps;
-            this.video.videoStream = res.videoStream;
-            this.video.audioStream = res.audioStream;
-            this.video.originSize = res.size;
-            this.video.duration = res.duration;
+            this.fps = res.videoStream.fps;
+            this.videoStream = res.videoStream;
+            this.audioStream = res.audioStream;
+            this.originSize = res.size;
+            this.duration = res.duration;
+
             this.loading.status = "load vide file...";
             io.file.toBase64(file).then(res => {
               if (res) {
-                this.video.source = res;
-                this.video.filename = filename;
+                this.videoSource = res;
+                this.videoName = filename;
               }
               this.loading.isloading = false;
             });
@@ -139,5 +123,4 @@ export default {
   }
 };
 </script>
-
 <style scoped></style>

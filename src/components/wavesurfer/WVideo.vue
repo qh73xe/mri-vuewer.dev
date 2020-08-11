@@ -14,11 +14,11 @@
             <v-spacer />
           </v-system-bar>
           <video
-            v-if="src"
+            v-if="videoSource"
             muted
             ref="videoPre"
             :style="videoStyle"
-            :src="src"
+            :src="videoSource"
           />
         </v-card>
       </v-col>
@@ -35,12 +35,12 @@
             <v-spacer />
           </v-system-bar>
           <video
-            v-if="src"
+            v-if="videoSource"
             ref="video"
             @loadeddata="onLoadeddata"
             @timeupdate="onTimeupdate"
             :style="videoStyle"
-            :src="src"
+            :src="videoSource"
           />
           <canvas ref="canvas" v-show="false" :style="videoStyle" />
         </v-card>
@@ -59,10 +59,10 @@
           </v-system-bar>
           <video
             muted
-            v-if="src"
+            v-if="videoSource"
             ref="videoPos"
             :style="videoStyle"
-            :src="src"
+            :src="videoSource"
           />
         </v-card>
       </v-col>
@@ -71,17 +71,11 @@
 </template>
 
 <script>
+import VideoMixin from "./mixins/videoMixin";
 export default {
   name: "WVideo",
+  mixins: [VideoMixin],
   props: {
-    src: {
-      type: String,
-      requested: true
-    },
-    fps: {
-      type: Number,
-      requested: true
-    },
     frameOffset: {
       type: Number,
       default: 1
@@ -123,8 +117,8 @@ export default {
     syncCanvas: function() {
       const video = this.$refs.video;
       const canvas = this.$refs.canvas;
-      canvas.width = video.clientWidth;
-      canvas.height = video.clientWidth;
+      canvas.width = this.originSize.width;
+      canvas.height = this.originSize.height;
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0);
       const dataUrl = canvas.toDataURL();

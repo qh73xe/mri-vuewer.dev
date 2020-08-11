@@ -34,7 +34,7 @@
   </v-hover>
 </template>
 <script>
-import WavesurferMixin from "./wavesurferMixin";
+import WavesurferMixin from "./mixins/wavesurferMixin";
 export default {
   name: "WVuewerActions",
   mixins: [WavesurferMixin],

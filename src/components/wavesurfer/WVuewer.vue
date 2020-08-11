@@ -2,9 +2,7 @@
   <w-vuwer-layout>
     <template v-slot:video>
       <w-video
-        :src="src"
         :frameOffset="frameOffset"
-        :fps="fps"
         @loadeddata="onLoadeddata"
         @syncCanvas="onSyncCanvas"
       />
@@ -46,17 +44,16 @@
         </v-card-actions>
       </m-t-card>
     </template>
-    <v-card>
+    <w-s-context-menu>
       <wave-surfer
         ref="wavesurfer"
-        v-if="videoSource"
         backend="MediaElement"
         splitChannels
         normalize
         responsive
         scrollParent
         showTextGrid
-        :source="videoSource"
+        :source="videoElm"
         :skipLength="skipLength"
         :minPxPerSec="minPxPerSec"
         :freqRate="freqRate"
@@ -99,7 +96,7 @@
           </div>
         </div>
       </wave-surfer>
-    </v-card>
+    </w-s-context-menu>
     <template v-slot:table>
       <w-text-grid />
     </template>
@@ -108,18 +105,22 @@
 
 <script>
 import WaveSurfer from "wavesurfer.vue";
-import MTCard from "@/components/base/card/MTCard.vue";
-import WVuwerLayout from "./WVuewerLayout.vue";
-import WVideo from "./WVideo.vue";
-import WTextGrid from "./WTextGrid.vue";
-import WVuwerActions from "./WVuewerActions.vue";
-import SettingMixin from "./settingMixin";
-import WavesurferMixin from "./wavesurferMixin";
+import MTCard from "@/components/base/card/MTCard";
+import WSContextMenu from "./contextMenu/WSContextMenu";
+import WVuwerLayout from "./WVuewerLayout";
+import WVideo from "./WVideo";
+import WTextGrid from "./WTextGrid";
+import WVuwerActions from "./WVuewerActions";
+import SettingMixin from "./mixins/settingMixin";
+import WavesurferMixin from "./mixins/wavesurferMixin";
+import FrameMixin from "./mixins/frameMixin";
+import VideoMixin from "./mixins/videoMixin";
 export default {
   name: "WVuwer",
-  mixins: [SettingMixin, WavesurferMixin],
+  mixins: [SettingMixin, WavesurferMixin, FrameMixin, VideoMixin],
   components: {
     WVuwerLayout,
+    WSContextMenu,
     MTCard,
     WVideo,
     WaveSurfer,
@@ -127,18 +128,6 @@ export default {
     WTextGrid
   },
   props: {
-    src: {
-      type: String,
-      requested: true
-    },
-    fps: {
-      type: Number,
-      requested: true
-    },
-    duration: {
-      type: Number,
-      requested: true
-    },
     frameOffset: {
       type: Number,
       default: 1
@@ -153,22 +142,21 @@ export default {
       values: []
     },
     isLoading: false,
-    videoSource: null,
+    videoElm: null,
     videoHeight: 0
   }),
   computed: {
     skipLength: function() {
-      console.log(this.fps / this.duration);
       return this.fps / this.duration;
     }
   },
   methods: {
     onSyncCanvas(payload) {
-      console.log(payload);
+      this.image = payload;
     },
     onLoadeddata: function(payload) {
       if (payload) {
-        this.videoSource = payload;
+        this.videoElm = payload;
         this.$nextTick(() => {
           this.wavesurfer = this.$refs.wavesurfer;
         });

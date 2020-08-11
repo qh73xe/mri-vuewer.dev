@@ -10,7 +10,7 @@ export default {
     originSize: null
   }),
   mutations: {
-    setFilename(state, payload) {
+    setFileName(state, payload) {
       state.filename = payload;
     },
     setSource(state, payload) {

@@ -59,7 +59,7 @@
   </v-form>
 </template>
 <script>
-import settingMixin from "../settingMixin";
+import settingMixin from "../mixins/settingMixin";
 export default {
   name: "WSettingForm",
   data: () => ({
