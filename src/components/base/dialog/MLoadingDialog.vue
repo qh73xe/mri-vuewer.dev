@@ -12,6 +12,10 @@
 export default {
   name: "MLoadingDialog",
   props: {
+    value: {
+      type: Boolean,
+      default: false
+    },
     color: {
       type: String,
       default: "primary"
@@ -25,9 +29,16 @@ export default {
       default: 300
     }
   },
-  data: () => ({
-    dialog: false
-  }),
+  computed: {
+    dialog: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit("input", val);
+      }
+    }
+  },
   methods: {
     close: function() {
       this.dialog = false;

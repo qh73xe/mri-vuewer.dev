@@ -1,82 +1,59 @@
 <template>
   <v-file-input
     :label="`${$vuetify.lang.t('$vuetify.io.mVideoInput.title')}*`"
-    :hint="$vuetify.lang.t('$vuetify.io.MVideoInput.hint')"
-    v-model="file"
     prepend-icon="mdi-file-video"
     accept="*.mp4,*.MP4"
     show-size
-    @change="onChangeFileInput"
+    @change="onChange"
   />
 </template>
 <script>
 import io from "@/io";
+
+const initVideo = () => {
+  return {
+    name: null,
+    source: null,
+    fps: null,
+    duration: null,
+    videoStream: null,
+    audioStream: null,
+    originSize: null
+  };
+};
+
 export default {
   name: "MVideoInput",
-  props: {
-    value: {
-      type: Object,
-      required: true
-    }
-  },
+  data: () => ({
+    video: initVideo()
+  }),
   methods: {
-    onChangeFileInput: async function(e) {
-      this.video.loading = true;
+    clearVideo: function() {
+      this.video = initVideo();
+    },
+    onChange: async function(e) {
+      this.clearVideo();
       if (e) {
+        this.$emit("loading");
         this.video.name = e.name;
+        this.video.source = await io.file.toBase64(e);
         if (e.arrayBuffer) {
           const buff = await e.arrayBuffer();
           io.video.info(buff, res => {
-            this.video.size = res.size;
-            if (res.duration) {
-              this.video.duration = res.duration;
-            }
-            if (res.videoStream) {
-              this.video.fps = res.videoStream.fps
-                ? res.videoStream.fps
-                : this.video.fps;
-              this.video.videoStream = {
-                codec_name: res.videoStream.codec_name,
-                pix_fmt: res.videoStream.pix_fmt,
-                bitrate: res.videoStream.bitrate,
-                fps: res.videoStream.fps,
-                tbc: res.videoStream.tbc,
-                tbn: res.videoStream.tbn,
-                tbr: res.videoStream.tbr
-              };
-            }
-            if (res.audioStream) {
-              this.video.audioStream = {
-                codec_name: res.audioStream.codec_name,
-                sample_rate: res.audioStream.sample_rate,
-                channel_layout: res.audioStream.channel_layout,
-                sample_fmt: res.audioStream.sample_fmt,
-                bitrate: res.audioStream.bitrate
-              };
-            }
+            this.video.fps = res.videoStream.fps;
+            this.video.videoStream = res.videoStream;
+            this.video.audioStream = res.audioStream;
+            this.video.originSize = res.size;
+            this.video.duration = res.duration;
+            this.$emit("loaded", this.video);
           });
-          this.video.dataUrl = await io.file.toBase64(this.video.file);
         } else {
-          this.initItem();
+          this.$emit("loaded", this.video);
         }
-        this.video.loading = false;
       } else {
-        this.initItem();
-        this.video.loading = false;
-      }
-    }
-  },
-  computed: {
-    video: {
-      get() {
-        return this.value;
-      },
-      set(val) {
-        this.$emit("onChangeFileInput", val);
+        this.$emit("loaded", null);
       }
     }
   }
 };
 </script>
-
-<style scoped></style>

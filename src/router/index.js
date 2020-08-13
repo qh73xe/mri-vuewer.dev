@@ -4,10 +4,11 @@ import Home from "../views/Home.vue";
 import MetaManager from "../views/MetaManager.vue";
 import Setting from "../views/Setting.vue";
 import Demo from "../views/Demo.vue";
+import example from "./example.js";
 
 Vue.use(VueRouter);
 
-const routes = [
+let routes = [
   {
     path: "/",
     name: "Home",
@@ -43,6 +44,7 @@ const routes = [
       import(/* webpackChunkName: "about" */ "../views/About.vue")
   }
 ];
+routes = routes.concat(example);
 
 const router = new VueRouter({
   mode: "history",

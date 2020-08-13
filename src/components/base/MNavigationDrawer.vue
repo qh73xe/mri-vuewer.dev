@@ -18,6 +18,22 @@
         </v-list-item>
       </v-list-item-group>
     </v-list>
+    <v-list dense nav v-if="developPages.length > 0">
+      <v-divider />
+      <v-subheader>DEVELOP</v-subheader>
+      <v-list-item-group v-model="current" color="primary">
+        <v-list-item
+          @click="item.to"
+          v-for="item in developPages"
+          :key="item.title"
+          link
+        >
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-item-group>
+    </v-list>
   </v-navigation-drawer>
 </template>
 <script>
@@ -35,21 +51,46 @@ export default {
         this.$store.commit("setDrawer", val);
       }
     },
+    developPages: function() {
+      if (process.env.NODE_ENV) {
+        return this.$router.options.routes
+          .filter(x => {
+            if (x.develop) return true;
+            return false;
+          })
+          .map((x, i) => {
+            if (x.name == this.$route.name) {
+              this.current = i;
+              x.current = true;
+            }
+            x.title = x.name;
+            x.to = () => {
+              this.to({ name: x.name });
+            };
+            return x;
+          });
+      }
+      return [];
+    },
     pages: function() {
-      const pages = this.$router.options.routes.map((x, i) => {
-        if (x.name == this.$route.name) {
-          this.current = i;
-          x.current = true;
-        }
-        x.title = this.$vuetify.lang.t(
-          `$vuetify.pages.${x.name.toLowerCase()}`
-        );
-        x.to = () => {
-          this.to({ name: x.name });
-        };
-        return x;
-      });
-      return pages;
+      return this.$router.options.routes
+        .filter(x => {
+          if (x.develop) return false;
+          return true;
+        })
+        .map((x, i) => {
+          if (x.name == this.$route.name) {
+            this.current = i;
+            x.current = true;
+          }
+          x.title = this.$vuetify.lang.t(
+            `$vuetify.pages.${x.name.toLowerCase()}`
+          );
+          x.to = () => {
+            this.to({ name: x.name });
+          };
+          return x;
+        });
     }
   },
   methods: {
@@ -63,5 +104,4 @@ export default {
   }
 };
 </script>
-
 <style scoped></style>
