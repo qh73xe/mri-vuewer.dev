@@ -13,11 +13,9 @@ const version = callback => {
     },
     onExit: function(code) {
       if (code == 0) {
-        console.info(stdout);
         callback(code, stdout);
       } else {
-        console.info(stderr);
-        callback(code, stdout);
+        throw new Error(stderr);
       }
     }
   });
@@ -59,10 +57,10 @@ const info = (buff, callback) => {
               if (info[1] == "Video") {
                 item.videoStream = {};
                 const sizeText = detail.filter(x =>
-                  x.match(/^([1-9]\d*|0)(\.\d+)?x([1-9]\d*|0)(\.\d+)?$/)
+                  x.match(/^([1-9]\d*|0)(\.\d+)?x([1-9]\d*|0)(\.\d+)?/)
                 )[0];
                 if (sizeText) {
-                  const size = sizeText.split("x");
+                  const size = sizeText.split(" ")[0].split("x");
                   item.size = {
                     width: Number(size[0]),
                     height: Number(size[1])

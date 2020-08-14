@@ -1,15 +1,17 @@
 <template>
   <m-view-layout :heading="heading" :desc="desc">
-    <v-col cols="12" :md="cardCols" v-for="(nav, key) in navs" :key="key">
-      <m-h-card
-        :color="nav.color"
-        :icon="nav.icon"
-        :title="nav.title"
-        sub-icon="mdi-information"
-        :sub-text="nav.subText"
-        :actions="nav.actions"
-      />
-    </v-col>
+    <v-row>
+      <v-col cols="12" :md="cardCols" v-for="(nav, key) in navs" :key="key">
+        <m-h-card
+          :color="nav.color"
+          :icon="nav.icon"
+          :title="nav.title"
+          sub-icon="mdi-information"
+          :sub-text="nav.subText"
+          :actions="nav.actions"
+        />
+      </v-col>
+    </v-row>
   </m-view-layout>
 </template>
 

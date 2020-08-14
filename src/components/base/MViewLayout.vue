@@ -6,7 +6,9 @@
       </v-col>
     </v-row>
     <v-row>
-      <slot></slot>
+      <v-col>
+        <slot></slot>
+      </v-col>
     </v-row>
   </v-container>
 </template>

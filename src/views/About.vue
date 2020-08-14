@@ -1,10 +1,8 @@
 <template>
   <m-view-layout :heading="heading" :desc="desc">
-    <v-col>
-      <section class="text-center">
-        <div class="font-weight-light subtitle-1" v-html="license" />
-      </section>
-    </v-col>
+    <v-card class="text-center">
+      <v-card-text class="font-weight-light subtitle-1" v-html="license" />
+    </v-card>
   </m-view-layout>
 </template>
 
@@ -32,7 +30,6 @@ export default {
               return "</br>";
             }
           });
-          console.log(body.join(""));
           this.license = body.join("");
         });
     }
