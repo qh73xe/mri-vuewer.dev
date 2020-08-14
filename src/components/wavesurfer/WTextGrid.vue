@@ -6,10 +6,10 @@
 <script>
 import MTab from "@/components/base/MTab.vue";
 import WTextGridTable from "./WTextGridTable.vue";
-import WavesurferMixin from "./mixins/wavesurferMixin";
+import MWavesurferMixin from "@/mixins/MWavesurferMixin";
 export default {
   name: "WTextGrid",
-  mixins: [WavesurferMixin],
+  mixins: [MWavesurferMixin],
   components: {
     MTab,
     WTextGridTable

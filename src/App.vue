@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import MAppBar from "./components/base/MAppBar.vue";
-import MNavigationDrawer from "./components/base/MNavigationDrawer.vue";
+import MAppBar from "./components/MAppBar.vue";
+import MNavigationDrawer from "./components/MNavigationDrawer.vue";
 
 export default {
   name: "App",

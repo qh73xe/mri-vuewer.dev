@@ -111,13 +111,13 @@ import WVuwerLayout from "./WVuewerLayout";
 import WVideo from "./WVideo";
 import WTextGrid from "./WTextGrid";
 import WVuwerActions from "./WVuewerActions";
-import SettingMixin from "./mixins/settingMixin";
-import WavesurferMixin from "./mixins/wavesurferMixin";
-import FrameMixin from "./mixins/frameMixin";
-import VideoMixin from "./mixins/videoMixin";
+import MSettingMixin from "@/mixins/MSettingMixin";
+import MWavesurferMixin from "@/mixins/MWavesurferMixin";
+import MFrameMixin from "@/mixins/MFrameMixin";
+import MVideoMixin from "@/mixins/MVideoMixin";
 export default {
   name: "WVuwer",
-  mixins: [SettingMixin, WavesurferMixin, FrameMixin, VideoMixin],
+  mixins: [MSettingMixin, MWavesurferMixin, MFrameMixin, MVideoMixin],
   components: {
     WVuwerLayout,
     WSContextMenu,

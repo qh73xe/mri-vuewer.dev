@@ -28,7 +28,7 @@
 </template>
 <script>
 import MContextMenu from "@/components/base/MContextMenu";
-import FrameMixin from "../mixins/frameMixin.js";
+import FrameMixin from "@/mixins/MFrameMixin.js";
 export default {
   name: "WSContextMenu",
   mixins: [FrameMixin],

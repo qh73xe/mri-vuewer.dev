@@ -73,6 +73,19 @@ export default {
     disc: `In this page, you can configure the MRI Vuewer.`,
     form: {
       wavesurfer: {
+        loading: {
+          label: "File upload settings",
+          shouldGetVideoInfo: {
+            label: "Get video codec at file upload.",
+            hint:
+              "If this check box is false, you need to manually input fps, image size, etc."
+          },
+          shouldGetFrameInfo: {
+            label: "Get all frame images at file upload.",
+            hint:
+              "If this check box is true, the file upload will take longer, but an accurate image display will be performed during video analysis."
+          }
+        },
         waveform: {
           label: "Wave form settings",
           minPxPerSec: {

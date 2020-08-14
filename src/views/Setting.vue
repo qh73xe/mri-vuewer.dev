@@ -12,7 +12,7 @@
 <script>
 import MTCard from "@/components/base/card/MTCard.vue";
 import MViewLayout from "@/components/base/MViewLayout";
-import WSettingFrom from "@/components/wavesurfer/form/WSettingForm.vue";
+import WSettingFrom from "@/components/form/WSettingForm.vue";
 export default {
   name: "Setting",
   components: {

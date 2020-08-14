@@ -30,7 +30,7 @@
 <script>
 import MViewLayout from "@/components/base/MViewLayout";
 import MLoadingDialog from "@/components/base/dialog/MLoadingDialog";
-import MVideoInput from "@/components/io/MVideoInput";
+import MVideoInput from "@/components/form/MVideoInput";
 import OList from "./OList";
 export default {
   name: "get-video-info-input",

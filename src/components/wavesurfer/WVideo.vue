@@ -71,10 +71,10 @@
 </template>
 
 <script>
-import VideoMixin from "./mixins/videoMixin";
+import MVideoMixin from "@/mixins/MVideoMixin";
 export default {
   name: "WVideo",
-  mixins: [VideoMixin],
+  mixins: [MVideoMixin],
   props: {
     frameOffset: {
       type: Number,

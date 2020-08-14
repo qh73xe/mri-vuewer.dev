@@ -34,10 +34,10 @@
   </v-hover>
 </template>
 <script>
-import WavesurferMixin from "./mixins/wavesurferMixin";
+import MWavesurferMixin from "@/mixins/MWavesurferMixin";
 export default {
   name: "WVuewerActions",
-  mixins: [WavesurferMixin],
+  mixins: [MWavesurferMixin],
   methods: {
     playPause: function() {
       this.wavesurfer.playPause();

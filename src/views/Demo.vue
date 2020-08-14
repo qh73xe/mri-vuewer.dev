@@ -46,11 +46,11 @@
 import MViewLayout from "@/components/base/MViewLayout";
 import MTCard from "@/components/base/card/MTCard";
 import WVuewer from "@/components/wavesurfer/WVuewer";
-import VideoMixin from "@/components/wavesurfer/mixins/videoMixin";
+import MVideoMixin from "@/mixins/MVideoMixin";
 import io from "@/io";
 export default {
   name: "Demo",
-  mixins: [VideoMixin],
+  mixins: [MVideoMixin],
   components: {
     MViewLayout,
     MTCard,

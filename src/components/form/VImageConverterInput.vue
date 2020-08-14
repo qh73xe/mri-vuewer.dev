@@ -12,7 +12,7 @@
   </div>
 </template>
 <script>
-import MVideoInput from "@/components/io/MVideoInput";
+import MVideoInput from "@/components/form/MVideoInput";
 export default {
   name: "v-image-converter-input",
   components: { MVideoInput },

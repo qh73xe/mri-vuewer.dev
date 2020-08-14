@@ -2,6 +2,8 @@ import storage from "@/storage/localStorage.js";
 const S = storage.wavesurfer;
 
 const DEFAULTSTATE = {
+  shouldGetVideoInfo: true,
+  shouldGetFrameInfo: true,
   minPxPerSec: 100,
   freqRate: 0.25,
   targetChannel: 0,
@@ -18,6 +20,14 @@ const DS = DEFAULTSTATE;
 export default {
   namespaced: true,
   state: () => ({
+    shouldGetVideoInfo:
+      S.get("shouldGetVideoInfo") == null
+        ? DS.shouldGetVideoInfo
+        : S.get("shouldGetVideoInfo"),
+    shouldGetFrameInfo:
+      S.get("shouldGetFrameInfo") == null
+        ? DS.shouldGetFrameInfo
+        : S.get("shouldGetFrameInfo"),
     minPxPerSec: Number(S.get("minPxPerSec")) || DS.minPxPerSec,
     freqRate: Number(S.get("freqRate")) || DS.freqRate,
     targetChannel: Number(S.get("targetChannel")) || DS.targetChannel,
@@ -38,6 +48,14 @@ export default {
     progressColor: S.get("progressColor") || DS.progressColor
   }),
   mutations: {
+    setShouldGetVideoInfo(state, payload) {
+      state.shouldGetVideoInfo = payload;
+      S.set("shouldGetVideoInfo", payload);
+    },
+    setShouldGetFrameInfo(state, payload) {
+      state.shouldGetFrameInfo = payload;
+      S.set("shouldGetFrameInfo", payload);
+    },
     setMinPxPerSec(state, payload) {
       state.minPxPerSec = Number(payload);
       S.set("minPxPerSec", Number(payload));

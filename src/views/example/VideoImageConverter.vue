@@ -41,7 +41,7 @@
   </m-view-layout>
 </template>
 <script>
-import VImageConverterInput from "@/components/io/VImageConverterInput";
+import VImageConverterInput from "@/components/form/VImageConverterInput";
 import MViewLayout from "@/components/base/MViewLayout";
 import MLoadingDialog from "@/components/base/dialog/MLoadingDialog";
 import MCardDialog from "@/components/base/dialog/MCardDialog";

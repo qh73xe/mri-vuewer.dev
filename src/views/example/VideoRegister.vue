@@ -11,7 +11,7 @@
 </template>
 <script>
 import MViewLayout from "@/components/base/MViewLayout";
-import MVideoInput from "@/components/io/MVideoInput";
+import MVideoInput from "@/components/form/MVideoInput";
 import MLoadingDialog from "@/components/base/dialog/MLoadingDialog";
 import db from "@/storage/db";
 export default {

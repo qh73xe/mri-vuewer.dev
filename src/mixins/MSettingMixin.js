@@ -1,5 +1,21 @@
 export default {
   computed: {
+    shouldGetVideoInfo: {
+      get() {
+        return this.$store.state.wavesurfer.shouldGetVideoInfo;
+      },
+      set(val) {
+        this.$store.commit("wavesurfer/setShouldGetVideoInfo", val);
+      }
+    },
+    shouldGetFrameInfo: {
+      get() {
+        return this.$store.state.wavesurfer.shouldGetFrameInfo;
+      },
+      set(val) {
+        this.$store.commit("wavesurfer/setShouldGetFrameInfo", val);
+      }
+    },
     minPxPerSec: {
       get() {
         return this.$store.state.wavesurfer.minPxPerSec;
