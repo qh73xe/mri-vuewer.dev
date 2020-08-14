@@ -2,7 +2,7 @@ export default {
   namespaced: true,
   state: () => ({
     time: null,
-    image: null,
+    source: null,
     idx: null
   }),
   mutations: {
@@ -12,8 +12,8 @@ export default {
     setIdx(state, payload) {
       state.idx = Math.round(Number(payload));
     },
-    setImage(state, payload) {
-      state.image = payload;
+    setSource(state, payload) {
+      state.source = payload;
     }
   },
   actions: {}

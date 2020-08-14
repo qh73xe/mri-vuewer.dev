@@ -1,11 +1,11 @@
 export default {
   computed: {
-    image: {
+    frameSource: {
       get() {
-        return this.$store.state.current.frame.image;
+        return this.$store.state.current.frame.source;
       },
       set(val) {
-        this.$store.commit("current/frame/setImage", val);
+        this.$store.commit("current/frame/setSource", val);
       }
     },
     frameIdx: {
