@@ -3,7 +3,7 @@
     <v-col>
       <m-t-card title="WAVESURFER SETTING">
         <v-card-text>
-          <w-setting-from />
+          <m-setting-from />
         </v-card-text>
       </m-t-card>
     </v-col>
@@ -12,13 +12,13 @@
 <script>
 import MTCard from "@/components/base/card/MTCard.vue";
 import MViewLayout from "@/components/base/MViewLayout";
-import WSettingFrom from "@/components/form/WSettingForm.vue";
+import MSettingFrom from "@/components/form/MSettingForm.vue";
 export default {
   name: "Setting",
   components: {
     MViewLayout,
     MTCard,
-    WSettingFrom
+    MSettingFrom
   },
   data: () => ({
     heading: "Setting"

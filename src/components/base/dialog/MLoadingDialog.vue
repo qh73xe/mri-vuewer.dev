@@ -1,16 +1,17 @@
 <template>
   <v-dialog v-model="dialog" hide-overlay persistent :width="width">
-    <v-card :color="color" dark>
-      <v-card-text class="pt-3">
-        <slot></slot>
-        <v-progress-linear indeterminate :color="progressColor" class="mb-0" />
-      </v-card-text>
-    </v-card>
+    <m-loading-card :color="color" :progress-color="progressColor">
+      <slot></slot>
+    </m-loading-card>
   </v-dialog>
 </template>
 <script>
+import MLoadingCard from "@/components/base/card/MLoadingCard";
 export default {
   name: "MLoadingDialog",
+  components: {
+    MLoadingCard
+  },
   props: {
     value: {
       type: Boolean,

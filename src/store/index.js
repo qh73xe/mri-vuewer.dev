@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import wavesurfer from "./wavesurfer.js";
+import setting from "./setting.js";
 import current from "./current";
 
 Vue.use(Vuex);
@@ -20,5 +20,5 @@ export default new Vuex.Store({
     }
   },
   actions: {},
-  modules: { wavesurfer, current }
+  modules: { setting, current }
 });

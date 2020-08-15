@@ -4,6 +4,7 @@ const S = storage.wavesurfer;
 const DEFAULTSTATE = {
   shouldGetVideoInfo: true,
   shouldGetFrameInfo: true,
+  maxVideoSize: 5,
   minPxPerSec: 100,
   freqRate: 0.25,
   targetChannel: 0,
@@ -20,6 +21,7 @@ const DS = DEFAULTSTATE;
 export default {
   namespaced: true,
   state: () => ({
+    maxVideoSize: Number(S.get("maxVideoSize")) || DS.maxVideoSize,
     shouldGetVideoInfo:
       S.get("shouldGetVideoInfo") == null
         ? DS.shouldGetVideoInfo
@@ -48,6 +50,10 @@ export default {
     progressColor: S.get("progressColor") || DS.progressColor
   }),
   mutations: {
+    setMaxVideoSize(state, payload) {
+      state.maxVideoSize = Number(payload);
+      S.set("maxVideoSize", Number(payload));
+    },
     setShouldGetVideoInfo(state, payload) {
       state.shouldGetVideoInfo = payload;
       S.set("shouldGetVideoInfo", payload);
@@ -99,6 +105,9 @@ export default {
   },
   actions: {
     setDefault(context) {
+      context.commit("setMaxVideoSize", DS.maxVideoSize);
+      context.commit("setShouldGetVideoInfo", DS.shouldGetVideoInfo);
+      context.commit("setShouldGetFrameInfo", DS.shouldGetFrameInfo);
       context.commit("setMinPxPerSec", DS.minPxPerSec);
       context.commit("setFreqRate", DS.freqRate);
       context.commit("setTargetChannel", DS.targetChannel);

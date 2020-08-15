@@ -1,59 +1,56 @@
 <template>
   <v-file-input
     :label="`${$vuetify.lang.t('$vuetify.io.mVideoInput.title')}*`"
-    prepend-icon="mdi-file-video"
     accept="*.mp4,*.MP4"
+    :rules="rules"
     show-size
     @change="onChange"
   />
 </template>
 <script>
 import io from "@/io";
-
-const initVideo = () => {
-  return {
-    name: null,
-    source: null,
-    fps: null,
-    duration: null,
-    videoStream: null,
-    audioStream: null,
-    originSize: null
-  };
-};
+import RULES from "./rules";
 
 export default {
   name: "MVideoInput",
   data: () => ({
-    video: initVideo()
+    video: io.video.initObj(),
+    rules: []
   }),
   methods: {
-    clearVideo: function() {
-      this.video = initVideo();
-    },
     onChange: async function(e) {
       this.clearVideo();
       if (e) {
-        this.$emit("loading");
-        this.video.name = e.name;
-        this.video.source = await io.file.toBase64(e);
-        if (e.arrayBuffer) {
-          const buff = await e.arrayBuffer();
-          io.video.info(buff, res => {
-            this.video.fps = res.videoStream.fps;
-            this.video.videoStream = res.videoStream;
-            this.video.audioStream = res.audioStream;
-            this.video.originSize = res.size;
-            this.video.duration = res.duration;
-            this.$emit("loaded", this.video);
-          });
-        } else {
-          this.$emit("loaded", this.video);
+        if (e.size < this.maxVideoSize) {
+          this.$emit("loading");
+          this.video.name = e.name;
+          this.video.source = await io.file.toBase64(e);
+          if (e.arrayBuffer) {
+            const buff = await e.arrayBuffer();
+            io.video.info(buff, res => {
+              this.video.fps = res.videoStream.fps;
+              this.video.videoStream = res.videoStream;
+              this.video.audioStream = res.audioStream;
+              this.video.originSize = res.size;
+              this.video.duration = res.duration;
+              this.$emit("loaded", this.video);
+            });
+          }
         }
-      } else {
-        this.$emit("loaded", null);
       }
+    },
+    clearVideo: function() {
+      this.video = io.video.initObj();
     }
+  },
+  computed: {
+    maxVideoSize: function() {
+      return this.$store.state.setting.maxVideoSize * 1000000;
+    }
+  },
+  mounted: function() {
+    const rules = RULES(this);
+    this.rules = rules.videoRules;
   }
 };
 </script>

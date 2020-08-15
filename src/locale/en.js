@@ -1,4 +1,5 @@
 import en from "vuetify/src/locale/en.ts";
+import store from "@/store/index.js";
 const pages = {
   home: "Home",
   meta: "Meta Data",
@@ -36,6 +37,15 @@ const home = {
 
 export default {
   ...en,
+  prev: "Previous",
+  validations: {
+    required: "This field is required!",
+    positiveInteger: "This is a positive integer field!",
+    positiveFloat: "This is a positive float field!",
+    maxVideoSize: `Video size should be less than ${store.state.setting.maxVideoSize} MB!`,
+    hasArrayBuffer: "This is an unexpected video file [No Array buffer]!",
+    less: "this field must be less than {0} characters"
+  },
   wVideo: {
     videoPre: {
       label: "Previous Image"
@@ -47,9 +57,26 @@ export default {
       label: "Next Image"
     }
   },
+  videoResistForm: {
+    finish: "Video registration is complete.",
+    restart: "Add Video.",
+    steps: {
+      select: "File Selection",
+      confirmation: "Codec Confirmation",
+      meta: "Addtion of Meta Data"
+    },
+    desc: {
+      confirmation:
+        "Check the following information and press <kbd>OK</kbd> botton if everything is OK.",
+      meta: `
+      To register a speaker, enter 'speaker' in <code>key field</code> and the speaker name in <code>value field</code>, then, press the <kbd>+</kbd> button.
+      <br />
+      Finally, click the <kbd>OK</kbd> button to register.`
+    }
+  },
   io: {
     mVideoInput: {
-      title: "Your movie",
+      title: "Select your video file (mp4)",
       hint: "supported format is mp4"
     }
   },
@@ -72,56 +99,59 @@ export default {
   setting: {
     disc: `In this page, you can configure the MRI Vuewer.`,
     form: {
-      wavesurfer: {
-        loading: {
-          label: "File upload settings",
-          shouldGetVideoInfo: {
-            label: "Get video codec at file upload.",
-            hint:
-              "If this check box is false, you need to manually input fps, image size, etc."
-          },
-          shouldGetFrameInfo: {
-            label: "Get all frame images at file upload.",
-            hint:
-              "If this check box is true, the file upload will take longer, but an accurate image display will be performed during video analysis."
-          }
+      loading: {
+        label: "File upload settings",
+        maxVideoSize: {
+          label: "Max Video Size",
+          hint:
+            "Registerable video size. If this value is large, the number of data that can be registered will decrease."
         },
-        waveform: {
-          label: "Wave form settings",
-          minPxPerSec: {
-            label: "pixels per sec",
-            hint:
-              "How many pixels do you want to display 1 sec? It is roughly the enlargement ratio in the time direction."
-          },
-          cursorColor: {
-            label: "Cursor Color"
-          },
-          waveColor: {
-            label: "Wave Color"
-          },
-          progressColor: {
-            label: "Progress Color"
-          },
-          showTimeLine: {
-            label: "Display Time Axis"
-          },
-          showSpectrogram: {
-            label: "Display spectrogram"
-          }
+        shouldGetVideoInfo: {
+          label: "Get video codec at file upload.",
+          hint:
+            "If this check box is false, you need to manually input fps, image size, etc."
         },
-        spectrogram: {
-          label: "Spectrogram Settings",
-          targetChannel: {
-            label: "Target Channel"
-          },
-          freqRate: {
-            label: "Frequency Rate",
-            hint:
-              "Frequency display ratio. What percentage of the fft analysis result is displayed.Set a value between 0.25 and 1."
-          },
-          showFreqLabel: {
-            label: "Display Frequency Axis Label"
-          }
+        shouldGetFrameInfo: {
+          label: "Get all frame images at file upload.",
+          hint:
+            "If this check box is true, the file upload will take longer, but an accurate image display will be performed during video analysis."
+        }
+      },
+      waveform: {
+        label: "Wave form settings",
+        minPxPerSec: {
+          label: "pixels per sec",
+          hint:
+            "How many pixels do you want to display 1 sec? It is roughly the enlargement ratio in the time direction."
+        },
+        cursorColor: {
+          label: "Cursor Color"
+        },
+        waveColor: {
+          label: "Wave Color"
+        },
+        progressColor: {
+          label: "Progress Color"
+        },
+        showTimeLine: {
+          label: "Display Time Axis"
+        },
+        showSpectrogram: {
+          label: "Display spectrogram"
+        }
+      },
+      spectrogram: {
+        label: "Spectrogram Settings",
+        targetChannel: {
+          label: "Target Channel"
+        },
+        freqRate: {
+          label: "Frequency Rate",
+          hint:
+            "Frequency display ratio. What percentage of the fft analysis result is displayed.Set a value between 0.25 and 1."
+        },
+        showFreqLabel: {
+          label: "Display Frequency Axis Label"
         }
       }
     }

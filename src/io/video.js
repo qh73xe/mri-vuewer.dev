@@ -101,7 +101,23 @@ const info = (buff, callback) => {
   return result;
 };
 
+const initVideoObject = () => {
+  return {
+    name: null,
+    source: null,
+    fps: null,
+    duration: null,
+    videoStream: null,
+    audioStream: null,
+    originSize: {
+      width: null,
+      height: null
+    }
+  };
+};
+
 export default {
   version: version,
-  info: info
+  info: info,
+  initObj: initVideoObject
 };

@@ -8,14 +8,30 @@
         v-model="shouldGetVideoInfo"
         :label="t(`${locale}.loading.shouldGetVideoInfo.label`)"
       />
-      <span v-text="t(`${locale}.loading.shouldGetVideoInfo.hint`)" />
+      <v-icon small>mdi-information</v-icon>
+      <span
+        class="caption ml-1"
+        v-text="t(`${locale}.loading.shouldGetVideoInfo.hint`)"
+      />
       <v-checkbox
         hide-details
         v-model="shouldGetFrameInfo"
         :label="t(`${locale}.loading.shouldGetFrameInfo.label`)"
       />
-      <span v-text="t(`${locale}.loading.shouldGetFrameInfo.hint`)" />
+      <v-icon small>mdi-information</v-icon>
+      <span
+        class="caption ml-1"
+        v-text="t(`${locale}.loading.shouldGetFrameInfo.hint`)"
+      />
     </div>
+    <v-text-field
+      v-model="maxVideoSize"
+      suffix="MB"
+      :rules="rules.positiveIntegerRules"
+      :label="t(`${locale}.loading.maxVideoSize.label`)"
+      :hint="t(`${locale}.loading.maxVideoSize.hint`)"
+    />
+
     <v-divider />
 
     <div class="my-5">
@@ -23,6 +39,7 @@
       <v-text-field
         v-model="minPxPerSec"
         suffix="px/sec"
+        :rules="rules.positiveIntegerRules"
         :label="t(`${locale}.waveform.minPxPerSec.label`)"
         :hint="t(`${locale}.waveform.minPxPerSec.hint`)"
       />
@@ -69,6 +86,7 @@
       />
       <v-text-field
         v-model="freqRate"
+        :rules="rules.positiveFloatRules"
         :label="t(`${locale}.spectrogram.freqRate.label`)"
         :hint="t(`${locale}.spectrogram.freqRate.hint`)"
       />
@@ -78,23 +96,29 @@
         :label="t(`${locale}.spectrogram.showFreqLabel.label`)"
       />
     </div>
-    <v-btn block @click="setDefaultSetting" color="primary">
-      RESET SETTING
+    <v-btn block @click="setDefaultSetting" color="error">
+      Reset setting
     </v-btn>
   </v-form>
 </template>
 <script>
 import MSettingMixin from "@/mixins/MSettingMixin.js";
+import rules from "./rules.js";
 export default {
-  name: "WSettingForm",
+  name: "MSettingForm",
   mixins: [MSettingMixin],
   data: () => ({
-    locale: "$vuetify.setting.form.wavesurfer"
+    locale: "$vuetify.setting.form",
+    rules: {}
   }),
   methods: {
     t: function(val) {
       return this.$vuetify.lang.t(val);
     }
+  },
+  mounted: function() {
+    const vm = this;
+    this.rules = rules(vm);
   }
 };
 </script>
