@@ -1,6 +1,29 @@
 <template>
   <v-navigation-drawer app v-model="drawer" temporary style="top: 60px">
     <v-list dense nav>
+      <v-list-item v-if="isLoading">
+        <v-list-item-content class="text-center">
+          <v-progress-circular
+            :size="70"
+            :width="7"
+            indeterminate
+            color="primary"
+          />
+          <div class="text-center">
+            now loading db ...
+          </div>
+        </v-list-item-content>
+      </v-list-item>
+      <v-subheader v-else>Files</v-subheader>
+      <v-list-item-group color="primary">
+        <v-list-item v-for="item in files" :key="item.id" link>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.name }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-item-group>
+    </v-list>
+    <v-list dense nav>
       <v-subheader>Pages</v-subheader>
       <v-list-item-group v-model="current" color="primary">
         <v-list-item
@@ -43,6 +66,15 @@ export default {
     current: null
   }),
   computed: {
+    isLoading: function() {
+      return this.$store.state.files.isLoading;
+    },
+    files: function() {
+      if (this.isLoading) return [];
+      return this.$store.state.files.files.map(x => {
+        return { id: x.id, name: x.name };
+      });
+    },
     drawer: {
       get() {
         return this.$store.state.drawer;

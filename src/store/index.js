@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import setting from "./setting.js";
 import current from "./current";
+import files from "./files";
 
 Vue.use(Vuex);
 
@@ -20,5 +21,5 @@ export default new Vuex.Store({
     }
   },
   actions: {},
-  modules: { setting, current }
+  modules: { setting, current, files }
 });

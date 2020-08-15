@@ -18,6 +18,9 @@ export default {
     MAppBar,
     MNavigationDrawer
   },
-  data: () => ({})
+  data: () => ({}),
+  mounted: function() {
+    this.$store.dispatch("files/init");
+  }
 };
 </script>
