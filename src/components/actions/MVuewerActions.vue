@@ -37,18 +37,7 @@
 import MWavesurferMixin from "@/mixins/MWavesurferMixin";
 export default {
   name: "WVuewerActions",
-  mixins: [MWavesurferMixin],
-  methods: {
-    playPause: function() {
-      this.wavesurfer.playPause();
-    },
-    skipBackward: function() {
-      this.wavesurfer.skipBackward();
-    },
-    skipForward: function() {
-      this.wavesurfer.skipForward();
-    }
-  }
+  mixins: [MWavesurferMixin]
 };
 </script>
 

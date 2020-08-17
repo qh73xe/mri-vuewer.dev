@@ -5,11 +5,23 @@ const pages = {
   meta: "Meta Data",
   demo: "Line Demo",
   setting: "Setting",
-  about: "About"
+  about: "About",
+  db: {
+    clear: "Clear DB",
+    dump: "Export DB",
+    load: "Load DB (JSON)",
+    add: "Video Registration"
+  },
+  on: {
+    destroy: "{0} was deleted.",
+    dump: "The DB was exported.",
+    load: "The DB was uploaded",
+    clear: "All videos were deleted."
+  }
 };
 const homeActions = {
   upload: {
-    title: "Video Registration",
+    title: pages.db.add,
     hint: "Import your video file for annotation"
   },
   manage: {
@@ -41,6 +53,7 @@ export default {
   validations: {
     required: "This field is required!",
     positiveInteger: "This is a positive integer field!",
+    positiveIntegerOrError: "This is a positive integer or -1 field!",
     positiveFloat: "This is a positive float field!",
     maxVideoSize: `Video size should be less than ${store.state.setting.maxVideoSize} MB!`,
     hasArrayBuffer: "This is an unexpected video file [No Array buffer]!",
@@ -57,9 +70,25 @@ export default {
       label: "Next Image"
     }
   },
+  dbImportForm: {
+    title: "DB IMPORT FORM",
+    warning:
+      "Existing data will be lost when this process is performed. Do you want to process it?",
+    messages: {
+      stop: "Canceled the db importing.",
+      success: "The db was updating successfully!",
+      outofmemory: "The db updating failed [out of memory]"
+    }
+  },
   videoResistForm: {
+    title: "VIDEO REGISTRATION FORM",
     finish: "Video registration is complete.",
     restart: "Add Video.",
+    messages: {
+      stop: "Canceled the video registration.",
+      success: "The video was registered successfully!",
+      outofmemory: "Video registration failed [out of memory]"
+    },
     steps: {
       select: "File Selection",
       confirmation: "Codec Confirmation",
@@ -75,6 +104,11 @@ export default {
     }
   },
   io: {
+    db: {
+      json: {
+        title: "Select your db file (json)"
+      }
+    },
     mVideoInput: {
       title: "Select your video file (mp4)",
       hint: "supported format is mp4"
@@ -99,6 +133,14 @@ export default {
   setting: {
     disc: `In this page, you can configure the MRI Vuewer.`,
     form: {
+      app: {
+        label: "System settings",
+        timeout: {
+          label: "System message time out",
+          hint:
+            "Sets the timeout period for system messages. Setting this field to -1 will prevent automatic hiding."
+        }
+      },
       loading: {
         label: "File upload settings",
         maxVideoSize: {

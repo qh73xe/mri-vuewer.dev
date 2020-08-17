@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
+import Vuewer from "../views/Vuewer.vue";
 import MetaManager from "../views/MetaManager.vue";
 import Setting from "../views/Setting.vue";
 import Demo from "../views/Demo.vue";
@@ -21,6 +22,8 @@ let routes = [
     icon: "mdi-database-search",
     component: MetaManager
   },
+  { path: "/files/", component: Vuewer },
+  { path: "/files/:id", component: Vuewer },
   {
     path: "/demo",
     name: "Demo",

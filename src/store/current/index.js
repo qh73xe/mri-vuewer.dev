@@ -7,10 +7,10 @@ export default {
     textgrid: null
   }),
   mutations: {
-    setWaveSurfer(state, payload) {
+    waveSurfer(state, payload) {
       state.wavesurfer = payload;
     },
-    setTextGrid(state, payload) {
+    textGrid(state, payload) {
       state.textgrid = payload;
     }
   },

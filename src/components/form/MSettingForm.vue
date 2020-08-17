@@ -102,23 +102,18 @@
   </v-form>
 </template>
 <script>
-import MSettingMixin from "@/mixins/MSettingMixin.js";
-import rules from "./rules.js";
+import MSettingMixin from "@/mixins/MSettingMixin";
+import MValidationMixin from "@/mixins/MValidationMixin";
 export default {
   name: "MSettingForm",
-  mixins: [MSettingMixin],
+  mixins: [MSettingMixin, MValidationMixin],
   data: () => ({
-    locale: "$vuetify.setting.form",
-    rules: {}
+    locale: "$vuetify.setting.form"
   }),
   methods: {
     t: function(val) {
       return this.$vuetify.lang.t(val);
     }
-  },
-  mounted: function() {
-    const vm = this;
-    this.rules = rules(vm);
   }
 };
 </script>

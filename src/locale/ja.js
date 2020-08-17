@@ -5,11 +5,23 @@ const pages = {
   meta: "メタデータ管理",
   demo: "ライブデモ",
   setting: "設定",
-  about: "このアプリについて"
+  about: "このアプリについて",
+  db: {
+    clear: "データベースの削除",
+    dump: "データベースのエクスポート",
+    load: "データベースのインポート (JSON)",
+    add: "ビデオ登録"
+  },
+  on: {
+    destroy: "{0} のデータは削除されました.",
+    dump: "データベースはエクスポートされました.",
+    load: "データベースは更新されました",
+    clear: "すべてのデータを削除しました"
+  }
 };
 const homeActions = {
   upload: {
-    title: "ビデオ登録",
+    title: pages.db.add,
     hint: "アノテーション用の動画ファイルをインポートします"
   },
   manage: {
@@ -41,12 +53,28 @@ export default {
   validations: {
     required: "この項目は必須項目です!",
     positiveInteger: "この項目は正の整数です!",
+    positiveIntegerOrError: "この項目は正の整数または -1 です",
     positiveFloat: "この項目は正の数値です!",
     maxVideoSize: `登録可能な動画ファイルサイズは ${store.state.setting.maxVideoSize} MB までです!`,
     hasArrayBuffer: "想定外の動画ファイルです [No Array buffer]!",
     less: "この値は {0} 文字以下です."
   },
+  dbImportForm: {
+    title: "データベースインポートフォーム",
+    warning: "この処理を実行すると既存のデータは失われます.処理を実行しますか?",
+    messages: {
+      stop: "データベースのインポートを停止しました",
+      success: "データベースのインポートに成功しました",
+      outofmemory: "データベースのインポートに失敗しました [out of memory]"
+    }
+  },
   videoResistForm: {
+    title: "動画登録フォーム",
+    messages: {
+      stop: "動画の登録が中止されました",
+      success: "動画が登録されました",
+      outofmemory: "動画の登録に失敗しました [out of memory]"
+    },
     finish: "動画の登録に成功しました",
     restart: "別の動画を登録する",
     steps: {
@@ -82,6 +110,11 @@ export default {
     }
   },
   io: {
+    db: {
+      json: {
+        title: "DB データを選択してください (json)"
+      }
+    },
     mVideoInput: {
       title: "動画ファイルを選択",
       hint: "supported format is mp4"
@@ -108,6 +141,14 @@ export default {
   setting: {
     disc: `このページでは MRI Vuewer の設定を行うことができます.`,
     form: {
+      app: {
+        label: "システム設定",
+        timeout: {
+          label: "メッセージタイムアウト",
+          hint:
+            "システムメッセージのタイムアウト時間を設定します.この項目が -1 の場合, メッセージの自動非表示処理が抑制されます."
+        }
+      },
       loading: {
         label: "ファイル登録設定",
         maxVideoSize: {

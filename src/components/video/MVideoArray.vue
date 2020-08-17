@@ -3,16 +3,6 @@
     <v-row>
       <v-col cols="4" class="pa-0">
         <v-card tile flat color="transparent">
-          <v-system-bar
-            dark
-            :color="headerColor"
-            :class="systemBarClass"
-            v-if="$vuetify.breakpoint.mdAndUp"
-          >
-            <v-spacer />
-            {{ t("videoPre.label") }}
-            <v-spacer />
-          </v-system-bar>
           <video
             v-if="videoSource"
             muted
@@ -24,16 +14,6 @@
       </v-col>
       <v-col cols="4" class="pa-0">
         <v-card tile flat color="transparent">
-          <v-system-bar
-            dark
-            v-if="$vuetify.breakpoint.mdAndUp"
-            :color="headerColor"
-            :class="systemBarClass"
-          >
-            <v-spacer />
-            {{ t("video.label") }}
-            <v-spacer />
-          </v-system-bar>
           <video
             v-if="videoSource"
             ref="video"
@@ -47,16 +27,6 @@
       </v-col>
       <v-col cols="4" class="pa-0">
         <v-card tile flat color="transparent">
-          <v-system-bar
-            dark
-            v-if="$vuetify.breakpoint.mdAndUp"
-            :color="headerColor"
-            :class="systemBarClass"
-          >
-            <v-spacer />
-            {{ t("videoPos.label") }}
-            <v-spacer />
-          </v-system-bar>
           <video
             muted
             v-if="videoSource"

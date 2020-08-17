@@ -108,7 +108,6 @@ import MVideoCodecForm from "@/components/form/MVideoCodecForm";
 import MVideoMetaDataForm from "@/components/form/MVideoMetaDetaForm";
 import MSettingMixin from "@/mixins/MSettingMixin.js";
 import io from "@/io";
-import db from "@/storage/db";
 export default {
   name: "m-video-regist-from",
   mixins: [MSettingMixin],
@@ -172,6 +171,17 @@ export default {
     t: function(val) {
       return this.$vuetify.lang.t(val);
     },
+    pushFile: function() {
+      this.$store
+        .dispatch("files/push", this.video)
+        .then(x => {
+          this.isSaved = true;
+          this.$emit("loaded", x);
+        })
+        .catch(error => {
+          this.$emit("error", error);
+        });
+    },
     restart: function() {
       this.e1 = 1;
       this.loading = { show: false, status: "" };
@@ -205,27 +215,26 @@ export default {
       } else {
         this.converting.doing = false;
         if (this.isFinishEditMeta) {
-          db.files.put(this.video).then(x => {
-            this.$emit("loaded", x);
-            this.isSaved = true;
-          });
+          this.pushFile();
         }
       }
     },
     saveFrame: function() {
       const video = this.$refs.video;
       const canvas = this.$refs.canvas;
-      canvas.width = this.video.originSize.width;
-      canvas.height = this.video.originSize.height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0);
-      if (this.video.frames) {
-        this.video.frames.push({
-          src: canvas.toDataURL(),
-          step: this.step,
-          time: this.$refs.video.currentTime
-        });
-        this.next();
+      if (this.video) {
+        canvas.width = this.video.originSize.width;
+        canvas.height = this.video.originSize.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+        if (this.video.frames) {
+          this.video.frames.push({
+            src: canvas.toDataURL(),
+            step: this.step,
+            time: this.$refs.video.currentTime
+          });
+          this.next();
+        }
       }
     },
     prevStep() {
@@ -289,15 +298,17 @@ export default {
         this.video.textgrid = {};
         this.isFinishEditMeta = true;
         if (!this.converting.doing) {
-          db.files.put(this.video).then(x => {
-            this.$emit("loaded", x);
-            this.isSaved = true;
-          });
+          if (this.video) {
+            this.pushFile();
+          }
         }
       } else {
         this.video.metaData = {};
       }
     }
+  },
+  beforeDestroy: function() {
+    this.video = null;
   }
 };
 </script>

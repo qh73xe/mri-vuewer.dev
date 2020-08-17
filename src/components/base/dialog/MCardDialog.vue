@@ -18,6 +18,9 @@
       :toolbar-actions="toolbarActions"
       :dense="dense"
     >
+      <template v-slot:toolbar-actions>
+        <slot name="toolbar-actions"> </slot>
+      </template>
       <slot></slot>
     </m-t-card>
   </v-dialog>

@@ -14,25 +14,24 @@
     <v-file-input
       v-else
       :label="`${t('$vuetify.io.mVideoInput.title')}*`"
-      :rules="rules"
-      accept="*.mp4,*.MP4"
+      :rules="videoRules"
+      accept="video/mp4"
       show-size
       @change="onChange"
     />
   </v-form>
 </template>
 <script>
-import RULES from "./rules";
+import MValidationMixin from "@/mixins/MValidationMixin";
 import MSettingMixin from "@/mixins/MSettingMixin.js";
 import MVideoInput from "@/components/form/MVideoInput";
 import io from "@/io";
 export default {
   name: "m-video-file-form",
-  mixins: [MSettingMixin],
+  mixins: [MValidationMixin, MSettingMixin],
   components: { MVideoInput },
   data: () => ({
-    video: io.video.initObj(),
-    rules: []
+    video: io.video.initObj()
   }),
   methods: {
     t: function(val) {
@@ -61,10 +60,6 @@ export default {
     maxVideoSize: function() {
       return this.$store.state.setting.maxVideoSize * 1000000;
     }
-  },
-  mounted: function() {
-    const rules = RULES(this);
-    this.rules = rules.videoRules;
   }
 };
 </script>

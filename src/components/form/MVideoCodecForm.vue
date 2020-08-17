@@ -33,12 +33,12 @@
 </template>
 <script>
 import io from "@/io";
-import rules from "./rules.js";
+import MValidationMixin from "@/mixins/MValidationMixin";
 export default {
   name: "m-video-codec-form",
+  mixins: [MValidationMixin],
   data: () => ({
     video: io.video.initObj(),
-    rules: {},
     valid: false
   }),
   props: {
@@ -74,9 +74,7 @@ export default {
     }
   },
   mounted: function() {
-    const vm = this;
     this.video = JSON.parse(JSON.stringify(this.value));
-    this.rules = rules(vm);
   }
 };
 </script>

@@ -31,7 +31,7 @@
           </div>
         </v-card-text>
         <v-container fluid v-else-if="videoSource">
-          <w-vuewer
+          <m-vuewer
             ref="video"
             :src="videoSource"
             :fps="fps"
@@ -45,7 +45,7 @@
 <script>
 import MViewLayout from "@/components/base/MViewLayout";
 import MTCard from "@/components/base/card/MTCard";
-import WVuewer from "@/components/wavesurfer/WVuewer";
+import MVuewer from "@/components/MVuewer";
 import MVideoMixin from "@/mixins/MVideoMixin";
 import io from "@/io";
 export default {
@@ -54,7 +54,7 @@ export default {
   components: {
     MViewLayout,
     MTCard,
-    WVuewer
+    MVuewer
   },
   data: () => ({
     heading: "Live Demo",

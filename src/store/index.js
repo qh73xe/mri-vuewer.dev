@@ -1,5 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
+
+import wcards from "./wcards.js";
+import snackbar from "./snackbar.js";
+
 import setting from "./setting.js";
 import current from "./current";
 import files from "./files";
@@ -16,10 +20,19 @@ export default new Vuex.Store({
     drawer: false
   },
   mutations: {
+    max_z_index: function(state, val) {
+      state.max_z_index = val;
+    },
     setDrawer: function(state, val) {
       state.drawer = val;
     }
   },
   actions: {},
-  modules: { setting, current, files }
+  modules: {
+    snackbar,
+    wcards,
+    setting,
+    current,
+    files
+  }
 });

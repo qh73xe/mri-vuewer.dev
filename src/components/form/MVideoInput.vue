@@ -1,21 +1,21 @@
 <template>
   <v-file-input
     :label="`${$vuetify.lang.t('$vuetify.io.mVideoInput.title')}*`"
-    accept="*.mp4,*.MP4"
-    :rules="rules"
+    accept="video/mp4"
+    :rules="videoRules"
     show-size
     @change="onChange"
   />
 </template>
 <script>
 import io from "@/io";
-import RULES from "./rules";
+import MValidationMixin from "@/mixins/MValidationMixin";
 
 export default {
   name: "MVideoInput",
+  mixins: [MValidationMixin],
   data: () => ({
-    video: io.video.initObj(),
-    rules: []
+    video: io.video.initObj()
   }),
   methods: {
     onChange: async function(e) {
@@ -47,10 +47,6 @@ export default {
     maxVideoSize: function() {
       return this.$store.state.setting.maxVideoSize * 1000000;
     }
-  },
-  mounted: function() {
-    const rules = RULES(this);
-    this.rules = rules.videoRules;
   }
 };
 </script>

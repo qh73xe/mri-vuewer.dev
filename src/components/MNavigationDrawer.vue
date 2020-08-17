@@ -1,31 +1,34 @@
 <template>
-  <v-navigation-drawer app v-model="drawer" temporary style="top: 60px">
-    <v-list dense nav>
-      <v-list-item v-if="isLoading">
-        <v-list-item-content class="text-center">
-          <v-progress-circular
-            :size="70"
-            :width="7"
-            indeterminate
-            color="primary"
-          />
-          <div class="text-center">
-            now loading db ...
-          </div>
+  <v-navigation-drawer
+    app
+    v-model="drawer"
+    temporary
+    style="top: 60px"
+    class="py-0"
+    width="400px"
+  >
+    <v-list dense nav color="blue-grey" dark>
+      <v-list-item two-line>
+        <v-list-item-avatar>
+          <v-img :src="require('../assets/logo2.svg')" />
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title>{{ $store.state.appName }}</v-list-item-title>
+          <v-list-item-subtitle>
+            Copyright &copy; {{ $store.state.devYear }} by
+            {{ $store.state.author }}
+          </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
-      <v-subheader v-else>Files</v-subheader>
-      <v-list-item-group color="primary">
-        <v-list-item v-for="item in files" :key="item.id" link>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.name }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list-item-group>
     </v-list>
-    <v-list dense nav>
-      <v-subheader>Pages</v-subheader>
-      <v-list-item-group v-model="current" color="primary">
+    <v-divider />
+
+    <v-list dense nav class="pa-0">
+      <v-list-group prepend-icon="mdi-apps" sub-group value="true">
+        <template v-slot:activator>
+          <v-list-item-title>PAGES</v-list-item-title>
+        </template>
+        <v-divider />
         <v-list-item
           @click="item.to"
           v-for="item in pages"
@@ -39,12 +42,94 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      </v-list-item-group>
-    </v-list>
-    <v-list dense nav v-if="developPages.length > 0">
+      </v-list-group>
       <v-divider />
-      <v-subheader>DEVELOP</v-subheader>
-      <v-list-item-group v-model="current" color="primary">
+
+      <v-list-group
+        v-if="files.length > 0"
+        prepend-icon="mdi-menu-open"
+        sub-group
+        :value="false"
+      >
+        <template v-slot:activator>
+          <v-list-item-title>FILES</v-list-item-title>
+        </template>
+        <v-divider />
+        <v-list-item
+          @click="to({ id: item.id })"
+          v-for="item in files"
+          :key="item.id"
+          link
+        >
+          <v-list-item-avatar>
+            <v-img :src="item.src" />
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.name }}</v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-btn @click.stop="fileDestroy(item)" icon>
+              <v-icon color="error">mdi-delete</v-icon>
+            </v-btn>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list-group>
+      <v-divider />
+
+      <v-list-group prepend-icon="mdi-database" sub-group :value="false">
+        <template v-slot:activator>
+          <v-list-item-title>DATABASE</v-list-item-title>
+        </template>
+
+        <v-list-item @click="dbDump" link>
+          <v-list-item-icon>
+            <v-icon>mdi-database-export</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $vuetify.lang.t("$vuetify.pages.db.dump") }}
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item @click="dbLoad" link>
+          <v-list-item-icon>
+            <v-icon>mdi-database-import</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $vuetify.lang.t("$vuetify.pages.db.load") }}
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item @click="dbAdd" link>
+          <v-list-item-icon>
+            <v-icon>mdi-database-plus</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $vuetify.lang.t("$vuetify.pages.db.add") }}
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item @click="dbClear" link>
+          <v-list-item-icon>
+            <v-icon color="error">mdi-database-remove</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title class="error--text">
+              {{ $vuetify.lang.t("$vuetify.pages.db.clear") }}
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-group>
+
+      <v-list-group prepend-icon="mdi-flask" sub-group :value="false">
+        <template v-slot:activator>
+          <v-list-item-title>DEVELOP</v-list-item-title>
+        </template>
         <v-list-item
           @click="item.to"
           v-for="item in developPages"
@@ -55,25 +140,39 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      </v-list-item-group>
+      </v-list-group>
     </v-list>
+
+    <m-file-upload-dialog v-model="uploadDialog" />
+    <m-db-import-dialog v-model="dbImportDialog" />
   </v-navigation-drawer>
 </template>
 <script>
+import MFileUploadDialog from "@/components/dialogs/MFileUploadDialog";
+import MDbImportDialog from "@/components/dialogs/MDbImportDialog";
 export default {
   name: "MNavigationDrawer",
+  components: { MFileUploadDialog, MDbImportDialog },
   data: () => ({
-    current: null
+    current: null,
+    uploadDialog: false,
+    dbImportDialog: false
   }),
   computed: {
     isLoading: function() {
       return this.$store.state.files.isLoading;
     },
     files: function() {
-      if (this.isLoading) return [];
-      return this.$store.state.files.files.map(x => {
-        return { id: x.id, name: x.name };
-      });
+      const files = this.$store.state.files.files;
+      if (!this.isLoading && files.length) {
+        return files.map(x => {
+          if (x.frames && x.frames.length > 1) {
+            return { id: x.id, name: x.name, src: x.frames[1].src };
+          }
+          return { id: x.id, name: x.name };
+        });
+      }
+      return [];
     },
     drawer: {
       get() {
@@ -108,7 +207,7 @@ export default {
       return this.$router.options.routes
         .filter(x => {
           if (x.develop) return false;
-          return true;
+          return x.name;
         })
         .map((x, i) => {
           if (x.name == this.$route.name) {
@@ -132,6 +231,63 @@ export default {
           this.$router.push(payload);
         }
       }
+      if (payload.id) {
+        this.$router.push({ path: `/files/${payload.id}` });
+      }
+    },
+    dbAdd: function() {
+      this.uploadDialog = true;
+      this.drawer = false;
+    },
+    dbLoad: function() {
+      this.dbImportDialog = true;
+      this.drawer = false;
+    },
+    dbDump: function() {
+      this.$store
+        .dispatch("files/dump")
+        .then(() => {
+          const message = this.$vuetify.lang.t("$vuetify.pages.on.dump");
+          this.$store.dispatch("snackbar/success", message);
+        })
+        .catch(error => {
+          this.$store.dispatch("snackbar/error", error.message);
+          console.error(error);
+        })
+        .finally(() => {
+          this.drawer = false;
+        });
+    },
+    dbClear: function() {
+      this.$store
+        .dispatch("files/clear")
+        .then(() => {
+          const message = this.$vuetify.lang.t("$vuetify.pages.on.clear");
+          this.$store.dispatch("snackbar/success", message);
+          this.drawer = false;
+          this.to({ name: "Home" });
+        })
+        .catch(error => {
+          this.$store.dispatch("snackbar/error", error.message);
+          console.error(error);
+        });
+    },
+    fileDestroy: function(item) {
+      const name = item.name;
+      this.$store
+        .dispatch("files/destroy", item.id)
+        .then(() => {
+          const message = this.$vuetify.lang.t(
+            "$vuetify.pages.on.destroy",
+            name
+          );
+          this.$store.dispatch("snackbar/success", message);
+        })
+        .catch(error => {
+          this.$store.dispatch("snackbar/error", error.message);
+          console.error(error);
+          this.drawer = false;
+        });
     }
   }
 };

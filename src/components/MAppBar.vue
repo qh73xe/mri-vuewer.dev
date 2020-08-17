@@ -1,8 +1,9 @@
 <template>
   <v-app-bar app color="primary" dark style="z-index:99">
     <v-app-bar-nav-icon @click="drawer = !drawer" />
-    <v-toolbar-title>{{ name }} ver. {{ version }}</v-toolbar-title>
+    <v-toolbar-title> {{ title }} </v-toolbar-title>
     <v-spacer></v-spacer>
+    <v-toolbar-title class="mr-3"> {{ fileInfo }} </v-toolbar-title>
     <v-btn icon @click="to({ name: 'Home' })">
       <v-icon>mdi-home</v-icon>
     </v-btn>
@@ -39,6 +40,19 @@ export default {
       get() {
         return this.$store.state.appVersion;
       }
+    },
+    title: function() {
+      return `${this.name} ver ${this.version}`;
+    },
+    fileInfo: function() {
+      const filename = this.$store.state.current.video.filename;
+      if (filename) {
+        const name = filename.split(".")[0];
+        const fps = this.$store.state.current.video.fps;
+        const duration = this.$store.state.current.video.duration;
+        return `${name}: ${fps} fps : ${duration} sec`;
+      }
+      return null;
     },
     drawer: {
       get() {
