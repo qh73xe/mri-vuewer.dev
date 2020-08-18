@@ -85,6 +85,20 @@
         </v-card>
       </v-stepper-content>
     </v-stepper-items>
+
+    <video
+      v-if="shouldGetFrameInfo"
+      v-show="false"
+      ref="video"
+      :src="converting.src"
+      @timeupdate="saveFrame"
+    />
+    <canvas
+      v-if="shouldGetFrameInfo"
+      v-show="false"
+      ref="canvas"
+      :style="canvasStyle"
+    />
   </v-stepper>
 </template>
 <script>
@@ -189,23 +203,38 @@ export default {
       this.video.frames = [];
       this.converting.step = 0;
       this.converting.total = Math.floor(this.video.duration * this.video.fps);
-
+      this.converting.src = this.video.source;
+    },
+    next: function() {
       const frameRate = 1 / this.video.fps;
-      let currentTime = 0;
-      while (this.converting.step < this.converting.total) {
+      const currentTime = this.$refs.video.currentTime || 0;
+      const nextTime = currentTime + frameRate;
+      if (nextTime < this.video.duration) {
         this.converting.step++;
-        currentTime = currentTime + frameRate;
-        this.video.frames.push({
-          i: this.converting.step,
-          time: currentTime,
-          points: [],
-          rects: []
-        });
+        this.$refs.video.currentTime = nextTime;
+      } else {
+        this.converting.doing = false;
+        if (this.isFinishEditMeta) {
+          this.pushFile();
+        }
       }
-
-      this.converting.doing = false;
-      if (this.isFinishEditMeta) {
-        this.pushFile();
+    },
+    saveFrame: function() {
+      const video = this.$refs.video;
+      const canvas = this.$refs.canvas;
+      if (this.video) {
+        canvas.width = this.video.originSize.width;
+        canvas.height = this.video.originSize.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+        if (this.video.frames) {
+          this.video.frames.push({
+            src: canvas.toDataURL(),
+            step: this.converting.step,
+            time: this.$refs.video.currentTime
+          });
+          this.next();
+        }
       }
     },
     prevStep() {

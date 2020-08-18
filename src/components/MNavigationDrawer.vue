@@ -61,9 +61,6 @@
           :key="item.id"
           link
         >
-          <v-list-item-avatar>
-            <v-img :src="item.src" />
-          </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title>{{ item.name }}</v-list-item-title>
           </v-list-item-content>
@@ -166,9 +163,6 @@ export default {
       const files = this.$store.state.files.files;
       if (!this.isLoading && files.length) {
         return files.map(x => {
-          if (x.frames && x.frames.length > 1) {
-            return { id: x.id, name: x.name, src: x.frames[1].src };
-          }
           return { id: x.id, name: x.name };
         });
       }
