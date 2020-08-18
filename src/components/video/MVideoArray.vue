@@ -1,40 +1,35 @@
 <template>
-  <v-container fluid class="py-0">
-    <v-row>
-      <v-col class="pa-0">
-        <v-card tile flat color="transparent">
-          <video muted ref="videoPre" :style="videoStyle" :src="videoSource" />
-        </v-card>
-      </v-col>
+  <m-video-array-layout>
+    <template v-slot:prev>
+      <video muted ref="prev" :style="videoStyle" :src="src" />
+    </template>
+    <video
+      ref="video"
+      @loadeddata="onLoadeddata"
+      @timeupdate="onTimeupdate"
+      :style="videoStyle"
+      :src="src"
+    />
+    <canvas ref="canvas" v-show="false" :style="videoStyle" />
 
-      <v-col class="pa-0">
-        <v-card tile flat color="transparent">
-          <video
-            ref="video"
-            @loadeddata="onLoadeddata"
-            @timeupdate="onTimeupdate"
-            :style="videoStyle"
-            :src="videoSource"
-          />
-          <canvas ref="canvas" v-show="false" :style="videoStyle" />
-        </v-card>
-      </v-col>
-
-      <v-col class="pa-0">
-        <v-card tile flat color="transparent">
-          <video muted ref="videoPos" :style="videoStyle" :src="videoSource" />
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+    <template v-slot:next>
+      <video muted ref="next" :style="videoStyle" :src="src" />
+    </template>
+  </m-video-array-layout>
 </template>
 
 <script>
+import MVideoArrayLayout from "@/components/layouts/MVideoArrayLayout.vue";
 import MVideoMixin from "@/mixins/MVideoMixin";
 export default {
   name: "WVideo",
+  components: { MVideoArrayLayout },
   mixins: [MVideoMixin],
   props: {
+    src: {
+      type: String,
+      required: true
+    },
     frameOffset: {
       type: Number,
       default: 1
@@ -67,11 +62,11 @@ export default {
         const offsetTime = this.frameOffset * this.frameRate;
         if (currentTime - offsetTime > 0) {
           const time = currentTime - offsetTime;
-          this.$refs.videoPre.currentTime = time;
+          this.$refs.prev.currentTime = time;
         }
         if (offsetTime + currentTime < this.getDuration()) {
           const time = currentTime + offsetTime;
-          this.$refs.videoPos.currentTime = time;
+          this.$refs.next.currentTime = time;
         }
       }
     },

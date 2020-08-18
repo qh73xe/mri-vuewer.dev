@@ -21,9 +21,7 @@
         <v-card>
           <span>{{ stepName }}</span>
           <v-card-text>
-            <div
-              v-html="`${t('$vuetify.videoResistForm.desc.confirmation')}`"
-            />
+            <div v-html="`${t('$vuetify.forms.video.desc.confirmation')}`" />
             <m-video-codec-form
               v-if="e1 == 2"
               @valideted="onValidateCodec"
@@ -46,7 +44,7 @@
         <v-card v-if="isFinishEditMeta">
           <v-card-text v-if="isSaved">
             <v-alert type="success">
-              {{ t("$vuetify.videoResistForm.finish") }}
+              {{ t("$vuetify.forms.video.finish") }}
             </v-alert>
           </v-card-text>
           <m-loading-card v-else :value="progress">
@@ -57,7 +55,7 @@
             <slot name="finishedActions">
               <v-spacer />
               <v-btn color="primary" @click="restart">
-                {{ t("$vuetify.videoResistForm.restart") }}
+                {{ t("$vuetify.forms.video.restart") }}
               </v-btn>
             </slot>
           </v-card-actions>
@@ -67,7 +65,7 @@
           <v-card-text>
             <div
               class="mb-5"
-              v-html="`${t('$vuetify.videoResistForm.desc.meta')}`"
+              v-html="`${t('$vuetify.forms.video.desc.meta')}`"
             />
             <m-video-meta-data-form
               @valideted="onValidateMetaData"
@@ -145,9 +143,7 @@ export default {
       return 0;
     },
     stepName: function() {
-      return this.t(
-        `$vuetify.videoResistForm.steps.${this.steps[this.e1 - 1]}`
-      );
+      return this.t(`$vuetify.forms.video.steps.${this.steps[this.e1 - 1]}`);
     },
     nSteps: function() {
       return this.steps.length;

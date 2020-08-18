@@ -105,7 +105,7 @@
 import MSettingMixin from "@/mixins/MSettingMixin";
 import MValidationMixin from "@/mixins/MValidationMixin";
 export default {
-  name: "MSettingForm",
+  name: "m-setting-form",
   mixins: [MSettingMixin, MValidationMixin],
   data: () => ({
     locale: "$vuetify.setting.form"

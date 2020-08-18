@@ -1,6 +1,6 @@
 <template>
-  <v-container class="pa-0 grey lighten-2 fill-height" fluid>
-    <v-col class="pa-0" v-if="originSize">
+  <v-container class="pa-0 transparent fill-height" fluid>
+    <v-col class="pa-0">
       <v-card flat tile>
         <v-row dense v-resize="onResize">
           <v-col ref="videoArray" cols="videoCols" dense class="pa-0">
@@ -39,10 +39,8 @@
   </v-container>
 </template>
 <script>
-import MVideoMixin from "@/mixins/MVideoMixin";
 export default {
   name: "WVuewerLayout",
-  mixins: [MVideoMixin],
   data: () => ({
     maxHeight: 0,
     wsMaxHeight: 0,

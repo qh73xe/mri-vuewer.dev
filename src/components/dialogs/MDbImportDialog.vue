@@ -33,7 +33,7 @@ export default {
     }
   },
   data: () => ({
-    title: "$vuetify.dbImportForm.title",
+    title: "$vuetify.forms.db.title",
     loaded: false
   }),
   computed: {
@@ -53,7 +53,7 @@ export default {
     close: function() {
       this.dialog = false;
       if (!this.loaded) {
-        this.showWarning(this.t("$vuetify.dbImportForm.messages.stop"));
+        this.showWarning(this.t("$vuetify.forms.db.messages.stop"));
       }
       if (this.$route.name !== "Home") {
         this.$router.push({ name: "Home" });
@@ -66,13 +66,13 @@ export default {
     onLoaded: function() {
       this.loaded = true;
       this.close();
-      this.showSuccess(this.t("$vuetify.dbImportForm.messages.success"));
+      this.showSuccess(this.t("$vuetify.forms.db.messages.success"));
     },
     onError: function(error) {
       this.loaded = true;
       this.close();
       if (~error.message.indexOf("out of memory")) {
-        this.showError(this.t("$vuetify.dbImportForm.messages.outofmemory"));
+        this.showError(this.t("$vuetify.forms.db.messages.outofmemory"));
       } else {
         this.showError(error);
       }

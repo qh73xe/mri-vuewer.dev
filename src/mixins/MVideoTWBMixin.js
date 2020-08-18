@@ -1,6 +1,6 @@
 export default {
   computed: {
-    videoName: {
+    $name: {
       get() {
         return this.$store.state.current.video.filename;
       },
@@ -8,7 +8,7 @@ export default {
         this.$store.commit("current/video/fileName", val);
       }
     },
-    videoSource: {
+    $source: {
       get() {
         return this.$store.state.current.video.source;
       },
@@ -16,7 +16,7 @@ export default {
         this.$store.commit("current/video/source", val);
       }
     },
-    fps: {
+    $fps: {
       get() {
         return this.$store.state.current.video.fps;
       },
@@ -24,7 +24,7 @@ export default {
         this.$store.commit("current/video/fps", val);
       }
     },
-    duration: {
+    $duration: {
       get() {
         return this.$store.state.current.video.duration;
       },
@@ -32,7 +32,7 @@ export default {
         this.$store.commit("current/video/duration", val);
       }
     },
-    videoStream: {
+    $videoStream: {
       get() {
         return this.$store.state.current.video.videoStream;
       },
@@ -40,7 +40,7 @@ export default {
         this.$store.commit("current/video/videoStream", val);
       }
     },
-    audioStream: {
+    $audioStream: {
       get() {
         return this.$store.state.current.video.audioStream;
       },
@@ -48,7 +48,7 @@ export default {
         this.$store.commit("current/video/audioStream", val);
       }
     },
-    originSize: {
+    $originSize: {
       get() {
         return this.$store.state.current.video.originSize;
       },
@@ -58,14 +58,8 @@ export default {
     }
   },
   methods: {
-    initVideo: function() {
-      this.videoName = null;
-      this.videoSource = null;
-      this.fps = null;
-      this.duration = null;
-      this.videoStream = null;
-      this.audioStream = null;
-      this.originSize = null;
+    $initVideo: function() {
+      this.$store.dispatch("current/video/init");
     }
   }
 };

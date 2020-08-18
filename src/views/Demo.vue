@@ -30,13 +30,8 @@
             {{ loading.status }}
           </div>
         </v-card-text>
-        <v-container fluid v-else-if="videoSource">
-          <m-vuewer
-            ref="video"
-            :src="videoSource"
-            :fps="fps"
-            :duration="duration"
-          />
+        <v-container fluid v-else-if="$source">
+          <m-vuewer ref="video" :src="$source" :fps="$fps" />
         </v-container>
       </m-t-card>
     </v-col>
@@ -46,11 +41,11 @@
 import MViewLayout from "@/components/base/MViewLayout";
 import MTCard from "@/components/base/card/MTCard";
 import MVuewer from "@/components/MVuewer";
-import MVideoMixin from "@/mixins/MVideoMixin";
+import MVideoTWBMixin from "@/mixins/MVideoTWBMixin";
 import io from "@/io";
 export default {
   name: "Demo",
-  mixins: [MVideoMixin],
+  mixins: [MVideoTWBMixin],
   components: {
     MViewLayout,
     MTCard,
@@ -69,9 +64,8 @@ export default {
     sample: function(val, oldval) {
       if (val !== null) {
         if (val != oldval) {
-          this.initVideo();
-          const filename = this.samples[val];
-          this.fetchVideo(filename);
+          this.$initVideo();
+          this.fetchVideo(this.samples[val]);
         }
       }
     }
@@ -92,17 +86,17 @@ export default {
         if (file.arrayBuffer) {
           const buff = await file.arrayBuffer();
           io.video.info(buff, res => {
-            this.fps = res.videoStream.fps;
-            this.videoStream = res.videoStream;
-            this.audioStream = res.audioStream;
-            this.originSize = res.size;
-            this.duration = res.duration;
+            this.$fps = res.videoStream.fps;
+            this.$videoStream = res.videoStream;
+            this.$audioStream = res.audioStream;
+            this.$originSize = res.size;
+            this.$duration = res.duration;
 
             this.loading.status = "load vide file...";
             io.file.toBase64(file).then(res => {
               if (res) {
-                this.videoSource = res;
-                this.videoName = filename;
+                this.$source = res;
+                this.$name = filename;
               }
               this.loading.isloading = false;
             });

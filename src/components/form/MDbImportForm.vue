@@ -9,7 +9,7 @@
     <v-alert class="mt-4" v-else-if="!loading" prominent type="error">
       <v-row align="center">
         <v-col class="grow">
-          {{ $vuetify.lang.t("$vuetify.dbImportForm.warning") }}
+          {{ $vuetify.lang.t("$vuetify.forms.db.warning") }}
         </v-col>
         <v-col class="shrink pa-1">
           <v-btn @click="dbLoad" color="error darken-2">YES</v-btn>

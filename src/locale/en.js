@@ -70,37 +70,42 @@ export default {
       label: "Next Image"
     }
   },
-  dbImportForm: {
-    title: "DB IMPORT FORM",
-    warning:
-      "Existing data will be lost when this process is performed. Do you want to process it?",
-    messages: {
-      stop: "Canceled the db importing.",
-      success: "The db was updating successfully!",
-      outofmemory: "The db updating failed [out of memory]"
-    }
-  },
-  videoResistForm: {
-    title: "VIDEO REGISTRATION FORM",
-    finish: "Video registration is complete.",
-    restart: "Add Video.",
-    messages: {
-      stop: "Canceled the video registration.",
-      success: "The video was registered successfully!",
-      outofmemory: "Video registration failed [out of memory]"
-    },
-    steps: {
-      select: "File Selection",
-      confirmation: "Codec Confirmation",
-      meta: "Addtion of Meta Data"
-    },
-    desc: {
-      confirmation:
-        "Check the following information and press <kbd>OK</kbd> botton if everything is OK.",
-      meta: `
+  forms: {
+    video: {
+      title: "VIDEO REGISTRATION FORM",
+      finish: "Video registration is complete.",
+      restart: "Add Video.",
+      messages: {
+        stop: "Canceled the video registration.",
+        success: "The video was registered successfully!",
+        outofmemory: "Video registration failed [out of memory]"
+      },
+      steps: {
+        select: "File Selection",
+        confirmation: "Codec Confirmation",
+        meta: "Addtion of Meta Data"
+      },
+      desc: {
+        confirmation:
+          "Check the following information and press <kbd>OK</kbd> botton if everything is OK.",
+        meta: `
       To register a speaker, enter 'speaker' in <code>key field</code> and the speaker name in <code>value field</code>, then, press the <kbd>+</kbd> button.
       <br />
       Finally, click the <kbd>OK</kbd> button to register.`
+      }
+    },
+    db: {
+      title: "DB IMPORT FORM",
+      warning:
+        "Existing data will be lost when this process is performed. Do you want to process it?",
+      messages: {
+        stop: "Canceled the db importing.",
+        success: "The db was updating successfully!",
+        outofmemory: "The db updating failed [out of memory]"
+      }
+    },
+    tier: {
+      title: "TIER FORM"
     }
   },
   io: {

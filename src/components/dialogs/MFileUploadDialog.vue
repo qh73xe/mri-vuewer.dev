@@ -26,7 +26,7 @@ export default {
     }
   },
   data: () => ({
-    title: "$vuetify.videoResistForm.title",
+    title: "$vuetify.forms.video.title",
     loaded: false
   }),
   computed: {
@@ -46,16 +46,16 @@ export default {
     close: function() {
       this.dialog = false;
       if (!this.loaded) {
-        this.showWarning(this.t("$vuetify.videoResistForm.messages.stop"));
+        this.showWarning(this.t("$vuetify.forms.video.messages.stop"));
       }
     },
     onLoaded: function() {
       this.loaded = true;
-      this.showSuccess(this.t("$vuetify.videoResistForm.messages.success"));
+      this.showSuccess(this.t("$vuetify.forms.video.messages.success"));
     },
     onError: function(error) {
       if (~error.message.indexOf("out of memory")) {
-        this.showError(this.t("$vuetify.videoResistForm.messages.outofmemory"));
+        this.showError(this.t("$vuetify.forms.video.messages.outofmemory"));
       } else {
         this.showError(error);
       }

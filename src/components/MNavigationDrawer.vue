@@ -226,7 +226,9 @@ export default {
         }
       }
       if (payload.id) {
-        this.$router.push({ path: `/files/${payload.id}` });
+        if (Number(this.$route.params.id) !== Number(payload.id)) {
+          this.$router.push({ path: `/files/${payload.id}` });
+        }
       }
     },
     dbAdd: function() {

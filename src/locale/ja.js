@@ -59,33 +59,35 @@ export default {
     hasArrayBuffer: "想定外の動画ファイルです [No Array buffer]!",
     less: "この値は {0} 文字以下です."
   },
-  dbImportForm: {
-    title: "データベースインポートフォーム",
-    warning: "この処理を実行すると既存のデータは失われます.処理を実行しますか?",
-    messages: {
-      stop: "データベースのインポートを停止しました",
-      success: "データベースのインポートに成功しました",
-      outofmemory: "データベースのインポートに失敗しました [out of memory]"
-    }
-  },
-  videoResistForm: {
-    title: "動画登録フォーム",
-    messages: {
-      stop: "動画の登録が中止されました",
-      success: "動画が登録されました",
-      outofmemory: "動画の登録に失敗しました [out of memory]"
+  forms: {
+    db: {
+      title: "データベースインポートフォーム",
+      warning:
+        "この処理を実行すると既存のデータは失われます.処理を実行しますか?",
+      messages: {
+        stop: "データベースのインポートを停止しました",
+        success: "データベースのインポートに成功しました",
+        outofmemory: "データベースのインポートに失敗しました [out of memory]"
+      }
     },
-    finish: "動画の登録に成功しました",
-    restart: "別の動画を登録する",
-    steps: {
-      select: "ファイル選択",
-      confirmation: "コーディック確認",
-      meta: "メタデータの追記"
-    },
-    desc: {
-      confirmation:
-        "以下の情報を確認し問題がなければ <kbd>OK</kbd> をクリックしてください.",
-      meta: `
+    video: {
+      title: "動画登録フォーム",
+      messages: {
+        stop: "動画の登録が中止されました",
+        success: "動画が登録されました",
+        outofmemory: "動画の登録に失敗しました [out of memory]"
+      },
+      finish: "動画の登録に成功しました",
+      restart: "別の動画を登録する",
+      steps: {
+        select: "ファイル選択",
+        confirmation: "コーディック確認",
+        meta: "メタデータの追記"
+      },
+      desc: {
+        confirmation:
+          "以下の情報を確認し問題がなければ <kbd>OK</kbd> をクリックしてください.",
+        meta: `
       動画メタデータの登録を行います.
       </br>
       例えば発話者情報を登録する場合,
@@ -96,6 +98,10 @@ export default {
       <br />
       <br />
       最後に <kbd>OK</kbd> ボタンをクリックすると登録が終了します.`
+      }
+    },
+    tier: {
+      title: "アノテーション階層フォーム"
     }
   },
   wVideo: {

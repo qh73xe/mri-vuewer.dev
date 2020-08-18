@@ -1,16 +1,15 @@
 <template>
-  <v-container fluid v-if="videoSource">
-    <m-vuewer ref="video" :src="videoSource" :fps="fps" :duration="duration" />
+  <v-container fluid>
+    <m-vuewer v-if="$source" ref="video" :src="$source" :fps="$fps" />
   </v-container>
 </template>
 <script>
 import db from "@/storage/db";
 import MVuewer from "@/components/MVuewer";
-import MVideoMixin from "@/mixins/MVideoMixin";
-import MWavesurferMixin from "@/mixins/MWavesurferMixin";
+import MVideoTWBMixin from "@/mixins/MVideoTWBMixin";
 export default {
   name: "vuewer",
-  mixins: [MVideoMixin, MWavesurferMixin],
+  mixins: [MVideoTWBMixin],
   components: {
     MVuewer
   },
@@ -18,21 +17,48 @@ export default {
     isLoading: false,
     videoElm: null
   }),
+  computed: {
+    source: {
+      get() {
+        return this.$store.state.current.video.source;
+      },
+      set(val) {
+        this.$store.commit("current/video/source", val);
+      }
+    },
+    fps: {
+      get() {
+        return this.$store.state.current.video.fps;
+      },
+      set(val) {
+        this.$store.commit("current/video/fps", val);
+      }
+    }
+  },
   methods: {
-    onMounted: function(id) {
+    /**
+     * onIdChanged.
+     *
+     * ルータの id が変更した際に呼ばれます.
+     *
+     * これは id を元に動画の情報を取得し,
+     * this.$store.state.current 以下の情報を書き換えます.
+     */
+    onIdChanged: function(id) {
       if (id) {
-        this.initVideo();
-        this.initWaveSurfer();
-
         this.isLoading = true;
+
+        // 画面表示する動画情報を初期化する
+        this.$initVideo();
         db.files.get(Number(id)).then(x => {
-          this.videoName = x.name;
-          this.videoSource = x.source;
-          this.fps = x.fps;
-          this.duration = x.duration;
-          this.videoStream = x.videoStream;
-          this.audioStream = x.audioStream;
-          this.originSize = x.originSize;
+          this.$source = x.source;
+          this.$fps = x.fps;
+
+          this.$name = x.name;
+          this.$duration = x.duration;
+          this.$videoStream = x.videoStream;
+          this.$audioStream = x.audioStream;
+          this.$originSize = x.originSize;
           this.isLoading = false;
         });
       } else {
@@ -42,12 +68,12 @@ export default {
   },
   watch: {
     "$route.params.id": function(val) {
-      this.onMounted(val);
+      this.onIdChanged(val);
     }
   },
   mounted: function() {
     const id = this.$route.params.id;
-    this.onMounted(id);
+    this.onIdChanged(id);
   }
 };
 </script>
