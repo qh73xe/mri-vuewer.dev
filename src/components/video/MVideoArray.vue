@@ -3,20 +3,13 @@
     <v-row>
       <v-col class="pa-0">
         <v-card tile flat color="transparent">
-          <video
-            v-if="videoSource"
-            muted
-            ref="videoPre"
-            :style="videoStyle"
-            :src="videoSource"
-          />
+          <video muted ref="videoPre" :style="videoStyle" :src="videoSource" />
         </v-card>
       </v-col>
 
       <v-col class="pa-0">
         <v-card tile flat color="transparent">
           <video
-            v-if="videoSource"
             ref="video"
             @loadeddata="onLoadeddata"
             @timeupdate="onTimeupdate"
@@ -29,13 +22,7 @@
 
       <v-col class="pa-0">
         <v-card tile flat color="transparent">
-          <video
-            muted
-            v-if="videoSource"
-            ref="videoPos"
-            :style="videoStyle"
-            :src="videoSource"
-          />
+          <video muted ref="videoPos" :style="videoStyle" :src="videoSource" />
         </v-card>
       </v-col>
     </v-row>

@@ -35,6 +35,7 @@
         </v-row>
       </v-card>
     </v-col>
+    <slot name="bottom"></slot>
   </v-container>
 </template>
 <script>
@@ -55,9 +56,11 @@ export default {
   watch: {
     "$store.state.current.wavesurfer": function(val) {
       if (val) {
-        this.$nextTick(() => {
-          this.onResize();
-        });
+        if (this.maxHeight == 0) {
+          this.$nextTick(() => {
+            this.onResize();
+          });
+        }
       }
     }
   },
@@ -72,8 +75,8 @@ export default {
               height = height + child.clientHeight;
             }
           }
-          this.maxHeight = height;
-          this.wsMaxHeight = window.innerHeight - height - 128;
+          this.maxHeight = Math.round(height);
+          this.wsMaxHeight = Math.round(window.innerHeight - height - 128);
         }
       }
     }

@@ -24,7 +24,7 @@
     <v-divider />
 
     <v-list dense nav class="pa-0">
-      <v-list-group prepend-icon="mdi-apps" sub-group value="true">
+      <v-list-group prepend-icon="mdi-view-list" sub-group value="true">
         <template v-slot:activator>
           <v-list-item-title>PAGES</v-list-item-title>
         </template>

@@ -7,10 +7,10 @@
 import db from "@/storage/db";
 import MVuewer from "@/components/MVuewer";
 import MVideoMixin from "@/mixins/MVideoMixin";
-
+import MWavesurferMixin from "@/mixins/MWavesurferMixin";
 export default {
   name: "vuewer",
-  mixins: [MVideoMixin],
+  mixins: [MVideoMixin, MWavesurferMixin],
   components: {
     MVuewer
   },
@@ -21,6 +21,9 @@ export default {
   methods: {
     onMounted: function(id) {
       if (id) {
+        this.initVideo();
+        this.initWaveSurfer();
+
         this.isLoading = true;
         db.files.get(Number(id)).then(x => {
           this.videoName = x.name;

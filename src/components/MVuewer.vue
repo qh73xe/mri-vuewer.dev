@@ -16,6 +16,7 @@
       responsive
       scrollParent
       showTextGrid
+      v-if="show"
       :source="videoElm"
       :skipLength="skipLength"
       :minPxPerSec="minPxPerSec"
@@ -47,6 +48,10 @@
           @keydown.enter="saveTierValue"
         />
       </template>
+      <template v-slot:table>
+        <m-text-grid />
+      </template>
+
       <div class="text-center" v-if="isLoading">
         <v-progress-circular
           :size="100"
@@ -59,8 +64,9 @@
         </div>
       </div>
     </wave-surfer>
-    <template v-slot:table>
-      <m-text-grid />
+
+    <template v-slot:bottom>
+      <m-speed-dial />
     </template>
   </m-vuwer-layout>
 </template>
@@ -71,6 +77,7 @@ import MVuwerLayout from "@/components/layouts/MVuwerLayout";
 import MVideoArray from "@/components/video/MVideoArray";
 import MTextGrid from "@/components/textgrid/MTextGrid";
 import MVuwerActions from "@/components/actions/MVuewerActions";
+import MSpeedDial from "@/components/MSpeedDial";
 import MSettingMixin from "@/mixins/MSettingMixin";
 import MWavesurferMixin from "@/mixins/MWavesurferMixin";
 import MFrameMixin from "@/mixins/MFrameMixin";
@@ -83,6 +90,7 @@ export default {
     MVideoArray,
     MTextGrid,
     WaveSurfer,
+    MSpeedDial,
     MVuwerActions
   },
   props: {
@@ -92,6 +100,7 @@ export default {
     }
   },
   data: () => ({
+    show: false,
     current: {
       key: null,
       text: null,
@@ -99,10 +108,16 @@ export default {
       idx: null,
       values: []
     },
+    image: null,
     isLoading: false,
     videoElm: null,
     videoHeight: 0
   }),
+  watch: {
+    videoSource: function() {
+      this.show = false;
+    }
+  },
   computed: {
     skipLength: function() {
       return this.fps / this.duration;
@@ -115,6 +130,7 @@ export default {
     onLoadeddata: function(payload) {
       if (payload) {
         this.videoElm = payload;
+        this.show = true;
         this.$nextTick(() => {
           this.wavesurfer = this.$refs.wavesurfer;
         });
@@ -125,7 +141,6 @@ export default {
     },
     onSpectrogramRenderEnd() {
       this.isLoading = false;
-      this.wavesurfer.addTier("IPU", "interval");
     },
     onDblclick: function(obj) {
       const key = obj.key;
@@ -156,10 +171,6 @@ export default {
         this.current.text = "";
       }
     }
-  },
-  beforeDestroy: function() {
-    this.initWaveSurfer();
-    this.initVideo();
   }
 };
 </script>
