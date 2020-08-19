@@ -1,42 +1,70 @@
 <template>
   <m-video-array-layout>
     <template v-slot:prev>
-      <video muted ref="prev" :style="videoStyle" :src="src" />
+      <m-video
+        muted
+        flat
+        ref="prev"
+        :style="videoStyle"
+        :origin-size="originSize"
+        :frames="frames"
+        :src="src"
+      />
     </template>
-    <video
+    <m-video
+      flat
       ref="video"
       @loadeddata="onLoadeddata"
       @timeupdate="onTimeupdate"
+      :origin-size="originSize"
+      :frames="frames"
       :style="videoStyle"
       :src="src"
     />
-    <canvas ref="canvas" v-show="false" :style="videoStyle" />
 
     <template v-slot:next>
-      <video muted ref="next" :style="videoStyle" :src="src" />
+      <m-video
+        flat
+        muted
+        ref="next"
+        :src="src"
+        :origin-size="originSize"
+        :frames="frames"
+        :style="videoStyle"
+      />
     </template>
   </m-video-array-layout>
 </template>
 
 <script>
 import MVideoArrayLayout from "@/components/layouts/MVideoArrayLayout.vue";
-import MVideoMixin from "@/mixins/MVideoMixin";
+import MVideo from "@/components/video/MVideo.vue";
 export default {
   name: "WVideo",
-  components: { MVideoArrayLayout },
-  mixins: [MVideoMixin],
+  components: { MVideoArrayLayout, MVideo },
   props: {
     src: {
       type: String,
       required: true
     },
+    fps: {
+      type: Number,
+      required: true
+    },
+    originSize: {
+      type: Object,
+      required: true
+    },
+    frames: {
+      type: Array,
+      default: function() {
+        return [];
+      }
+    },
+    // どの程度前後をずらすか?
     frameOffset: {
       type: Number,
       default: 1
-    },
-    headerColor: {
-      type: String,
-      default: "primary"
     }
   },
   data: () => ({
@@ -58,63 +86,71 @@ export default {
     },
     syncVideos: function(currentTime) {
       if (this.$refs.video) {
-        this.syncCanvas();
         const offsetTime = this.frameOffset * this.frameRate;
         if (currentTime - offsetTime > 0) {
           const time = currentTime - offsetTime;
-          this.$refs.prev.currentTime = time;
+          this.$refs.prev.setCurrentTime(time);
         }
         if (offsetTime + currentTime < this.getDuration()) {
           const time = currentTime + offsetTime;
-          this.$refs.next.currentTime = time;
+          this.$refs.next.setCurrentTime(time);
         }
+        this.syncFrame();
       }
     },
-    syncCanvas: function() {
+    syncFrame: function() {
       const video = this.$refs.video;
-      const canvas = this.$refs.canvas;
-      if (video && canvas) {
-        if (this.originSize && this.originSize.width) {
-          canvas.width = this.originSize.width;
-          canvas.height = this.originSize.height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(video, 0, 0);
-          const dataUrl = canvas.toDataURL();
-          this.$emit("syncCanvas", dataUrl);
-        }
-      }
-    },
-    getFrame: function() {
-      const video = this.$refs.video;
-      const canvas = document.createElement("canvas");
       if (video) {
-        canvas.width = video.clientWidth;
-        canvas.height = video.clientWidth;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0);
-        const dataUrl = canvas.toDataURL();
-        return dataUrl;
+        const dataURL = video.getVideoDataURL();
+        if (video.frame.time) {
+          const i = this.frames.findIndex(x => {
+            return x.time == video.frame.time;
+          });
+          if (i !== -1) {
+            const frame = this.frames[i];
+            frame.src = dataURL;
+            this.$emit("frame-updated", frame);
+          } else {
+            this.$emit("frame-updated", {
+              i: null,
+              time: this.getCurrentTime(),
+              points: [],
+              rects: [],
+              texts: [],
+              src: dataURL
+            });
+          }
+        } else {
+          this.$emit("frame-updated", {
+            i: null,
+            time: this.getCurrentTime(),
+            points: [],
+            rects: [],
+            texts: [],
+            src: dataURL
+          });
+        }
       }
     },
     getDuration: function() {
       if (this.$refs.video) {
-        return this.$refs.video.duration;
+        return this.$refs.video.getDuration();
       }
     },
     getCurrentTime: function() {
       if (this.$refs.video) {
-        return this.$refs.video.currentTime;
+        return this.$refs.video.getCurrentTime();
       }
     },
     // イベント発火
-    onLoadeddata() {
-      const video = this.$refs.video;
-      this.$emit("loadeddata", video);
+    onLoadeddata(elm) {
+      // 完全に 0 にすると画像取得ができない
+      this.$refs.video.setCurrentTime(0.0001);
+      this.$emit("loadeddata", elm);
     },
-    onTimeupdate: function() {
-      const currentTime = this.getCurrentTime();
-      this.$emit("timeupdate", currentTime);
-      this.syncVideos(currentTime);
+    onTimeupdate: function(time) {
+      this.$emit("timeupdate", time);
+      this.syncVideos(time);
     }
   }
 };

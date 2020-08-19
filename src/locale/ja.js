@@ -101,7 +101,22 @@ export default {
       }
     },
     tier: {
-      title: "アノテーション階層フォーム"
+      title: "新規アノテーション階層フォーム"
+    },
+    tierEdit: {
+      title: "アノテーション階層編集フォーム"
+    },
+    tierDelete: {
+      title: "アノテーション階層削除フォーム"
+    },
+    detail: {
+      title: "動画詳細情報"
+    },
+    ruler: {
+      title: "フレーム計測ダイアログ"
+    },
+    imageEdit: {
+      title: "フレーム編集モード"
     }
   },
   wVideo: {

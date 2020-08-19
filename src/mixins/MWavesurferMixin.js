@@ -50,10 +50,15 @@ export default {
       if (this.$ws) this.$ws.seekTo(progress);
     },
     seek: function(time, isCenter) {
+      const duration = this.getDuration();
+      let t = time ? time : 0;
+      t = time <= 0 ? 0.0001 : time; // 完全に 0 にすると画像取得ができない
+      t = time > duration ? duration : time;
+      const progress = t == 0 ? 0 : t / duration;
       if (isCenter) {
-        this.seekAndCenter(time / this.getDuration());
+        this.seekAndCenter(progress);
       } else {
-        this.seekTo(time / this.getDuration());
+        this.seekTo(progress);
       }
     },
     // アノテーション操作

@@ -195,7 +195,8 @@ export default {
           i: this.converting.step,
           time: currentTime,
           points: [],
-          rects: []
+          rects: [],
+          texts: []
         });
       }
 

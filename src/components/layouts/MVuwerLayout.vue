@@ -75,6 +75,7 @@ export default {
           }
           this.maxHeight = Math.round(height);
           this.wsMaxHeight = Math.round(window.innerHeight - height - 128);
+          this.$emit("resize", this.maxHeight);
         }
       }
     }

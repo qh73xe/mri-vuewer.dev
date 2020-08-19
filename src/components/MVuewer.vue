@@ -1,14 +1,27 @@
 <template>
-  <m-vuwer-layout>
+  <m-vuwer-layout ref="layout" @resize="onResize">
     <template v-slot:video>
       <m-video-array
         :src="src"
+        :fps="fps"
         :frameOffset="frameOffset"
+        :origin-size="originSize"
+        :frames="frames"
+        @resize="onResize"
         @loadeddata="onLoadeddata"
-        @syncCanvas="onSyncCanvas"
+        @frame-updated="onFrameUpdated"
       />
-      <m-vuwer-actions v-if="wavesurfer" />
+      <m-vuwer-actions :fps="fps" v-if="wavesurfer" />
     </template>
+    <template v-slot:table>
+      <m-text-grid
+        @click-image-edit="onClickImageEdit"
+        @click-ruler="onClickRuler"
+        :frames="frames"
+        :video-height="videoHeight"
+      />
+    </template>
+
     <wave-surfer
       ref="wavesurfer"
       backend="MediaElement"
@@ -31,8 +44,8 @@
       :progressColor="progressColor"
       @spectrogram-render-start="onSpectrogramRenderStart"
       @spectrogram-render-end="onSpectrogramRenderEnd"
-      @textgrid-dblclick="onDblclick"
-      @textgrid-click="onClick"
+      @textgrid-dblclick="onDblclickTextGrid"
+      @textgrid-click="onClickTextGrid"
       @textgrid-update="onTextGridUpdate"
       @textgrid-current-update="onTextGridCurrentUpdate"
     >
@@ -47,9 +60,6 @@
           :disabled="current.tier.key == null"
           @keydown.enter="saveTierValue"
         />
-      </template>
-      <template v-slot:table>
-        <m-text-grid />
       </template>
 
       <div class="text-center" v-if="isLoading">
@@ -66,8 +76,25 @@
     </wave-surfer>
 
     <template v-slot:bottom>
-      <m-speed-dial @click-tier-add="dialog.tier.show = true" />
+      <m-speed-dial
+        @click-detail="onClickDetail"
+        @click-ruler="onClickRuler"
+        @click-image-edit="onClickImageEdit"
+        @click-tier-add="onClickTierAdd"
+        @click-tier-edit="onClickTierEdit"
+        @click-tier-delete="onClickTierDelete"
+      />
+      <m-detail-dialog v-model="dialog.detail.show" :src="current.frame.src" />
       <m-tier-dialog v-model="dialog.tier.show" />
+      <m-tier-edit-dialog v-model="dialog.tierEdit.show" />
+      <m-tier-delete-dialog v-model="dialog.tierDelete.show" />
+      <m-ruler-dialog
+        v-if="originSize.width"
+        v-model="dialog.ruler.show"
+        :origin-size="originSize"
+        :src="current.frame.src"
+      />
+      <m-image-edit-dialog v-model="dialog.imageEdit.show" />
     </template>
   </m-vuwer-layout>
 </template>
@@ -85,7 +112,12 @@ import MVuwerLayout from "@/components/layouts/MVuwerLayout";
 import MVideoArray from "@/components/video/MVideoArray";
 import MTextGrid from "@/components/textgrid/MTextGrid";
 import MVuwerActions from "@/components/actions/MVuewerActions";
+import MDetailDialog from "@/components/dialogs/MDetailDialog";
 import MTierDialog from "@/components/dialogs/MTierDialog";
+import MTierEditDialog from "@/components/dialogs/MTierEditDialog";
+import MTierDeleteDialog from "@/components/dialogs/MTierDeleteDialog";
+import MRulerDialog from "@/components/dialogs/MRulerDialog";
+import MImageEditDialog from "@/components/dialogs/MImageEditDialog";
 import MSpeedDial from "@/components/MSpeedDial";
 import MSettingMixin from "@/mixins/MSettingMixin";
 
@@ -98,7 +130,12 @@ export default {
     MTextGrid,
     WaveSurfer,
     MSpeedDial,
+    MDetailDialog,
     MTierDialog,
+    MTierEditDialog,
+    MTierDeleteDialog,
+    MRulerDialog,
+    MImageEditDialog,
     MVuwerActions
   },
   props: {
@@ -116,6 +153,18 @@ export default {
       type: Number,
       required: true
     },
+    // 動画オリジナルサイズ
+    originSize: {
+      type: Object,
+      required: true
+    },
+    // 各種画像アノテーション結果
+    frames: {
+      type: Array,
+      default: function() {
+        return [];
+      }
+    },
     // スキップ時に何フレーム分をスキップするか
     frameOffset: {
       type: Number,
@@ -124,12 +173,27 @@ export default {
   },
   data: () => ({
     videoElm: null, // WS のレンダ対象
+    videoHeight: null, // ビデオ表示領域の最大幅
     isLoading: false, // WS がレンダ中か否か
     dialog: {
+      detail: {
+        show: false
+      },
       // TIER 編集ダイアログ
       tier: {
-        show: false,
-        target: null // 編集対象がある場合には TIER 名
+        show: false
+      },
+      tierEdit: {
+        show: false
+      },
+      tierDelete: {
+        show: false
+      },
+      ruler: {
+        show: false
+      },
+      imageEdit: {
+        show: false
       }
     },
     current: {
@@ -143,7 +207,12 @@ export default {
       },
       // 現在時刻のフレーム情報
       frame: {
-        src: null // 現在時刻画像
+        i: null, // 現在フレーム番号
+        time: null, // 現在フレーム時刻
+        src: null, // 現在フレーム画像
+        points: [],
+        rects: [],
+        texts: []
       }
     }
   }),
@@ -175,6 +244,10 @@ export default {
     }
   },
   methods: {
+    // 動画表示領域の最大高さが決定された場合の動作
+    onResize: function(payload) {
+      this.videoHeight = payload;
+    },
     // 動画の読み込みが終了した場合の動作
     onLoadeddata: function(payload) {
       if (payload) {
@@ -182,13 +255,15 @@ export default {
         this.$nextTick(() => {
           // 他コンポーネントで WS の操作を実施可能にする
           this.wavesurfer = this.$refs.wavesurfer;
+          // レイアウトのリサイズ
+          this.$refs.layout.onResize();
         });
       }
     },
 
     // 動画現在画像が変更された場合の動作
-    onSyncCanvas(payload) {
-      this.current.frame.src = payload;
+    onFrameUpdated(payload) {
+      this.current.frame = payload;
     },
 
     // スペクトログラムのレンダが始まった場合の動作
@@ -202,7 +277,7 @@ export default {
     },
 
     // TEXTGRID をダブルクリックされた場合の動作
-    onDblclick: function(obj) {
+    onDblclickTextGrid: function(obj) {
       const key = obj.key;
       const item = {
         time: obj.time,
@@ -212,7 +287,7 @@ export default {
     },
 
     // TEXTGRID をシングルクリックされた場合の動作
-    onClick: function(obj) {
+    onClickTextGrid: function(obj) {
       if (obj.item) {
         this.current.tier.key = obj.key;
         this.current.tier.text = obj.item.text;
@@ -236,6 +311,31 @@ export default {
         this.current.tier.time = 0;
         this.current.tier.text = "";
       }
+    },
+
+    // 動画情報出力ダイアログが要求された場合の動作
+    onClickDetail: function() {
+      this.dialog.detail.show = true;
+    },
+    // 画像編集モードを要求された場合の動作
+    onClickRuler: function(payload) {
+      console.log(payload);
+      this.dialog.ruler.show = true;
+    },
+    // 画像編集モードを要求された場合の動作
+    onClickImageEdit: function(payload) {
+      console.log(payload);
+      this.dialog.imageEdit.show = true;
+    },
+    // 新規アノテーション階層作成ダイアログが要求された場合の動作
+    onClickTierAdd: function() {
+      this.dialog.tier.show = true;
+    },
+    onClickTierEdit: function() {
+      this.dialog.tierEdit.show = true;
+    },
+    onClickTierDelete: function() {
+      this.dialog.tierDelete.show = true;
     }
   }
 };

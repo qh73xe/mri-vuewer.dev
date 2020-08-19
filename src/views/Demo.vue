@@ -31,7 +31,12 @@
           </div>
         </v-card-text>
         <v-container fluid v-else-if="$source">
-          <m-vuewer ref="video" :src="$source" :fps="$fps" />
+          <m-vuewer
+            ref="video"
+            :src="$source"
+            :fps="$fps"
+            :origin-size="$originSize"
+          />
         </v-container>
       </m-t-card>
     </v-col>

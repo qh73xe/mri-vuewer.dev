@@ -1,6 +1,13 @@
 <template>
   <v-container fluid>
-    <m-vuewer v-if="$source" ref="video" :src="$source" :fps="$fps" />
+    <m-vuewer
+      v-if="$source"
+      ref="video"
+      :src="$source"
+      :fps="$fps"
+      :frames="frames"
+      :origin-size="$originSize"
+    />
   </v-container>
 </template>
 <script>
@@ -15,7 +22,8 @@ export default {
   },
   data: () => ({
     isLoading: false,
-    videoElm: null
+    videoElm: null,
+    frames: []
   }),
   computed: {
     source: {
@@ -59,6 +67,7 @@ export default {
           this.$videoStream = x.videoStream;
           this.$audioStream = x.audioStream;
           this.$originSize = x.originSize;
+          this.frames = x.frames;
           this.isLoading = false;
         });
       } else {

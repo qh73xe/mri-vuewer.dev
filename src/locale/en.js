@@ -105,7 +105,22 @@ export default {
       }
     },
     tier: {
-      title: "TIER FORM"
+      title: "NEW TIER FORM"
+    },
+    tierEdit: {
+      title: "EDIT TIER FORM"
+    },
+    tierDelete: {
+      title: "DELETE TIER FORM"
+    },
+    detail: {
+      title: "VIDEO INFORMATION"
+    },
+    ruler: {
+      title: "RULER DIALOG"
+    },
+    imageEdit: {
+      title: "IMAGE EDIT DIALOG"
     }
   },
   io: {

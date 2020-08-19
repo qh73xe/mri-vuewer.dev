@@ -17,15 +17,15 @@
     <v-btn @click="$emit('click-detail')" fab dark small>
       <v-icon>mdi-eye</v-icon>
     </v-btn>
+
     <v-btn @click="$emit('click-ruler')" fab dark small color="orange">
       <v-icon>mdi-ruler</v-icon>
     </v-btn>
-    <v-btn @click="$emit('click-rect-edit')" fab dark small color="orange">
-      <v-icon>mdi-select-marker</v-icon>
+
+    <v-btn @click="$emit('click-image-edit')" fab dark small color="orange">
+      <v-icon>mdi-selection-drag</v-icon>
     </v-btn>
-    <v-btn @click="$emit('click-point-edit')" fab dark small color="orange">
-      <v-icon>mdi-map-marker-path</v-icon>
-    </v-btn>
+
     <v-btn @click="$emit('click-tier-edit')" fab dark small color="green">
       <v-icon>mdi-pencil</v-icon>
     </v-btn>
@@ -34,7 +34,7 @@
       <v-icon>mdi-plus</v-icon>
     </v-btn>
 
-    <v-btn fab dark small color="red">
+    <v-btn @click="$emit('click-tier-delete')" fab dark small color="red">
       <v-icon>mdi-delete</v-icon>
     </v-btn>
   </v-speed-dial>

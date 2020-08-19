@@ -3531,7 +3531,7 @@ deasync@^0.1.15:
     bindings "^1.5.0"
     node-addon-api "^1.7.1"
 
-debounce@^1.2.0:
+debounce@^1.1.0, debounce@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/debounce/-/debounce-1.2.0.tgz#44a540abc0ea9943018dc0eaa95cce87f65cd131"
   integrity sha512-mYtLl1xfZLi1m4RtQYlZgJUNQjl4ZxVnHzIR8nLLgi4q1YT8o/WM+MK/f8yfcc9s5Ir5zRaPZyZU6xs1Syoocg==
@@ -6445,6 +6445,11 @@ kleur@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
+
+konva@^7.0.5:
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/konva/-/konva-7.0.5.tgz#86741b08f30c7f613df7b57588b08c6170b95a5e"
+  integrity sha512-qeJ112iOBhHeBjHiVHWyKapijfnLoIZNU+kDu8s4feyEnTTYhaI27uj9Nqgma0zwPPIo/NLGaD89rbA8hnDXPA==
 
 launch-editor-middleware@^2.2.1:
   version "2.2.1"
@@ -10220,6 +10225,13 @@ vue-eslint-parser@^7.0.0:
     esquery "^1.0.1"
     lodash "^4.17.15"
 
+vue-google-charts@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/vue-google-charts/-/vue-google-charts-0.3.3.tgz#cb9662d07c662afbba1411177c09f7e17ac5e097"
+  integrity sha512-dvp5C0m3uAfB7PbAWPOqnYGJLUKyK0NPmnjOE8FDUhVySeErojOPZVd5zNOq4m9RhhwmNFP31bsxVYNb+0+f9w==
+  dependencies:
+    debounce "^1.1.0"
+
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz#532955cc1eb208a3d990b3a9f9a70574657e08f2"
@@ -10241,6 +10253,11 @@ vue-jest@^3.0.5:
     source-map "^0.5.6"
     tsconfig "^7.0.0"
     vue-template-es2015-compiler "^1.6.0"
+
+vue-konva@^2.1.4:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/vue-konva/-/vue-konva-2.1.4.tgz#c28070e53ed87e4d040b862810c479784744ea12"
+  integrity sha512-hAuX5g9bZUeF3JfjsSAQE4I7QmAauoJ2T+cGLZftT1DvgVXt9a+TF0s98LZoHXN/rYqNXELV1GvhKkUeXcPatA==
 
 vue-loader@^15.9.2:
   version "15.9.3"
