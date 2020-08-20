@@ -8,6 +8,20 @@
     />
     <v-text-field :rules="newNameRUle" v-model="name" label="Tier Name" />
     <v-select :rules="required" v-model="type" :items="['interval', 'point']" />
+
+    <v-alert class="mt-4" v-if="valid" prominent type="warning">
+      <v-row align="center">
+        <v-col class="grow">
+          {{ $vuetify.lang.t("$vuetify.forms.tierEdit.warning") }}
+        </v-col>
+        <v-col class="shrink pa-1">
+          <v-btn @click="run" color="warning darken-2">YES</v-btn>
+          <v-btn @click="$emit('reject')" class="mt-4" color="warning darken-3">
+            NO
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-alert>
   </v-form>
 </template>
 <script>
@@ -67,18 +81,20 @@ export default {
       }
       return this.$vuetify.lang.t("$vuetify.validations.required");
     },
-    validate: function() {
-      this.$refs.form.validate();
+    run: function() {
       if (this.valid) {
         const payload = {
           key: this.oldName,
           item: {
             name: this.name,
-            tyle: this.type
+            type: this.type
           }
         };
         this.$emit("validated", payload);
       }
+    },
+    validate: function() {
+      this.$refs.form.validate();
     },
     reset: function() {
       this.resetValidation();

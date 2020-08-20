@@ -22,6 +22,7 @@
           </v-col>
         </v-row>
       </v-card>
+
       <v-card
         :style="`max-height: ${wsMaxHeight}px`"
         class="d-flex mt-3 overflow-y-auto"
@@ -29,7 +30,7 @@
         tile
       >
         <v-row>
-          <v-col class="py-0">
+          <v-col class="py-0 pr-0">
             <slot></slot>
           </v-col>
         </v-row>

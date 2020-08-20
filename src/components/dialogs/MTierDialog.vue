@@ -53,9 +53,15 @@ export default {
       }
     }
   },
+  watch: {
+    dialog: function(val) {
+      if (val == false) {
+        this.$refs.form.reset();
+      }
+    }
+  },
   methods: {
     close: function() {
-      this.$refs.form.reset();
       this.dialog = false;
     },
     validate: function() {

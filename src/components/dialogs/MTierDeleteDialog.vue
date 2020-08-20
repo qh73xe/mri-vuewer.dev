@@ -43,6 +43,13 @@ export default {
       type: Array
     }
   },
+  watch: {
+    dialog: function(val) {
+      if (val == false) {
+        this.$refs.form.reset();
+      }
+    }
+  },
   computed: {
     dialog: {
       get() {
@@ -55,7 +62,6 @@ export default {
   },
   methods: {
     close: function() {
-      this.$refs.form.reset();
       this.dialog = false;
     },
     validate: function() {

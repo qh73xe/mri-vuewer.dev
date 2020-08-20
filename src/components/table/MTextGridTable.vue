@@ -11,20 +11,24 @@
       <m-loading-dialog ref="loading">
         <p>now loading...</p>
       </m-loading-dialog>
-      <v-icon small class="mr-2" @click="editItem(item)">
-        mdi-pencil
-      </v-icon>
-      <m-agreement-dialog
-        title="Delete Item"
-        :next-action="deleteItem"
-        :action-args="item"
+      <v-btn class="mr-1" fab dark x-small @click="seek(item.time)">
+        <v-icon x-small>
+          mdi-format-horizontal-align-right
+        </v-icon>
+      </v-btn>
+
+      <v-btn
+        class="mr-1"
+        color="error"
+        fab
+        dark
+        x-small
+        @click="deleteItem(item)"
       >
-        <template v-slot:activator="{ on, attrs }">
-          <v-icon small v-bind="attrs" v-on="on">mdi-delete</v-icon>
-        </template>
-        <p>データを削除します.</p>
-        <p>よろしいですか?</p>
-      </m-agreement-dialog>
+        <v-icon x-small>
+          mdi-delete
+        </v-icon>
+      </v-btn>
     </template>
     <template v-slot:no-data>
       <v-alert type="warning">
@@ -34,14 +38,14 @@
   </v-data-table>
 </template>
 <script>
-import MAgreementDialog from "@/components/base/dialog/MAgreementDialog.vue";
 import MLoadingDialog from "@/components/base/dialog/MLoadingDialog.vue";
+import MWavesurferMixin from "@/mixins/MWavesurferMixin";
 export default {
   name: "WTextGridTable",
   components: {
-    MAgreementDialog,
     MLoadingDialog
   },
+  mixins: [MWavesurferMixin],
   props: {
     title: {
       type: String
@@ -86,6 +90,7 @@ export default {
       if (this.tier) {
         if (this.tier.type == "interval") {
           this.tier.values.map((x, i) => {
+            x.idx = i;
             if (i == 0) {
               x.start = 0;
             } else {
@@ -110,18 +115,40 @@ export default {
       console.log(item);
     },
     deleteItem(item) {
-      this.$refs.loading.open();
-      setInterval(this.$refs.loading.close, 4000);
-      console.log("delete", item);
+      const vm = this;
+      setTimeout(() => {
+        if (vm.items.length == 1) {
+          vm.deleteTier(vm.title);
+        } else if (vm.items.length == 2) {
+          const duration = vm.getDuration();
+          if (item.time == duration) {
+            const prevIdx = 0;
+            vm.deleteTierValue(vm.title, item.idx);
+            vm.deleteTierValue(vm.title, prevIdx);
+            vm.addTierValue(vm.title, {
+              time: duration,
+              text: "" // 本来は前のテキストを反映すべき
+            });
+          } else {
+            const nextIdx = item.idx + 1;
+            // const next = vm.tier[nextIdx];
+            vm.deleteTierValue(vm.title, nextIdx);
+            vm.deleteTierValue(vm.title, item.idx);
+            vm.addTierValue(vm.title, {
+              time: duration,
+              text: "" // 本来は後のテキストを反映すべき
+            });
+          }
+        } else {
+          vm.deleteTierValue(vm.title, item.idx);
+        }
+      }, 1);
     },
     close() {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       });
-    },
-    save() {
-      this.close();
     }
   }
 };

@@ -58,6 +58,7 @@
           fab
           dark
           x-small
+          v-if="$vuetify.breakpoint.mdAndUp"
           color="orange"
           @click="$emit('click-image-edit')"
         >
@@ -67,6 +68,7 @@
         <v-btn
           @click="$emit('click-ruler')"
           class="mr-1"
+          v-if="$vuetify.breakpoint.lgAndUp"
           fab
           dark
           x-small

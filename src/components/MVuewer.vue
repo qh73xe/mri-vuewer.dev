@@ -18,6 +18,7 @@
         @click-image-edit="onClickImageEdit"
         @click-ruler="onClickRuler"
         :frames="frames"
+        :textgrid="textgrid"
         :video-height="videoHeight"
       />
     </template>
@@ -52,13 +53,13 @@
       <template v-slot:textform>
         <v-text-field
           v-if="current.tier.key"
-          v-model="current.tier.text"
+          v-model="current.tier.item.text"
           class="ma-0"
           label="text"
           outline
           hide-details
           :disabled="current.tier.key == null"
-          @keydown.enter="saveTierValue"
+          @keydown.enter="onUpdateCurrentItem"
         />
       </template>
 
@@ -110,7 +111,7 @@
 import WaveSurfer from "wavesurfer.vue";
 import MVuwerLayout from "@/components/layouts/MVuwerLayout";
 import MVideoArray from "@/components/video/MVideoArray";
-import MTextGrid from "@/components/textgrid/MTextGrid";
+import MTextGrid from "@/components/MTextGrid";
 import MVuwerActions from "@/components/actions/MVuewerActions";
 import MDetailDialog from "@/components/dialogs/MDetailDialog";
 import MTierDialog from "@/components/dialogs/MTierDialog";
@@ -120,10 +121,11 @@ import MRulerDialog from "@/components/dialogs/MRulerDialog";
 import MImageEditDialog from "@/components/dialogs/MImageEditDialog";
 import MSpeedDial from "@/components/MSpeedDial";
 import MSettingMixin from "@/mixins/MSettingMixin";
+import MSnackbarMixin from "@/mixins/MSnackbarMixin";
 
 export default {
   name: "WVuwer",
-  mixins: [MSettingMixin],
+  mixins: [MSettingMixin, MSnackbarMixin],
   components: {
     MVuwerLayout,
     MVideoArray,
@@ -208,9 +210,12 @@ export default {
       // 現在フォーカスが当たっている TIER 情報
       tier: {
         key: null,
-        text: null,
-        time: null,
-        idx: null,
+        // 現在選択されている TIER ITEM
+        item: {
+          idx: 0,
+          text: "",
+          time: 0
+        },
         values: []
       },
       // 現在時刻のフレーム情報
@@ -323,12 +328,28 @@ export default {
     // TEXTGRID をシングルクリックされた場合の動作
     onClickTextGrid: function(obj) {
       if (obj.item) {
-        this.current.tier.key = obj.key;
-        this.current.tier.text = obj.item.text;
-        this.current.tier.time = obj.item.time;
+        this.current.key = obj.key;
+        this.current.text = obj.item.text;
+        this.current.time = obj.item.time;
       }
     },
+    // TEXTGRID の Text field がエンターされた場合
+    onUpdateCurrentItem: function() {
+      const tier = this.current.tier;
+      const key = tier.key;
+      const item = {
+        time: tier.item.time,
+        text: tier.item.text
+      };
+      const idx = this.current.tier.item.idx;
 
+      const len = this.textgrid[key].values.length;
+      if (len - 1 == idx) {
+        this.showWarning("最後の値は空です");
+      } else {
+        this.wavesurfer.setTierValue(key, idx, item);
+      }
+    },
     // TEXTGRID 情報が更新された場合の動作
     onTextGridUpdate: function(textgrid) {
       if (textgrid) {
@@ -341,15 +362,14 @@ export default {
 
     // TEXTGRID のフォーカス情報が更新された場合の動作
     onTextGridCurrentUpdate: function(payload) {
-      if (payload.key) this.current.tier.key = payload.key;
-      if (payload.index) this.current.tier.idx = payload.index;
-      // TODO: これ以降の処理は要検討
-      if (payload.tier) {
-        this.current.tier.time = payload.item.time;
-        this.current.tier.text = payload.item.text;
+      this.current.tier.key = payload.key;
+      this.current.tier.item.idx = payload.index;
+      if (payload.item) {
+        this.current.tier.item.time = payload.item.time;
+        this.current.tier.item.text = payload.item.text;
       } else {
-        this.current.tier.time = 0;
-        this.current.tier.text = "";
+        this.current.tier.item.time = 0;
+        this.current.tier.item.text = "";
       }
     },
 

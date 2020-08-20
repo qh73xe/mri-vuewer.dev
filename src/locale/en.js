@@ -110,7 +110,9 @@ export default {
       title: "NEW TIER FORM"
     },
     tierEdit: {
-      title: "EDIT TIER FORM"
+      title: "EDIT TIER FORM",
+      warning:
+        "Performing this process will initialize this tier. Do you want to process it?"
     },
     tierDelete: {
       title: "DELETE TIER FORM"

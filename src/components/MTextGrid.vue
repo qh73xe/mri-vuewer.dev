@@ -8,7 +8,7 @@
         @click-image-edit="$emit('click-image-edit')"
         @click-ruler="$emit('click-ruler')"
       />
-      <w-text-grid-table
+      <m-text-grid-table
         v-if="tab.i > 0"
         :title="tab.item"
         :tier="textgrid[tab.item]"
@@ -18,7 +18,7 @@
 </template>
 <script>
 import MTab from "@/components/base/MTab.vue";
-import WTextGridTable from "./WTextGridTable.vue";
+import MTextGridTable from "@/components/table/MTextGridTable.vue";
 import MFrameTable from "@/components/table/MFrameTable";
 import MWavesurferMixin from "@/mixins/MWavesurferMixin";
 export default {
@@ -26,7 +26,7 @@ export default {
   mixins: [MWavesurferMixin],
   components: {
     MTab,
-    WTextGridTable,
+    MTextGridTable,
     MFrameTable
   },
   props: {
@@ -38,6 +38,12 @@ export default {
     },
     videoHeight: {
       default: null
+    },
+    textgrid: {
+      type: Object,
+      default: function() {
+        return {};
+      }
     }
   },
   computed: {
