@@ -1,14 +1,21 @@
 <template>
   <v-form ref="form" v-model="valid">
-    <v-text-field :rules="nameRule" v-model="name" label="Tier Name" />
+    <v-autocomplete
+      :rules="nameRule"
+      v-model="oldName"
+      :items="tiers"
+      label="Tier Name"
+    />
+    <v-text-field :rules="newNameRUle" v-model="name" label="Tier Name" />
     <v-select :rules="required" v-model="type" :items="['interval', 'point']" />
   </v-form>
 </template>
 <script>
 export default {
-  name: "WTierFrom",
+  name: "WTierEditFrom",
   data: () => ({
     valid: false,
+    oldName: "",
     name: "",
     type: ""
   }),
@@ -19,6 +26,13 @@ export default {
   },
   computed: {
     nameRule: function() {
+      const rules = [
+        v => !!v || this.$vuetify.lang.t("$vuetify.validations.required"),
+        v => this.checkNameNotExist(v)
+      ];
+      return rules;
+    },
+    newNameRUle: function() {
       const rules = [
         v => !!v || this.$vuetify.lang.t("$vuetify.validations.required"),
         v => this.checkName(v)
@@ -35,6 +49,15 @@ export default {
     }
   },
   methods: {
+    checkNameNotExist: function(v) {
+      if (v) {
+        if (this.tiers.indexOf(v) == -1) {
+          return this.$vuetify.lang.t("$vuetify.validations.notExist");
+        }
+        return true;
+      }
+      return this.$vuetify.lang.t("$vuetify.validations.required");
+    },
     checkName: function(v) {
       if (v) {
         if (this.tiers.indexOf(v) > -1) {
@@ -47,11 +70,14 @@ export default {
     validate: function() {
       this.$refs.form.validate();
       if (this.valid) {
-        const item = {
-          name: this.name,
-          type: this.type
+        const payload = {
+          key: this.oldName,
+          item: {
+            name: this.name,
+            tyle: this.type
+          }
         };
-        this.$emit("validated", item);
+        this.$emit("validated", payload);
       }
     },
     reset: function() {

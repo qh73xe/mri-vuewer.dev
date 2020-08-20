@@ -57,7 +57,9 @@ export default {
     positiveFloat: "This is a positive float field!",
     maxVideoSize: `Video size should be less than ${store.state.setting.maxVideoSize} MB!`,
     hasArrayBuffer: "This is an unexpected video file [No Array buffer]!",
-    less: "this field must be less than {0} characters"
+    less: "This field must be less than {0} characters",
+    alreadyExists: "This value alredy exists",
+    notExist: "This value does not exist"
   },
   wVideo: {
     videoPre: {

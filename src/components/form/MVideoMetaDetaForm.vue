@@ -108,7 +108,7 @@ export default {
       for (const key of this.keys) {
         item[key] = this.metaData[key];
       }
-      this.$emit("valideted", item);
+      this.$emit("validated", item);
     },
     reset() {
       this.$refs.form.reset();
@@ -122,7 +122,7 @@ export default {
         value: null,
         valid: false
       };
-      this.$emit("valideted", null);
+      this.$emit("validated", null);
     }
   }
 };

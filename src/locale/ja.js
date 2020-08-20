@@ -57,7 +57,9 @@ export default {
     positiveFloat: "この項目は正の数値です!",
     maxVideoSize: `登録可能な動画ファイルサイズは ${store.state.setting.maxVideoSize} MB までです!`,
     hasArrayBuffer: "想定外の動画ファイルです [No Array buffer]!",
-    less: "この値は {0} 文字以下です."
+    less: "この値は {0} 文字以下です.",
+    alreadyExists: "この値は既に存在しています.",
+    notExist: "この値は存在しません"
   },
   forms: {
     db: {

@@ -62,7 +62,7 @@ export default {
             height: Number(this.video.originSize.height)
           }
         };
-        this.$emit("valideted", item);
+        this.$emit("validated", item);
       }
     },
     reset: function() {

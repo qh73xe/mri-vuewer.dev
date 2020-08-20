@@ -42,7 +42,7 @@ export default {
         if (e.size < this.maxVideoSize) {
           this.video.name = e.name;
           this.video.source = await io.file.toBase64(e);
-          this.$emit("valideted", this.video);
+          this.$emit("validated", this.video);
         }
       }
     },
@@ -52,7 +52,7 @@ export default {
     onLoaded: function(payload) {
       if (payload) {
         this.video = payload;
-        this.$emit("valideted", this.video);
+        this.$emit("validated", this.video);
       }
     }
   },

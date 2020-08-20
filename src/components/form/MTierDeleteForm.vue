@@ -1,16 +1,20 @@
 <template>
   <v-form ref="form" v-model="valid">
-    <v-text-field :rules="nameRule" v-model="name" label="Tier Name" />
-    <v-select :rules="required" v-model="type" :items="['interval', 'point']" />
+    <v-autocomplete
+      :rules="nameRule"
+      v-model="names"
+      :items="tiers"
+      label="Tier Name"
+      multiple
+    />
   </v-form>
 </template>
 <script>
 export default {
-  name: "WTierFrom",
+  name: "WTierDeleteFrom",
   data: () => ({
     valid: false,
-    name: "",
-    type: ""
+    names: []
   }),
   props: {
     tiers: {
@@ -24,21 +28,15 @@ export default {
         v => this.checkName(v)
       ];
       return rules;
-    },
-    required: function() {
-      if (this.$vuetify) {
-        return [
-          v => !!v || this.$vuetify.lang.t("$vuetify.validations.required")
-        ];
-      }
-      return [];
     }
   },
   methods: {
     checkName: function(v) {
       if (v) {
-        if (this.tiers.indexOf(v) > -1) {
-          return this.$vuetify.lang.t("$vuetify.validations.alreadyExists");
+        for (const x of v) {
+          if (this.tiers.indexOf(x) == -1) {
+            return this.$vuetify.lang.t("$vuetify.validations.notExist");
+          }
         }
         return true;
       }
@@ -48,8 +46,7 @@ export default {
       this.$refs.form.validate();
       if (this.valid) {
         const item = {
-          name: this.name,
-          type: this.type
+          names: this.names
         };
         this.$emit("validated", item);
       }

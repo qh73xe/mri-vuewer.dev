@@ -85,9 +85,9 @@
         @click-tier-delete="onClickTierDelete"
       />
       <m-detail-dialog v-model="dialog.detail.show" :src="current.frame.src" />
-      <m-tier-dialog v-model="dialog.tier.show" />
-      <m-tier-edit-dialog v-model="dialog.tierEdit.show" />
-      <m-tier-delete-dialog v-model="dialog.tierDelete.show" />
+      <m-tier-dialog v-model="dialog.tier.show" :tiers="tiers" />
+      <m-tier-edit-dialog v-model="dialog.tierEdit.show" :tiers="tiers" />
+      <m-tier-delete-dialog v-model="dialog.tierDelete.show" :tiers="tiers" />
       <m-ruler-dialog
         v-if="originSize.width"
         v-model="dialog.ruler.show"
@@ -158,6 +158,13 @@ export default {
       type: Object,
       required: true
     },
+    // 既存アノテーション情報
+    oldTextgrid: {
+      type: Object,
+      default: function() {
+        return {};
+      }
+    },
     // 各種画像アノテーション結果
     frames: {
       type: Array,
@@ -175,6 +182,7 @@ export default {
     videoElm: null, // WS のレンダ対象
     videoHeight: null, // ビデオ表示領域の最大幅
     isLoading: false, // WS がレンダ中か否か
+    isSyncing: false, // 過去データを反映中か否か
     dialog: {
       detail: {
         show: false
@@ -214,7 +222,8 @@ export default {
         rects: [],
         texts: []
       }
-    }
+    },
+    tiers: []
   }),
   computed: {
     wavesurfer: {
@@ -243,6 +252,19 @@ export default {
       return this.frameOffset * this.frameRate;
     }
   },
+  watch: {
+    textgrid: {
+      handler: function(val, oldVal) {
+        if (val && val != oldVal) {
+          this.tiers = [];
+          for (const key in val) {
+            this.tiers.push(key);
+          }
+        }
+      },
+      deep: true
+    }
+  },
   methods: {
     // 動画表示領域の最大高さが決定された場合の動作
     onResize: function(payload) {
@@ -255,6 +277,7 @@ export default {
         this.$nextTick(() => {
           // 他コンポーネントで WS の操作を実施可能にする
           this.wavesurfer = this.$refs.wavesurfer;
+
           // レイアウトのリサイズ
           this.$refs.layout.onResize();
         });
@@ -273,6 +296,17 @@ export default {
 
     // スペクトログラムのレンダが終了した場合の動作
     onSpectrogramRenderEnd() {
+      // 既存のアノテーション情報を反映
+      if (this.oldTextgrid) {
+        this.isSyncing = true;
+        for (const key in this.oldTextgrid) {
+          this.wavesurfer.addTier(key, this.oldTextgrid[key].type);
+          for (const val of this.oldTextgrid[key].values) {
+            if (val) this.wavesurfer.addTierValue(key, val);
+          }
+        }
+        this.isSyncing = false;
+      }
       this.isLoading = false;
     },
 
@@ -297,14 +331,20 @@ export default {
 
     // TEXTGRID 情報が更新された場合の動作
     onTextGridUpdate: function(textgrid) {
-      this.textgrid = textgrid;
+      if (textgrid) {
+        this.textgrid = Object.assign({}, textgrid);
+        if (!this.isSyncing) {
+          this.$emit("textgrid-updated", this.textgrid);
+        }
+      }
     },
 
     // TEXTGRID のフォーカス情報が更新された場合の動作
     onTextGridCurrentUpdate: function(payload) {
-      this.current.tier.key = payload.key;
-      this.current.tier.idx = payload.index;
-      if (payload.tier.item) {
+      if (payload.key) this.current.tier.key = payload.key;
+      if (payload.index) this.current.tier.idx = payload.index;
+      // TODO: これ以降の処理は要検討
+      if (payload.tier) {
         this.current.tier.time = payload.item.time;
         this.current.tier.text = payload.item.text;
       } else {

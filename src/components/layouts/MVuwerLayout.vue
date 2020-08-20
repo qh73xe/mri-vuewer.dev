@@ -29,7 +29,7 @@
         tile
       >
         <v-row>
-          <v-col class="pa-0">
+          <v-col class="py-0">
             <slot></slot>
           </v-col>
         </v-row>

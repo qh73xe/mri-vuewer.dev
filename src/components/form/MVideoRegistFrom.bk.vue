@@ -12,7 +12,7 @@
         <v-card>
           <span>{{ stepName }}</span>
           <v-card-text>
-            <m-video-file-form v-if="e1 == 1" @valideted="onValidateVideo" />
+            <m-video-file-form v-if="e1 == 1" @validated="onValidateVideo" />
           </v-card-text>
         </v-card>
       </v-stepper-content>
@@ -24,7 +24,7 @@
             <div v-html="`${t('$vuetify.forms.video.desc.confirmation')}`" />
             <m-video-codec-form
               v-if="e1 == 2"
-              @valideted="onValidateCodec"
+              @validated="onValidateCodec"
               ref="codecForm"
               :value="video"
             />
@@ -68,7 +68,7 @@
               v-html="`${t('$vuetify.forms.video.desc.meta')}`"
             />
             <m-video-meta-data-form
-              @valideted="onValidateMetaData"
+              @validated="onValidateMetaData"
               ref="metaForm"
             />
           </v-card-text>

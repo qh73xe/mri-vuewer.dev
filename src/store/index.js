@@ -3,6 +3,7 @@ import Vuex from "vuex";
 
 import wcards from "./wcards.js";
 import snackbar from "./snackbar.js";
+import logging from "./logging.js";
 
 import setting from "./setting.js";
 import current from "./current";
@@ -31,6 +32,7 @@ export default new Vuex.Store({
   modules: {
     snackbar,
     wcards,
+    logging,
     setting,
     current,
     files

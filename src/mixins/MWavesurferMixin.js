@@ -69,7 +69,9 @@ export default {
       if (this.$ws) this.$ws.updateTier(key, obj);
     },
     deleteTier: function(key) {
-      if (this.$ws) this.$ws.deleteTier(key);
+      if (this.$ws) {
+        this.$ws.deleteTier(key);
+      }
     },
     addTierValue: function(key, obj) {
       if (this.$ws) this.$ws.addTierValue(key, obj);
