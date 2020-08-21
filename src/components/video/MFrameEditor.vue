@@ -1,25 +1,5 @@
 <template>
   <v-card ref="card" class="mx-auto" color="grey">
-    <v-toolbar dense>
-      <v-spacer />
-      <v-btn icon>
-        <v-menu transition="slide-y-transition" bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item @click="mode = 'point'">
-              <v-list-item-title>point</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="mode = 'rect'">
-              <v-list-item-title>rect</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-btn>
-    </v-toolbar>
     <v-stage
       ref="stage"
       :config="canvas"
@@ -65,6 +45,26 @@
         <v-transformer ref="transformer" />
       </v-layer>
     </v-stage>
+    <v-toolbar dense>
+      <v-spacer />
+      <v-btn icon>
+        <v-menu transition="slide-y-transition" bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item @click="mode = 'point'">
+              <v-list-item-title>point</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="mode = 'rect'">
+              <v-list-item-title>rect</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-btn>
+    </v-toolbar>
   </v-card>
 </template>
 <script>
@@ -196,34 +196,28 @@ export default {
       this.updateTransformer();
     },
     onTransformEnd(e) {
-      // shape is transformed, let us save new attrs back to the node
-      // find element in our state
       const rect = this.rects.find(r => r.name === this.selectedShapeName);
-      // update the state
-      rect.x = e.target.x();
-      rect.y = e.target.y();
-      rect.rotation = e.target.rotation();
-      rect.scaleX = e.target.scaleX();
-      rect.scaleY = e.target.scaleY();
+      console.log(rect, e);
+      // TODO ここで更新式を記述
+      // rect.x = e.target.x();
+      // rect.y = e.target.y();
+      // rect.rotation = e.target.rotation();
+      // rect.scaleX = e.target.scaleX();
+      // rect.scaleY = e.target.scaleY();
     },
 
     updateTransformer() {
-      // here we need to manually attach or detach Transformer node
       const transformerNode = this.$refs.transformer.getNode();
       const stage = transformerNode.getStage();
       const { selectedShapeName } = this;
-
       const selectedNode = stage.findOne("." + selectedShapeName);
-      // do nothing if selected node is already attached
       if (selectedNode === transformerNode.node()) {
         return;
       }
 
       if (selectedNode) {
-        // attach to another node
         transformerNode.nodes([selectedNode]);
       } else {
-        // remove transformer
         transformerNode.nodes([]);
       }
       transformerNode.getLayer().batchDraw();
