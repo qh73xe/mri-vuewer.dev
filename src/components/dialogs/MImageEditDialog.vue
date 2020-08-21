@@ -13,22 +13,25 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </template>
-    <v-card-text>
-      this is ruler dialog
-    </v-card-text>
+    <m-frame-editor :src="src" />
   </m-card-dialog>
 </template>
 <script>
 import MCardDialog from "@/components/base/dialog/MCardDialog";
+import MFrameEditor from "@/components/video/MFrameEditor.vue";
 export default {
   name: "m-image-edit-dialog",
-  components: { MCardDialog },
+  components: { MCardDialog, MFrameEditor },
   data: () => ({
     title: "$vuetify.forms.ruler.title"
   }),
   props: {
     value: {
       type: Boolean
+    },
+    src: {
+      type: String,
+      required: true
     }
   },
   computed: {

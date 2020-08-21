@@ -4,13 +4,18 @@ import VideoRegister from "@/views/example/VideoRegister";
 import VideoCard from "@/views/example/VideoCard.vue";
 import WindowCard from "@/views/example/WindowCard";
 
+import ImageEdit from "@/views/example/ImageEdit";
+import Rects from "@/views/example/rects";
+
 const basename = "example";
 const components = [
   Current,
   VideoRegister,
   GetVideoInfoInput,
   VideoCard,
-  WindowCard
+  WindowCard,
+  ImageEdit,
+  Rects
 ];
 export default components.map(x => {
   return {

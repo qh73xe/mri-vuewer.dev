@@ -3,10 +3,13 @@
     app
     v-model="drawer"
     temporary
-    style="top: 60px"
     class="py-0"
     width="400px"
   >
+    <v-list dense nav color="blue-grey" dark>
+      <v-list-item> </v-list-item>
+    </v-list>
+
     <v-list dense nav color="blue-grey" dark>
       <v-list-item two-line>
         <v-list-item-avatar>

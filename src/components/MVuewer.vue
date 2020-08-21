@@ -95,7 +95,11 @@
         :origin-size="originSize"
         :src="current.frame.src"
       />
-      <m-image-edit-dialog v-model="dialog.imageEdit.show" />
+      <m-image-edit-dialog
+        v-if="current.frame.src"
+        v-model="dialog.imageEdit.show"
+        :src="current.frame.src"
+      />
     </template>
   </m-vuwer-layout>
 </template>
