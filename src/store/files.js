@@ -35,6 +35,7 @@ export default {
     }
   },
   actions: {
+    // ファイルストア初期化
     init: function(context) {
       return new Promise((resolve, reject) => {
         context.commit("isLoading", true);
@@ -48,10 +49,13 @@ export default {
                 for (const x of items) {
                   context.commit("push", x);
                 }
+                context.commit("isLoading", false);
                 resolve(true);
               })
-              .catch(error => reject(error))
-              .finally(() => context.commit("isLoading", false));
+              .catch(error => {
+                context.commit("isLoading", false);
+                reject(error);
+              });
           })
           .catch(error => {
             context.commit("isLoading", false);
@@ -59,6 +63,7 @@ export default {
           });
       });
     },
+    // ファイル一覧の取得
     load: function(context, payload) {
       return new Promise((resolve, reject) => {
         context.commit("isLoading", true);
@@ -72,6 +77,7 @@ export default {
           .finally(() => context.commit("isLoading", false));
       });
     },
+    // ファイル一覧を JSON 形式で出力
     dump: function(context) {
       return new Promise((resolve, reject) => {
         context.commit("isLoading", true);
@@ -81,6 +87,7 @@ export default {
           .finally(() => context.commit("isLoading", false));
       });
     },
+    // ファイルDB をクリア
     clear: function(context) {
       return new Promise((resolve, reject) => {
         context.commit("isLoading", true);
@@ -94,19 +101,7 @@ export default {
           .finally(() => context.commit("isLoading", false));
       });
     },
-    destroy: function(context, id) {
-      return new Promise((resolve, reject) => {
-        context.commit("isLoading", true);
-        db.files
-          .delete(id)
-          .then(() => {
-            context.commit("destroy", id);
-            resolve(id);
-          })
-          .catch(error => reject(error))
-          .finally(() => context.commit("isLoading", true));
-      });
-    },
+    // 一つのファイルを追加
     push: function(context, obj) {
       return new Promise((resolve, reject) => {
         context.commit("isLoading", true);
@@ -117,7 +112,21 @@ export default {
             resolve(id);
           })
           .catch(error => reject(error))
-          .finally(() => context.commit("isLoading", true));
+          .finally(() => context.commit("isLoading", false));
+      });
+    },
+    // 一つのファイルを削除
+    destroy: function(context, id) {
+      return new Promise((resolve, reject) => {
+        context.commit("isLoading", true);
+        db.files
+          .delete(id)
+          .then(() => {
+            context.commit("destroy", id);
+            resolve(id);
+          })
+          .catch(error => reject(error))
+          .finally(() => context.commit("isLoading", false));
       });
     }
   }
