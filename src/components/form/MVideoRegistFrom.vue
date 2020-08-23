@@ -10,7 +10,9 @@
     <v-stepper-items>
       <v-stepper-content class="pb-0" step="1">
         <v-card>
+          <m-help :text="`${t('$vuetify.forms.video.desc.select')}`" />
           <span>{{ stepName }}</span>
+
           <v-card-text>
             <m-video-file-form v-if="e1 == 1" @validated="onValidateVideo" />
           </v-card-text>
@@ -19,9 +21,9 @@
 
       <v-stepper-content step="2">
         <v-card>
+          <m-help :text="`${t('$vuetify.forms.video.desc.confirmation')}`" />
           <span>{{ stepName }}</span>
           <v-card-text>
-            <div v-html="`${t('$vuetify.forms.video.desc.confirmation')}`" />
             <m-video-codec-form
               v-if="e1 == 2"
               @validated="onValidateCodec"
@@ -61,12 +63,11 @@
           </v-card-actions>
         </v-card>
         <v-card v-else>
-          <span>{{ stepName }}</span>
+          <v-card-title>
+            <span class="ml-2">{{ stepName }}</span>
+            <m-help :text="`${t('$vuetify.forms.video.desc.meta')}`" />
+          </v-card-title>
           <v-card-text>
-            <div
-              class="mb-5"
-              v-html="`${t('$vuetify.forms.video.desc.meta')}`"
-            />
             <m-video-meta-data-form
               @validated="onValidateMetaData"
               ref="metaForm"
@@ -86,16 +87,18 @@
   </v-stepper>
 </template>
 <script>
+import MHelp from "@/components/base/MHelp";
 import MLoadingCard from "@/components/base/card/MLoadingCard";
 import MVideoFileForm from "@/components/form/MVideoFileForm";
 import MVideoCodecForm from "@/components/form/MVideoCodecForm";
-import MVideoMetaDataForm from "@/components/form/MVideoMetaDetaForm";
+import MVideoMetaDataForm from "@/components/form/MVideoMetaDataForm";
 import MSettingMixin from "@/mixins/MSettingMixin.js";
 import io from "@/io";
 export default {
   name: "m-video-regist-from",
   mixins: [MSettingMixin],
   components: {
+    MHelp,
     MLoadingCard,
     MVideoFileForm,
     MVideoCodecForm,

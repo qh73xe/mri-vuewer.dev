@@ -12,19 +12,17 @@ export default {
       state.files.push(obj);
       state.count = state.count + 1;
     },
+    update: function(state, obj) {
+      const idx = state.files.findIndex(x => x.id == obj.id);
+      if (idx > -1) {
+        state.files[idx] = obj;
+      }
+    },
     destroy: function(state, id) {
       const i = state.files.findIndex(x => x.id == id);
       if (i > -1) {
         state.files.splice(i, 1);
         state.count = state.count - 1;
-      }
-    },
-    replace: function(state, obj) {
-      if (obj.id) {
-        const i = state.files.findIndex(x => x.id == obj.id);
-        if (i > -1) {
-          state.files[i] = obj;
-        }
       }
     },
     isLoading: function(state, payload) {

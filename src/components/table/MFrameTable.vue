@@ -46,39 +46,36 @@
     </template>
 
     <template v-slot:item.actions="{ item }">
-      <v-row>
-        <v-btn class="mr-1" fab dark x-small @click="seek(item.time)">
-          <v-icon x-small>
-            mdi-format-horizontal-align-right
-          </v-icon>
-        </v-btn>
+      <v-btn class="mr-1" fab dark x-small @click="seek(item.time)">
+        <v-icon>
+          mdi-format-horizontal-align-right
+        </v-icon>
+      </v-btn>
 
-        <v-btn
-          class="mr-1"
-          fab
-          dark
-          x-small
-          v-if="$vuetify.breakpoint.mdAndUp"
-          color="orange"
-          @click="$emit('click-image-edit')"
-        >
-          <v-icon>mdi-selection-drag</v-icon>
-        </v-btn>
+      <v-btn
+        class="mr-1"
+        fab
+        dark
+        x-small
+        v-if="$vuetify.breakpoint.mdAndUp"
+        color="orange"
+        @click="$emit('click-image-edit')"
+      >
+        <v-icon>mdi-selection-drag</v-icon>
+      </v-btn>
 
-        <v-btn
-          @click="$emit('click-ruler')"
-          class="mr-1"
-          v-if="$vuetify.breakpoint.lgAndUp"
-          fab
-          dark
-          x-small
-          color="orange"
-        >
-          <v-icon x-small>
-            mdi-ruler
-          </v-icon>
-        </v-btn>
-      </v-row>
+      <v-btn
+        @click="$emit('click-ruler')"
+        v-if="$vuetify.breakpoint.lgAndUp"
+        fab
+        dark
+        x-small
+        color="orange"
+      >
+        <v-icon>
+          mdi-ruler
+        </v-icon>
+      </v-btn>
     </template>
     <template v-slot:no-data>
       <v-alert type="warning">
@@ -112,7 +109,12 @@ export default {
       { text: "points", value: "points" },
       { text: "rects", value: "rects" },
       { text: "texts", value: "texts" },
-      { text: "Actions", value: "actions", sortable: false }
+      {
+        text: "Actions",
+        value: "actions",
+        sortable: false,
+        align: "end"
+      }
     ]
   })
 };

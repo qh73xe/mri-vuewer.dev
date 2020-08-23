@@ -3,6 +3,17 @@
     <v-app-bar-nav-icon @click="drawer = !drawer" />
     <v-toolbar-title> {{ title }} </v-toolbar-title>
     <v-spacer></v-spacer>
+    <v-text-field
+      solo
+      rounded
+      hide-details
+      label="Search"
+      v-model="keyword"
+      v-if="isSearch"
+      background-color="primary lighten-1"
+      prepend-inner-icon="mdi-magnify"
+    />
+    <v-spacer />
     <v-toolbar-title class="mr-3"> {{ fileInfo }} </v-toolbar-title>
     <v-btn icon @click="to({ name: 'Home' })">
       <v-icon>mdi-home</v-icon>
@@ -43,6 +54,17 @@ export default {
     },
     title: function() {
       return `${this.name} ver ${this.version}`;
+    },
+    isSearch: function() {
+      return this.$store.state.search.show;
+    },
+    keyword: {
+      get() {
+        return this.$store.state.search.keyword;
+      },
+      set(val) {
+        this.$store.commit("search/keyword", val);
+      }
     },
     fileInfo: function() {
       const filename = this.$store.state.current.video.filename;

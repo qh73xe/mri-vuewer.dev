@@ -68,8 +68,8 @@
             <v-list-item-title>{{ item.name }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
-            <v-btn @click.stop="fileDestroy(item)" icon>
-              <v-icon color="error">mdi-delete</v-icon>
+            <v-btn small @click.stop="fileDestroy(item)" icon>
+              <v-icon small color="error">mdi-delete</v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>

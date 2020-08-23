@@ -5,6 +5,10 @@ db.version(1).stores({
   files:
     "++id,name,source,fps,duration,originSize,videoStream,audioStream,meta,frames,textgrid"
 });
+db.version(2).stores({
+  files:
+    "++id,name,source,fps,duration,originSize,videoStream,audioStream,metaData,frames,textgrid"
+});
 
 const dump = function() {
   return new Promise((resolve, reject) => {

@@ -3,11 +3,13 @@ import Vuex from "vuex";
 
 import wcards from "./wcards.js";
 import snackbar from "./snackbar.js";
+import search from "./search.js";
 import logging from "./logging.js";
 
 import setting from "./setting.js";
 import current from "./current";
 import files from "./files";
+import metadata from "./metadata.js";
 
 Vue.use(Vuex);
 
@@ -31,10 +33,12 @@ export default new Vuex.Store({
   actions: {},
   modules: {
     snackbar,
+    search,
     wcards,
     logging,
     setting,
     current,
-    files
+    files,
+    metadata
   }
 });

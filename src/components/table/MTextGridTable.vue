@@ -12,20 +12,12 @@
         <p>now loading...</p>
       </m-loading-dialog>
       <v-btn class="mr-1" fab dark x-small @click="seek(item.time)">
-        <v-icon x-small>
+        <v-icon>
           mdi-format-horizontal-align-right
         </v-icon>
       </v-btn>
-
-      <v-btn
-        class="mr-1"
-        color="error"
-        fab
-        dark
-        x-small
-        @click="deleteItem(item)"
-      >
-        <v-icon x-small>
+      <v-btn color="error" fab dark x-small @click="deleteItem(item)">
+        <v-icon>
           mdi-delete
         </v-icon>
       </v-btn>
@@ -83,7 +75,12 @@ export default {
         }
       }
       headers.push({ text: "Text", value: "text" });
-      headers.push({ text: "Actions", value: "actions", sortable: false });
+      headers.push({
+        text: "Actions",
+        value: "actions",
+        sortable: false,
+        align: "end"
+      });
       return headers;
     },
     items: function() {
@@ -111,9 +108,6 @@ export default {
     }
   },
   methods: {
-    editItem(item) {
-      console.log(item);
-    },
     deleteItem(item) {
       const vm = this;
       setTimeout(() => {

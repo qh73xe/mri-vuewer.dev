@@ -88,12 +88,33 @@ export default {
         meta: "Addtion of Meta Data"
       },
       desc: {
-        confirmation:
-          "Check the following information and press <kbd>OK</kbd> botton if everything is OK.",
+        select: `
+        Register the video file to be analyzed.
+        <br />
+        Only mp4 video files can be registered.
+        <br />
+        <br />
+        If "Get video codec at file upload." is checked,
+        the encoding information will be acquired automatically.
+
+        `,
+        confirmation: `
+        Check the following information and press <kbd>OK</kbd> botton
+        if everything is OK.`,
         meta: `
-      To register a speaker, enter 'speaker' in <code>key field</code> and the speaker name in <code>value field</code>, then, press the <kbd>+</kbd> button.
-      <br />
-      Finally, click the <kbd>OK</kbd> button to register.`
+        Register the video metadata.
+        </br></br>
+        For example, when registering speaker information,
+        enter "speaker" in <code>New field</code> and click the <kbd>ADD</kbd> button.
+        </br>
+        If the above process is successful,
+        <code>speaker</code> input form will be created.
+        </br></br>
+        The registered <code>field</code> can be used next time.
+        </br></br>
+        Fill in all the forms created.
+        <br />
+        Finally, click the <kbd>OK</kbd> button to register.`
       }
     },
     db: {
@@ -164,6 +185,9 @@ export default {
           hint:
             "Sets the timeout period for system messages. Setting this field to -1 will prevent automatic hiding."
         }
+      },
+      metadata: {
+        label: "New Field"
       },
       loading: {
         label: "File upload settings",

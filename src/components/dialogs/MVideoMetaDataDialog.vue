@@ -1,14 +1,18 @@
 <template>
-  <m-card-dialog :title="$vuetify.lang.t(title)" v-model="dialog">
+  <m-card-dialog
+    :title="$vuetify.lang.t(title)"
+    titleColor="green"
+    v-model="dialog"
+  >
     <template v-slot:activator="{ on, attrs }">
       <slot name="activator" :on="on" :attrs="attrs"></slot>
     </template>
-    <v-card>
+    <v-card color="grey lighten-2">
       <v-card-text>
-        <m-tier-form
+        <m-video-meta-data-form
           ref="form"
           v-if="dialog"
-          :tiers="tiers"
+          :current-item="currentItem"
           @validated="onValidated"
         />
       </v-card-text>
@@ -22,21 +26,22 @@
 </template>
 <script>
 import MCardDialog from "@/components/base/dialog/MCardDialog";
-import MTierForm from "@/components/form/MTierForm";
-import MWavesurferMixin from "@/mixins/MWavesurferMixin";
+import MVideoMetaDataForm from "@/components/form/MVideoMetaDataForm";
 export default {
-  name: "m-tier-dialog",
-  components: { MCardDialog, MTierForm },
-  mixins: [MWavesurferMixin],
+  name: "m-video-meta-data-dialog",
+  components: { MCardDialog, MVideoMetaDataForm },
   data: () => ({
-    title: "$vuetify.forms.tier.title"
+    title: "$vuetify.forms.video.steps.meta"
   }),
   props: {
     value: {
       type: Boolean
     },
-    tiers: {
-      type: Array
+    currentItem: {
+      type: Object,
+      default: function() {
+        return {};
+      }
     }
   },
   computed: {
@@ -64,10 +69,11 @@ export default {
       this.$refs.form.validate();
     },
     onValidated: function(payload) {
-      this.addTier(payload.name, payload.type);
+      this.$emit("validated", payload);
       this.close();
     }
   }
 };
 </script>
+
 <style scoped></style>
