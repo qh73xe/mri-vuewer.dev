@@ -52,6 +52,7 @@
     >
       <template v-slot:textform>
         <v-text-field
+          ref="input"
           v-if="current.tier.key"
           v-model="current.tier.item.text"
           class="ma-0"
@@ -275,6 +276,16 @@ export default {
     }
   },
   methods: {
+    // 現在注目している箇所を再生
+    playCurrent: function() {
+      const key = this.current.tier.key;
+      const idx = this.current.tier.item.idx;
+      const item = this.textgrid[key].values[idx];
+      const prev = this.textgrid[key].values[idx - 1];
+      if (item.time && prev.time) {
+        this.wavesurfer.play(prev.time, item.time);
+      }
+    },
     // 動画表示領域の最大高さが決定された場合の動作
     onResize: function(payload) {
       this.videoHeight = payload;
@@ -400,7 +411,26 @@ export default {
     },
     onClickTierDelete: function() {
       this.dialog.tierDelete.show = true;
+    },
+    onKeyDown(event) {
+      // space 入力時に input がアクティブでなければ現在時刻を再生
+      if (event.keyCode === 32) {
+        if (!this.$refs.input.isFocused) {
+          event.preventDefault();
+          this.playCurrent();
+        }
+      }
     }
+  },
+  mounted: function() {
+    const vm = this;
+    window.addEventListener("keyup", vm.onKeyDown, {
+      passive: false
+    });
+  },
+  beforeDestroy: function() {
+    const vm = this;
+    window.removeEventListener("keyup", vm.onKeyDown);
   }
 };
 </script>

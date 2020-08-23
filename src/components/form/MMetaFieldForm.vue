@@ -29,10 +29,12 @@ export default {
       return false;
     },
     validate: function() {
-      this.$refs.form.validate();
-      if (this.valid) {
-        this.$store.commit("metadata/add", this.name);
-        this.$emit("validated", this.name);
+      if (this.$refs.form) {
+        this.$refs.form.validate();
+        if (this.valid) {
+          this.$store.commit("metadata/add", this.name);
+          this.$emit("validated", this.name);
+        }
       }
     },
     reset: function() {

@@ -7,15 +7,51 @@
     sort-by="time"
     class="elevation-1"
   >
+    <template v-slot:item.time="{ item }">
+      <span class="d-inline-block text-truncate" style="max-width: 30px;">
+        {{ item.time }}
+      </span>
+    </template>
+    <template v-slot:item.start="{ item }">
+      <span class="d-inline-block text-truncate" style="max-width: 30px;">
+        {{ item.start }}
+      </span>
+    </template>
+    <template v-slot:item.end="{ item }">
+      <span class="d-inline-block text-truncate" style="max-width: 30px;">
+        {{ item.end }}
+      </span>
+    </template>
+
     <template v-slot:item.actions="{ item }">
       <m-loading-dialog ref="loading">
         <p>now loading...</p>
       </m-loading-dialog>
-      <v-btn class="mr-1" fab dark x-small @click="seek(item.time)">
+      <v-btn
+        v-if="tier && tier.type == 'point'"
+        class="mr-1"
+        fab
+        dark
+        x-small
+        @click="seek(item.time)"
+      >
         <v-icon>
           mdi-format-horizontal-align-right
         </v-icon>
       </v-btn>
+      <v-btn
+        v-if="tier && tier.type == 'interval'"
+        class="mr-1"
+        fab
+        dark
+        x-small
+        @click="play(item.start, item.end)"
+      >
+        <v-icon>
+          mdi-play
+        </v-icon>
+      </v-btn>
+
       <v-btn color="error" fab dark x-small @click="deleteItem(item)">
         <v-icon>
           mdi-delete

@@ -76,8 +76,12 @@ export default {
       this.keys.splice(idx, 1);
     },
     validate() {
-      this.$refs.form.validate();
-      if (this.valid) {
+      if (this.$refs.form) {
+        this.$refs.form.validate();
+        if (this.valid) {
+          this.$emit("validated", this.item);
+        }
+      } else {
         this.$emit("validated", this.item);
       }
     },

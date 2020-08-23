@@ -28,6 +28,9 @@ export default {
       return this.getCurrentTime() / this.getDuration();
     },
     // 動画操作
+    play: function(start, end) {
+      if (this.$ws) this.$ws.play(Number(start), Number(end));
+    },
     playPause: function() {
       if (this.$ws) this.$ws.playPause();
     },
