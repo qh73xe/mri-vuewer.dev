@@ -25,7 +25,7 @@
 
     <template v-slot:item.actions="{ item }">
       <m-loading-dialog ref="loading">
-        <p>now loading...</p>
+        <p>{{ $vuetify.lang.t("$vuetify.loading") }}</p>
       </m-loading-dialog>
       <v-btn
         v-if="tier && tier.type == 'point'"

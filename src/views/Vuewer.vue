@@ -11,7 +11,7 @@
       @textgrid-updated="onTextGridUpdated"
     />
     <m-loading-dialog v-model="isLoading">
-      now loading ...
+      {{ $vuetify.lang.t("$vuetify.loading") }}
     </m-loading-dialog>
   </v-container>
 </template>

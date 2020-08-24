@@ -243,6 +243,41 @@ export default {
         showFreqLabel: {
           label: "Display Frequency Axis Label"
         }
+      },
+      textgrid: {
+        label: "Annotation Settings",
+        playOffset: {
+          label: "play offset",
+          hint: "Offset time for playing the point record."
+        },
+        addRecordKey: {
+          label: "Record add opetetion",
+          dbl: "DOUBLE CLICK",
+          ctrl: "CTRL + CLICK",
+          alt: "ALT + CLICK"
+        },
+        deleteRecordKey: {
+          label: "Record delete opetetion",
+          delete: "DELETE",
+          ctrl: "CTRL + DELETE",
+          alt: "ALT + DELETE"
+        }
+      }
+    }
+  },
+  loading: "Now Loading ...",
+  textgrid: {
+    name: "TextGrid",
+    tier: {
+      name: "Tier",
+      option: {
+        name: "Tier Name",
+        type: "Tier Type"
+      },
+      interval: "Interval Tier",
+      point: "Point Tier",
+      record: {
+        name: "Time Record"
       }
     }
   }

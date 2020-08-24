@@ -23,59 +23,63 @@
       />
     </template>
 
-    <wave-surfer
-      ref="wavesurfer"
-      backend="MediaElement"
-      splitChannels
-      normalize
-      responsive
-      scrollParent
-      showTextGrid
-      :source="videoElm"
-      :skipLength="skipLength"
-      :minPxPerSec="minPxPerSec"
-      :freqRate="freqRate"
-      :targetChannel="targetChannel"
-      :spectrogramHeight="spectrogramHeight"
-      :showTimeLine="showTimeLine"
-      :showSpectrogram="showSpectrogram"
-      :showFreqLabel="showFreqLabel"
-      :cursorColor="cursorColor"
-      :waveColor="waveColor"
-      :progressColor="progressColor"
-      @spectrogram-render-start="onSpectrogramRenderStart"
-      @spectrogram-render-end="onSpectrogramRenderEnd"
-      @textgrid-dblclick="onDblclickTextGrid"
-      @textgrid-click="onClickTextGrid"
-      @textgrid-update="onTextGridUpdate"
-      @textgrid-current-update="onTextGridCurrentUpdate"
-    >
-      <template v-slot:textform>
-        <v-text-field
-          ref="input"
-          v-if="current.tier.key"
-          v-model="current.tier.item.text"
-          class="ma-0"
-          label="text"
-          outline
-          hide-details
-          :disabled="current.tier.key == null"
-          @keydown.enter="onUpdateCurrentItem"
-        />
-      </template>
+    <v-card>
+      <wave-surfer
+        ref="wavesurfer"
+        backend="MediaElement"
+        splitChannels
+        normalize
+        responsive
+        scrollParent
+        showTextGrid
+        textgrid-max-height="100px"
+        :source="videoElm"
+        :skipLength="skipLength"
+        :minPxPerSec="minPxPerSec"
+        :freqRate="freqRate"
+        :targetChannel="targetChannel"
+        :spectrogramHeight="spectrogramHeight"
+        :showTimeLine="showTimeLine"
+        :showSpectrogram="showSpectrogram"
+        :showFreqLabel="showFreqLabel"
+        :cursorColor="cursorColor"
+        :waveColor="waveColor"
+        :progressColor="progressColor"
+        @spectrogram-render-start="onSpectrogramRenderStart"
+        @spectrogram-render-end="onSpectrogramRenderEnd"
+        @textgrid-click="onTextGridClick"
+        @textgrid-dblclick="onTextGridDblClick"
+        @textgrid-update="onTextGridUpdate"
+        @textgrid-current-update="onTextGridCurrentUpdate"
+        @textgrid-keydown="onTextGridKeydown"
+      >
+        <template v-slot:textform>
+          <v-text-field
+            dense
+            hide-details
+            outlined
+            ref="input"
+            label="text"
+            v-if="showTextField"
+            v-model="current.tier.item.text"
+            :disabled="current.tier.key == null"
+            @keydown.enter="onUpdateRecordText"
+          />
+        </template>
 
-      <div class="text-center" v-if="isLoading">
-        <v-progress-circular
-          :size="100"
-          :width="10"
-          color="primary"
-          indeterminate
-        />
-        <div class="font-weight-light subtitle-1">
-          Sound Analyzing ...
+        <div class="text-center" v-if="isLoading">
+          <v-progress-circular
+            :size="100"
+            :width="10"
+            color="primary"
+            indeterminate
+          />
+          <div class="font-weight-light subtitle-1">
+            Sound Analyzing ...
+          </div>
         </div>
-      </div>
-    </wave-surfer>
+      </wave-surfer>
+    </v-card>
 
     <template v-slot:bottom>
       <m-speed-dial
@@ -214,7 +218,8 @@ export default {
     current: {
       // 現在フォーカスが当たっている TIER 情報
       tier: {
-        key: null,
+        key: null, // 現在フォーカスされている Tier 名
+        time: 0, // フォーカスが決定した箇所の時刻
         // 現在選択されている TIER ITEM
         item: {
           idx: 0,
@@ -260,6 +265,15 @@ export default {
     // スキップ時の長さ
     skipLength: function() {
       return this.frameOffset * this.frameRate;
+    },
+    // 転記階層記入欄を表示するか否か
+    showTextField: function() {
+      if (this.videoElm) {
+        if (this.textgrid) {
+          return Object.keys(this.textgrid).length > -1;
+        }
+      }
+      return false;
     }
   },
   watch: {
@@ -276,14 +290,61 @@ export default {
     }
   },
   methods: {
-    // 現在注目している箇所を再生
-    playCurrent: function() {
-      const key = this.current.tier.key;
-      const idx = this.current.tier.item.idx;
-      const item = this.textgrid[key].values[idx];
-      const prev = this.textgrid[key].values[idx - 1];
-      if (item.time && prev.time) {
-        this.wavesurfer.play(prev.time, item.time);
+    // レコードを追加
+    addRecord: function(key, time) {
+      const item = { time: time, text: "" };
+      this.wavesurfer.addTierValue(key, item);
+    },
+    deleteRecord: function(key, idx) {
+      if (idx > -1) {
+        this.wavesurfer.deleteTierValue(key, idx);
+      }
+    },
+    playRecord: function(key, idx) {
+      if (this.wavesurfer.isPlaying()) {
+        this.wavesurfer.pause();
+      } else {
+        const current = this.textgrid[key].values[idx];
+        if (this.textgrid[key].type == "interval") {
+          if (idx > 0) {
+            const prev = this.textgrid[key].values[idx - 1];
+            if (current.time && prev.time) {
+              this.wavesurfer.play(prev.time, current.time);
+            }
+          } else {
+            this.wavesurfer.play(0, current.time);
+          }
+        } else {
+          const d = this.wavesurfer.getDuration();
+          const offset = this.playOffset * this.frameRate;
+          const start = current.time - offset > 0 ? current.time - offset : 0;
+          const end = current.time + offset < d ? current.time + offset : d;
+          this.wavesurfer.play(start, end);
+        }
+      }
+    },
+
+    skipForwardRecord(key, idx) {
+      const target = this.textgrid[key].values[idx];
+      const d = this.wavesurfer.getDuration();
+      const time = target.time + this.frameRate;
+      if (time < d) {
+        const item = { text: target.text, time: time };
+        this.wavesurfer.setTierValue(key, idx, item);
+      }
+    },
+    // 現在のRECORD の範囲を 1 フレーム分短くする
+    skipBackwardRecord(key, idx) {
+      const target = this.textgrid[key].values[idx];
+      const type = this.textgrid[key].type;
+      const time = target.time - this.frameRate;
+      if (time > 0) {
+        const item = { text: target.text, time: time };
+        if (type == "interval" && idx == this.textgrid[key].values.length - 1) {
+          return;
+        } else {
+          this.wavesurfer.setTierValue(key, idx, item);
+        }
       }
     },
     // 動画表示領域の最大高さが決定された場合の動作
@@ -297,7 +358,6 @@ export default {
         this.$nextTick(() => {
           // 他コンポーネントで WS の操作を実施可能にする
           this.wavesurfer = this.$refs.wavesurfer;
-
           // レイアウトのリサイズ
           this.$refs.layout.onResize();
         });
@@ -330,26 +390,70 @@ export default {
       this.isLoading = false;
     },
 
-    // TEXTGRID をダブルクリックされた場合の動作
-    onDblclickTextGrid: function(obj) {
-      const key = obj.key;
-      const item = {
-        time: obj.time,
-        text: ""
-      };
-      this.wavesurfer.addTierValue(key, item);
+    // TEXTGRID をシングルクリックされた場合の動作
+    onTextGridClick: function(payload) {
+      if (this.wavesurfer.isPlaying()) this.wavesurfer.pause();
+      this.current.key = payload.key;
+      this.current.time = payload.time;
+      if (payload.ctrl) {
+        if (this.addRecordKey == "ctrl") {
+          if (payload.detail == 1) this.addRecord(payload.key, payload.time);
+        }
+      }
+      if (payload.alt) {
+        if (this.addRecordKey == "alt") {
+          if (payload.detail == 1) this.addRecord(payload.key, payload.time);
+        }
+      }
+      if (payload.item) {
+        this.current.text = payload.item.text;
+        this.current.time = payload.item.time;
+      }
     },
 
-    // TEXTGRID をシングルクリックされた場合の動作
-    onClickTextGrid: function(obj) {
-      if (obj.item) {
-        this.current.key = obj.key;
-        this.current.text = obj.item.text;
-        this.current.time = obj.item.time;
+    // TEXTGRID をダブルクリックされた場合の動作
+    onTextGridDblClick: function(payload) {
+      if (this.addRecordKey == "dbl") {
+        this.addRecord(payload.key, payload.time);
+      }
+    },
+
+    onTextGridKeydown: function(payload) {
+      const item = payload.current;
+      // DELETE 系の動作
+      if (payload.keycode == 8 || payload.keycode == 46) {
+        if (this.deleteRecordKey == "alt") {
+          if (payload.alt) this.deleteRecord(item.key, item.index);
+        } else if (this.deleteRecordKey == "ctrl") {
+          if (payload.alt) this.deleteRecord(item.key, item.index);
+        } else {
+          this.deleteRecord(item.key, item.index);
+        }
+      }
+      // タブキー時に現在時刻の再生
+      if (payload.keycode == 9) {
+        this.playRecord(item.key, item.index);
+      }
+
+      // ← で1フレーム戻す
+      if (payload.keycode == 37) {
+        if (payload.ctrl) {
+          this.skipBackwardRecord(item.key, item.index);
+        } else {
+          this.wavesurfer.skipBackward();
+        }
+      }
+      // → で1フレーム進める
+      if (payload.keycode == 39) {
+        if (payload.ctrl) {
+          this.skipForwardRecord(item.key, item.index);
+        } else {
+          this.wavesurfer.skipForward();
+        }
       }
     },
     // TEXTGRID の Text field がエンターされた場合
-    onUpdateCurrentItem: function() {
+    onUpdateRecordText: function() {
       const tier = this.current.tier;
       const key = tier.key;
       const item = {
@@ -357,13 +461,7 @@ export default {
         text: tier.item.text
       };
       const idx = this.current.tier.item.idx;
-
-      const len = this.textgrid[key].values.length;
-      if (len - 1 == idx) {
-        this.showWarning("最後の値は空です");
-      } else {
-        this.wavesurfer.setTierValue(key, idx, item);
-      }
+      this.wavesurfer.setTierValue(key, idx, item);
     },
     // TEXTGRID 情報が更新された場合の動作
     onTextGridUpdate: function(textgrid) {
@@ -379,6 +477,7 @@ export default {
     onTextGridCurrentUpdate: function(payload) {
       this.current.tier.key = payload.key;
       this.current.tier.item.idx = payload.index;
+
       if (payload.item) {
         this.current.tier.item.time = payload.item.time;
         this.current.tier.item.text = payload.item.text;
@@ -394,12 +493,12 @@ export default {
     },
     // 画像編集モードを要求された場合の動作
     onClickRuler: function(payload) {
-      console.log(payload);
+      console.log("onClickRuler", payload);
       this.dialog.ruler.show = true;
     },
     // 画像編集モードを要求された場合の動作
     onClickImageEdit: function(payload) {
-      console.log(payload);
+      console.log("onClickImageEdit", payload);
       this.dialog.imageEdit.show = true;
     },
     // 新規アノテーション階層作成ダイアログが要求された場合の動作
@@ -411,27 +510,10 @@ export default {
     },
     onClickTierDelete: function() {
       this.dialog.tierDelete.show = true;
-    },
-    onKeyDown(event) {
-      // space 入力時に input がアクティブでなければ現在時刻を再生
-      if (event.keyCode === 32) {
-        if (!this.$refs.input.isFocused) {
-          event.preventDefault();
-          this.playCurrent();
-        }
-      }
     }
   },
-  mounted: function() {
-    const vm = this;
-    window.addEventListener("keyup", vm.onKeyDown, {
-      passive: false
-    });
-  },
-  beforeDestroy: function() {
-    const vm = this;
-    window.removeEventListener("keyup", vm.onKeyDown);
-  }
+  mounted: function() {},
+  beforeDestroy: function() {}
 };
 </script>
 

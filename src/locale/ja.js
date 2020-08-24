@@ -1,5 +1,28 @@
 import ja from "vuetify/src/locale/ja.ts";
 import store from "@/store/index.js";
+const NEW = "新規";
+const DELETE = "削除";
+const EDIT = "編集";
+const FORM = "記入欄";
+const ANNOTATION = "転記";
+const DB = "データベース";
+const VIDEO = "動画";
+const TEXTGRID = {
+  name: "時系列転記階層",
+  tier: {
+    name: "時系列転記層",
+    option: {
+      name: "転記層名",
+      type: "転記層の種類"
+    },
+    interval: "境界転記層",
+    point: "イベント転記層",
+    record: {
+      name: "時刻記述"
+    }
+  }
+};
+
 const pages = {
   home: "ホーム",
   meta: "メタデータ管理",
@@ -7,26 +30,26 @@ const pages = {
   setting: "設定",
   about: "このアプリについて",
   db: {
-    clear: "データベースの削除",
-    dump: "データベースのエクスポート",
-    load: "データベースのインポート (JSON)",
-    add: "ビデオ登録"
+    clear: `${DB}の${DELETE}`,
+    dump: `${DB}のエクスポート`,
+    load: `${DB}のインポート (JSON)`,
+    add: `${VIDEO}登録`
   },
   on: {
-    destroy: "{0} のデータは削除されました.",
-    dump: "データベースはエクスポートされました.",
-    load: "データベースは更新されました",
-    clear: "すべてのデータを削除しました"
+    destroy: `{0} のデータは${DELETE}されました.`,
+    dump: `${DB}はエクスポートされました.`,
+    load: `${DB}は更新されました`,
+    clear: `すべてのデータを${DELETE}しました`
   }
 };
 const homeActions = {
   upload: {
     title: pages.db.add,
-    hint: "アノテーション用の動画ファイルをインポートします"
+    hint: `時系列転${ANNOTATION}の${VIDEO}ファイルをインポートします`
   },
   manage: {
     title: pages.meta,
-    hint: "インポートした動画のメタデータを管理します"
+    hint: `インポートした${VIDEO}のメタデータを管理します`
   },
   demo: {
     title: pages.demo,
@@ -35,14 +58,15 @@ const homeActions = {
 };
 const home = {
   disc: `
-    MRI Vuewer は動画化された rtMRI データのアノテーションツールです.
+    MRI Vuewer は ${VIDEO} 化された rtMRI データの ${ANNOTATION} ツールです.
     </br>
-    音声波形と動画を同時に閲覧することが可能です.
+    音声波形と ${VIDEO} を同時に閲覧することが可能です.
     </br>
     </br>
     全てのファイルはローカルで処理をされます.
     </br>
-    まずは <b>${homeActions.upload.title}</b> より御自身の動画ファイルを登録してみてください.
+    まずは <b>${homeActions.upload.title}</b> より
+    御自身の ${VIDEO} ファイルを登録してみてください.
     `,
   ...homeActions
 };
@@ -55,15 +79,15 @@ export default {
     positiveInteger: "この項目は正の整数です!",
     positiveIntegerOrError: "この項目は正の整数または -1 です",
     positiveFloat: "この項目は正の数値です!",
-    maxVideoSize: `登録可能な動画ファイルサイズは ${store.state.setting.maxVideoSize} MB までです!`,
-    hasArrayBuffer: "想定外の動画ファイルです [No Array buffer]!",
+    maxVideoSize: `登録可能な ${VIDEO} ファイルサイズは ${store.state.setting.maxVideoSize} MB までです!`,
+    hasArrayBuffer: "想定外の ${VIDEO} ファイルです [No Array buffer]!",
     less: "この値は {0} 文字以下です.",
     alreadyExists: "この値は既に存在しています.",
     notExist: "この値は存在しません"
   },
   forms: {
     db: {
-      title: "データベースインポートフォーム",
+      title: `データベース取り込み${FORM}`,
       warning:
         "この処理を実行すると既存のデータは失われます.処理を実行しますか?",
       messages: {
@@ -73,14 +97,14 @@ export default {
       }
     },
     video: {
-      title: "動画登録フォーム",
+      title: `${VIDEO} 登録 ${FORM}`,
       messages: {
-        stop: "動画の登録が中止されました",
-        success: "動画が登録されました",
-        outofmemory: "動画の登録に失敗しました [out of memory]"
+        stop: `${VIDEO} の登録が中止されました`,
+        success: `${VIDEO} が登録されました`,
+        outofmemory: `${VIDEO} の登録に失敗しました [out of memory]`
       },
-      finish: "動画の登録に成功しました",
-      restart: "別の動画を登録する",
+      finish: `${VIDEO}の登録に成功しました`,
+      restart: `別の${VIDEO}を登録する`,
       steps: {
         select: "ファイル選択",
         confirmation: "コーディック確認",
@@ -88,52 +112,51 @@ export default {
       },
       desc: {
         select: `
-        解析を行う動画ファイルを登録します.
+        解析を行う ${VIDEO} ファイルを登録します.
         <br />
-        登録可能な動画ファイルは mp4 のみです.
+        登録可能な ${VIDEO} ファイルは mp4 のみです.
         <br />
         <br />
-        "ファイル登録時にビデオコーディックを確認する." に
-        チェックがついている場合, 動画のエンコーディング情報を自動で取得します.
+        "ファイル登録時に ${VIDEO} コーディックを確認する." に
+        チェックがついている場合, ${VIDEO} のエンコーディング情報を自動で取得します.
         `,
         confirmation:
           "以下の情報を確認し問題がなければ <kbd>OK</kbd> をクリックしてください.",
         meta: `
-        動画メタデータの登録を行います.
+        ${VIDEO} メタデータの登録を行います.
         </br></br>
         例えば発話者情報を登録する場合,
         </br>
         <code>New field</code> に "発話者" と入力をして
         <kbd>ADD</kbd> ボタンをクリックしてください.
         </br>
-        上記処理に成功すると <code>発話者</code> 入力フォームが作成されます.
+        上記処理に成功すると <code>発話者</code> ${FORM} が作成されます.
         </br></br>
         登録された <code>field</code> は次回も使用可能です.
         </br></br>
-        作成された全てのフォームに値を入力し
+        作成された全ての${FORM}に値を入力し
         </br>
         <kbd>OK</kbd> ボタンをクリックするとメタデータの登録が完了します.`
       }
     },
     tier: {
-      title: "新規アノテーション階層フォーム"
+      title: `${NEW}${TEXTGRID.tier.name}${FORM}`
     },
     tierEdit: {
-      title: "アノテーション階層編集フォーム",
-      warning:
-        "この処理を実施するとこの階層のアノテーション情報は初期化されます.処理を実行しますか?"
+      title: `${TEXTGRID.tier.name}${EDIT}${FORM}`,
+      warning: `この処理を実施するとこの階層の${ANNOTATION}情報は初期化されます.処理を実行しますか?`
     },
     tierDelete: {
-      title: "アノテーション階層削除フォーム"
+      title: `${TEXTGRID.tier.name}${DELETE}${FORM}`
     },
     detail: {
-      title: "動画詳細情報"
+      title: "${VIDEO} 詳細情報"
     },
     ruler: {
       title: "フレーム計測ダイアログ"
     },
     imageEdit: {
-      title: "フレーム編集モード"
+      title: `フレーム${EDIT}モード`
     }
   },
   wVideo: {
@@ -150,30 +173,30 @@ export default {
   io: {
     db: {
       json: {
-        title: "DB データを選択してください (json)"
+        title: `${DB} データを選択してください (json)`
       }
     },
     mVideoInput: {
-      title: "動画ファイルを選択",
-      hint: "supported format is mp4"
+      title: `${VIDEO}ファイルを選択`,
+      hint: `${VIDEO} ファイルは mp4 形式のみをサポートしています`
     }
   },
   pages: pages,
   home: home,
   meta: {
     disc: `
-    このページでは登録された動画ファイルのメタ情報を管理します.
+    このページでは登録された ${VIDEO} ファイルのメタ情報を管理します.
     </br>
     メタ情報として付与する内容は自身で設定することが可能です.
     </br>
-    メタ情報は動画の発話者, 撮影日, 発話内容等が想定されます.
+    メタ情報は ${VIDEO} の発話者, 撮影日, 発話内容等が想定されます.
     </br>
-    メタ情報は動画ファイル検索時に使用されます.
+    メタ情報は ${VIDEO} ファイル検索時に使用されます.
     `
   },
   demo: {
     disc: `
-    このページではサンプル動画を使って MRI Vuewer の機能を確認することができます.
+    このページではサンプル ${VIDEO} を使って MRI Vuewer の機能を確認することができます.
     `
   },
   setting: {
@@ -198,9 +221,9 @@ export default {
             "この項目が大きい場合, 登録可能なファイル数が減ります. 登録可能なファイル数は使用端末のスペックに依存します."
         },
         shouldGetVideoInfo: {
-          label: "ファイル登録時にビデオコーディックを確認する.",
+          label: `ファイル登録時に${VIDEO}コーディックを確認する.`,
           hint:
-            "この項目が false の場合, 動画の時間, fps, 縦横サイズ等を手動で入力することになります."
+            "この項目が false の場合, ${VIDEO} の時間, fps, 縦横サイズ等を手動で入力することになります."
         },
         shouldGetFrameInfo: {
           label: "ファイル登録時に全てのフレーム画像を取得する.",
@@ -244,8 +267,29 @@ export default {
         showFreqLabel: {
           label: "周波数軸ラベルを表示する"
         }
+      },
+      textgrid: {
+        label: `${ANNOTATION} 設定`,
+        playOffset: {
+          label: "再生オフセット",
+          hint: `${TEXTGRID.tier.point} 再生時のオフセットです`
+        },
+        addRecordKey: {
+          label: "レコード追加キー",
+          dbl: "ダブルクリック",
+          ctrl: "CTRL + クリック",
+          alt: "ALT (option) + クリック"
+        },
+        deleteRecordKey: {
+          label: "レコード削除キー",
+          delete: "DELETE",
+          ctrl: "CTRL + DELETE",
+          alt: "ALT + DELETE"
+        }
       }
     }
-  }
+  },
+  loading: "読み込み中 ...",
+  textgrid: TEXTGRID
 };
 //# sourceMappingURL=ja.js.map

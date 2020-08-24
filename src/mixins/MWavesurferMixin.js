@@ -79,8 +79,8 @@ export default {
     addTierValue: function(key, obj) {
       if (this.$ws) this.$ws.addTierValue(key, obj);
     },
-    setTierValue: function(key, idx, text) {
-      if (this.$ws) this.$ws.setTierValue(key, idx, text);
+    setTierValue: function(key, idx, obj) {
+      if (this.$ws) this.$ws.setTierValue(key, idx, obj);
     },
     deleteTierValue: function(key, idx) {
       if (this.$ws) this.$ws.deleteTierValue(key, idx);

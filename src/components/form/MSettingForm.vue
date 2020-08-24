@@ -13,16 +13,6 @@
         class="caption ml-1"
         v-text="t(`${locale}.loading.shouldGetVideoInfo.hint`)"
       />
-      <v-checkbox
-        hide-details
-        v-model="shouldGetFrameInfo"
-        :label="t(`${locale}.loading.shouldGetFrameInfo.label`)"
-      />
-      <v-icon small>mdi-information</v-icon>
-      <span
-        class="caption ml-1"
-        v-text="t(`${locale}.loading.shouldGetFrameInfo.hint`)"
-      />
     </div>
     <v-text-field
       v-model="maxVideoSize"
@@ -96,6 +86,32 @@
         :label="t(`${locale}.spectrogram.showFreqLabel.label`)"
       />
     </div>
+    <v-divider />
+    <div class="my-5">
+      <label>{{ t(`${locale}.textgrid.label`) }}</label>
+      <v-text-field
+        v-model="playOffset"
+        suffix="frame"
+        :rules="rules.positiveIntegerRules"
+        :label="t(`${locale}.textgrid.playOffset.label`)"
+        :hint="t(`${locale}.textgrid.playOffset.hint`)"
+      />
+      <v-select
+        v-model="addRecordKey"
+        item-text="text"
+        item-value="val"
+        :items="addRecordKeyChoice"
+        :label="`${t(`${locale}.textgrid.addRecordKey.label`)}`"
+      />
+      <v-select
+        v-model="deleteRecordKey"
+        item-text="text"
+        item-value="val"
+        :items="deleteRecordKeyChoice"
+        :label="`${t(`${locale}.textgrid.deleteRecordKey.label`)}`"
+      />
+    </div>
+
     <v-btn block @click="setDefaultSetting" color="error">
       Reset setting
     </v-btn>
@@ -113,6 +129,40 @@ export default {
   methods: {
     t: function(val) {
       return this.$vuetify.lang.t(val);
+    }
+  },
+  computed: {
+    addRecordKeyChoice: function() {
+      return [
+        {
+          text: this.t("$vuetify.setting.form.textgrid.addRecordKey.dbl"),
+          val: "dbl"
+        },
+        {
+          text: this.t(`$vuetify.setting.form.textgrid.addRecordKey.ctrl`),
+          val: "ctrl"
+        },
+        {
+          text: this.t(`$vuetify.setting.form.textgrid.addRecordKey.alt`),
+          val: "alt"
+        }
+      ];
+    },
+    deleteRecordKeyChoice: function() {
+      return [
+        {
+          text: this.t("$vuetify.setting.form.textgrid.deleteRecordKey.delete"),
+          val: "delete"
+        },
+        {
+          text: this.t(`$vuetify.setting.form.textgrid.deleteRecordKey.ctrl`),
+          val: "ctrl"
+        },
+        {
+          text: this.t(`$vuetify.setting.form.textgrid.deleteRecordKey.alt`),
+          val: "alt"
+        }
+      ];
     }
   }
 };

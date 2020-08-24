@@ -1,7 +1,17 @@
 <template>
   <v-form ref="form" v-model="valid">
-    <v-text-field :rules="nameRule" v-model="name" label="Tier Name" />
-    <v-select :rules="required" v-model="type" :items="['interval', 'point']" />
+    <v-text-field
+      v-model="name"
+      :rules="nameRule"
+      :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.name')}`"
+    />
+    <v-autocomplete
+      :items="typeChoice"
+      v-model="type"
+      item-text="name"
+      item-value="val"
+      :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.type')}`"
+    />
   </v-form>
 </template>
 <script>
@@ -18,6 +28,18 @@ export default {
     }
   },
   computed: {
+    typeChoice: function() {
+      return [
+        {
+          name: this.$vuetify.lang.t("$vuetify.textgrid.tier.interval"),
+          val: "interval"
+        },
+        {
+          name: this.$vuetify.lang.t("$vuetify.textgrid.tier.point"),
+          val: "point"
+        }
+      ];
+    },
     nameRule: function() {
       const rules = [
         v => !!v || this.$vuetify.lang.t("$vuetify.validations.required"),

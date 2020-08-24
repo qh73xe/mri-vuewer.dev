@@ -4,7 +4,7 @@
       :rules="nameRule"
       v-model="names"
       :items="tiers"
-      label="Tier Name"
+      :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.name')}`"
       multiple
     />
   </v-form>

@@ -124,6 +124,37 @@ export default {
       set(val) {
         this.$store.commit("setting/setProgressColor", val);
       }
+    },
+    addRecordKey: {
+      get() {
+        return this.$store.state.setting.addRecordKey;
+      },
+      set(val) {
+        this.$store.commit("setting/setAddRecordKey", val);
+      }
+    },
+    deleteRecordKey: {
+      get() {
+        return this.$store.state.setting.deleteRecordKey;
+      },
+      set(val) {
+        this.$store.commit("setting/setDeleteRecordKey", val);
+      }
+    },
+    playOffset: {
+      get() {
+        return this.$store.state.setting.playOffset;
+      },
+      set(val) {
+        const type = typeof val;
+        if (type == "number") {
+          this.$store.commit("setting/setPlayOffset", val);
+        } else if (type == "string") {
+          if (Number(val)) {
+            this.$store.commit("setting/setPlayOffset", Number(val));
+          }
+        }
+      }
     }
   },
   methods: {

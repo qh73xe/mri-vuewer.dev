@@ -25,7 +25,7 @@
 
       <v-card
         :style="`max-height: ${wsMaxHeight}px`"
-        class="d-flex mt-3 overflow-y-auto"
+        class="d-flex mt-3 overflow-y-auto overflow-x-hidden"
         flat
         tile
       >

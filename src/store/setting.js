@@ -14,7 +14,10 @@ const DEFAULTSTATE = {
   showFreqLabel: false,
   cursorColor: "#333",
   waveColor: "#333",
-  progressColor: "#555"
+  progressColor: "#555",
+  playOffset: 5,
+  addRecordKey: "dbl",
+  deleteRecordKey: "delete"
 };
 const DS = DEFAULTSTATE;
 
@@ -47,7 +50,10 @@ export default {
         : S.get("showFreqLabel"),
     cursorColor: S.get("cursorColor") || DS.cursorColor,
     waveColor: S.get("waveColor") || DS.waveColor,
-    progressColor: S.get("progressColor") || DS.progressColor
+    progressColor: S.get("progressColor") || DS.progressColor,
+    playOffset: Number(S.get("playOffset")) || DS.playOffset,
+    addRecordKey: S.get("addRecordKey") || DS.addRecordKey,
+    deleteRecordKey: S.get("deleteRecordKey") || DS.deleteRecordKey
   }),
   mutations: {
     setMaxVideoSize(state, payload) {
@@ -98,9 +104,27 @@ export default {
       state.waveColor = payload;
       S.set("waveColor", payload);
     },
+    setPlayOffset(state, payload) {
+      state.playOffset = Number(payload);
+      S.set("playOffset", Number(payload));
+    },
     setProgressColor(state, payload) {
       state.progressColor = payload;
       S.set("progressColor", payload);
+    },
+    setAddRecordKey(state, payload) {
+      const choice = ["dbl", "ctrl", "alt"];
+      if (choice.indexOf(payload) !== -1) {
+        state.addRecordKey = payload;
+        S.set("addRecordKey", payload);
+      }
+    },
+    setDeleteRecordKey(state, payload) {
+      const choice = ["delete", "ctrl", "alt"];
+      if (choice.indexOf(payload) !== -1) {
+        state.deleteRecordKey = payload;
+        S.set("deleteRecordKey", payload);
+      }
     }
   },
   actions: {
@@ -118,6 +142,9 @@ export default {
       context.commit("setCursorColor", DS.cursorColor);
       context.commit("setWaveColor", DS.waveColor);
       context.commit("setProgressColor", DS.progressColor);
+      context.commit("setPlayOffset", DS.playOffset);
+      context.commit("setAddRecordKey", DS.addRecordKey);
+      context.commit("setDeleteRecordKey", DS.deleteRecordKey);
     }
   }
 };
