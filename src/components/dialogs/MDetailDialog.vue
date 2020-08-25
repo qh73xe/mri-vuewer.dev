@@ -7,6 +7,10 @@
     <template v-slot:activator="{ on, attrs }">
       <slot name="activator" :on="on" :attrs="attrs"></slot>
     </template>
+    <template v-slot:toolbar-actions>
+      <m-video-upload-menu @click="$emit('upload-click', $event)" />
+      <m-video-download-menu @click="$emit('download-click', $event)" />
+    </template>
     <v-card tile>
       <v-img
         v-if="src"
@@ -21,68 +25,29 @@
           {{ originSize.height }}]
         </v-card-title>
       </v-img>
-      <v-list>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon color="indigo">mdi-file-video</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ videoStream.codec_name }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-icon />
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ videoStream.pix_fmt }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-icon />
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ videoStream.bitrate }} kb/s, {{ videoStream.tbr }} tbr,
-              {{ videoStream.tbn }} tbn, {{ videoStream.tbc }} tbc
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
+      <m-video-stream-list :video-stream="videoStream" />
       <v-divider inset></v-divider>
-
-      <v-list>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon color="indigo">mdi-file-music</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ audioStream.codec_name }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item>
-          <v-list-item-action></v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ audioStream.sample_rate }} Hz,
-              {{ audioStream.channel_layout }}, {{ audioStream.sample_fmt }},
-              {{ audioStream.bitrate }} kb/s
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
+      <m-audio-stream-list :audio-stream="audioStream" />
     </v-card>
   </m-card-dialog>
 </template>
 <script>
 import MCardDialog from "@/components/base/dialog/MCardDialog";
+import MVideoDownloadMenu from "@/components/menus/MVideoDownloadMenu";
+import MVideoUploadMenu from "@/components/menus/MVideoUploadMenu";
+import MVideoStreamList from "@/components/list/MVideoStreamList";
+import MAudioStreamList from "@/components/list/MAudioStreamList";
 import MVideoMixin from "@/mixins/MVideoMixin.js";
 export default {
   name: "m-detail-dialog",
   mixins: [MVideoMixin],
-  components: { MCardDialog },
+  components: {
+    MCardDialog,
+    MVideoDownloadMenu,
+    MVideoUploadMenu,
+    MVideoStreamList,
+    MAudioStreamList
+  },
   data: () => ({
     title: "$vuetify.forms.detail.title"
   }),

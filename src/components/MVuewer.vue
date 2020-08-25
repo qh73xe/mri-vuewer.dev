@@ -12,7 +12,12 @@
         @loadeddata="onLoadeddata"
         @frame-updated="onFrameUpdated"
       />
-      <m-vuwer-actions :fps="fps" v-if="wavesurfer" />
+      <m-vuwer-actions
+        @download-click="onDownloadClick"
+        @upload-click="onUploadClick"
+        :fps="fps"
+        v-if="wavesurfer"
+      />
     </template>
     <template v-slot:table>
       <m-text-grid
@@ -94,7 +99,12 @@
       <m-detail-dialog v-model="dialog.detail.show" :src="current.frame.src" />
       <m-tier-dialog v-model="dialog.tier.show" :tiers="tiers" />
       <m-tier-edit-dialog v-model="dialog.tierEdit.show" :tiers="tiers" />
-      <m-tier-delete-dialog v-model="dialog.tierDelete.show" :tiers="tiers" />
+      <m-tier-delete-dialog
+        @download-click="onDownloadClick"
+        @upload-click="onUploadClick"
+        v-model="dialog.tierDelete.show"
+        :tiers="tiers"
+      />
       <m-ruler-dialog
         v-if="originSize.width"
         v-model="dialog.ruler.show"
@@ -132,6 +142,7 @@ import MImageEditDialog from "@/components/dialogs/MImageEditDialog";
 import MSpeedDial from "@/components/MSpeedDial";
 import MSettingMixin from "@/mixins/MSettingMixin";
 import MSnackbarMixin from "@/mixins/MSnackbarMixin";
+import io from "@/io";
 
 export default {
   name: "WVuwer",
@@ -359,6 +370,33 @@ export default {
     // 動画表示領域の最大高さが決定された場合の動作
     onResize: function(payload) {
       this.videoHeight = payload;
+    },
+    onDownloadClick: function(payload) {
+      const bname = this.$store.state.current.video.filename.split(".")[0];
+      if (payload == "JSON") {
+        const blob = new Blob([JSON.stringify(this.textgrid, null, "  ")], {
+          type: "application/json"
+        });
+        io.file.download(blob, `${bname}.json`);
+      } else if (payload == "TEXTGRID") {
+        this.wavesurfer.downloadTextGrid(`${bname}.TextGrid`);
+      } else {
+        const msg = `${payload} の処理は未実装です`;
+        this.showWarning(msg);
+      }
+    },
+    onUploadClick: function(payload) {
+      if (payload.click == "JSON") {
+        const msg = `${payload.click} is not working yet!!`;
+        this.showWarning(msg);
+      } else if (payload.click == "TEXTGRID") {
+        this.wavesurfer.loadTextGrid(payload.files[0]);
+        const msg = `${payload.click} is loaded!!`;
+        this.showSuccess(msg);
+      } else {
+        const msg = `${payload.click} is not accepted!!`;
+        this.showWarning(msg);
+      }
     },
     // 動画の読み込みが終了した場合の動作
     onLoadeddata: function(payload) {

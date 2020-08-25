@@ -27,6 +27,7 @@
       >
         <v-icon dark>mdi-magnify-minus</v-icon>
       </v-btn>
+      <m-video-upload-menu @click="$emit('upload-click', $event)" />
 
       <v-spacer />
       <v-btn dark icon :class="`elevation-${hover ? 4 : 0}`" @click="playPause">
@@ -34,6 +35,7 @@
       </v-btn>
       <v-spacer />
 
+      <m-video-download-menu @click="$emit('download-click', $event)" />
       <v-btn
         dark
         icon
@@ -64,9 +66,15 @@
 </template>
 <script>
 import MWavesurferMixin from "@/mixins/MWavesurferMixin";
+import MVideoDownloadMenu from "@/components/menus/MVideoDownloadMenu";
+import MVideoUploadMenu from "@/components/menus/MVideoUploadMenu";
 export default {
   name: "WVuewerActions",
   mixins: [MWavesurferMixin],
+  components: {
+    MVideoDownloadMenu,
+    MVideoUploadMenu
+  },
   data: () => ({
     pxPerSec: 100
   }),
