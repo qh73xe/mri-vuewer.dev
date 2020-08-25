@@ -59,13 +59,13 @@
         x-small
         v-if="$vuetify.breakpoint.mdAndUp"
         color="orange"
-        @click="$emit('click-image-edit')"
+        @click="$emit('click-image-edit', item.time)"
       >
         <v-icon>mdi-selection-drag</v-icon>
       </v-btn>
 
       <v-btn
-        @click="$emit('click-ruler')"
+        @click="onClickRuler(item)"
         v-if="$vuetify.breakpoint.lgAndUp"
         fab
         dark
@@ -116,7 +116,12 @@ export default {
         align: "end"
       }
     ]
-  })
+  }),
+  methods: {
+    onClickRuler: function(item) {
+      this.$emit("click-ruler", item.time);
+    }
+  }
 };
 </script>
 

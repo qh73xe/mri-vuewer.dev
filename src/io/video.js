@@ -101,6 +101,28 @@ const info = (buff, callback) => {
   return result;
 };
 
+const trim = (buff, start, end) => {
+  const video = new Uint8Array(buff);
+  const duration = end - start;
+  const result = ffmpeg({
+    MEMFS: [{ name: "data.mp4", data: video }],
+    arguments: [
+      "-ss",
+      String(start),
+      "-i",
+      "data.mp4",
+      "-t",
+      String(duration),
+      "-c",
+      "copy",
+      "output.mp4"
+    ],
+    print: function() {},
+    printErr: function() {}
+  });
+  return result;
+};
+
 const initVideoObject = () => {
   return {
     name: null,
@@ -116,8 +138,16 @@ const initVideoObject = () => {
   };
 };
 
+const toBlob = buff => {
+  return new Blob([buff], {
+    type: "video/mp4"
+  });
+};
+
 export default {
   version: version,
   info: info,
-  initObj: initVideoObject
+  trim: trim,
+  initObj: initVideoObject,
+  toBlob: toBlob
 };

@@ -3,6 +3,7 @@
     :headers="headers"
     :items="items"
     :items-per-page="-1"
+    :search="keyword"
     hide-default-footer
     sort-by="time"
     class="elevation-1"
@@ -52,6 +53,19 @@
         </v-icon>
       </v-btn>
 
+      <v-btn
+        v-if="tier && tier.type == 'interval'"
+        class="mr-1"
+        fab
+        dark
+        x-small
+        @click="trimVideo(item.start, item.end)"
+      >
+        <v-icon>
+          mdi-scissors-cutting
+        </v-icon>
+      </v-btn>
+
       <v-btn color="error" fab dark x-small @click="deleteItem(item)">
         <v-icon>
           mdi-delete
@@ -68,6 +82,8 @@
 <script>
 import MLoadingDialog from "@/components/base/dialog/MLoadingDialog.vue";
 import MWavesurferMixin from "@/mixins/MWavesurferMixin";
+import io from "@/io";
+import math from "@/utils/math";
 export default {
   name: "WTextGridTable",
   components: {
@@ -134,13 +150,20 @@ export default {
           });
           return this.tier.values;
         } else {
-          return this.tier.values;
+          return this.tier.values.map((x, i) => {
+            const item = {
+              idx: i,
+              time: x.time,
+              text: x.text
+            };
+            return item;
+          });
         }
       }
       return [];
     },
-    formTitle() {
-      return this.editedIndex === -1 ? "New Item" : "Edit Item";
+    keyword: function() {
+      return this.$store.state.search.keyword;
     }
   },
   methods: {
@@ -149,30 +172,24 @@ export default {
       setTimeout(() => {
         if (vm.items.length == 1) {
           vm.deleteTier(vm.title);
-        } else if (vm.items.length == 2) {
-          const duration = vm.getDuration();
-          if (item.time == duration) {
-            const prevIdx = 0;
-            vm.deleteTierValue(vm.title, item.idx);
-            vm.deleteTierValue(vm.title, prevIdx);
-            vm.addTierValue(vm.title, {
-              time: duration,
-              text: "" // 本来は前のテキストを反映すべき
-            });
-          } else {
-            const nextIdx = item.idx + 1;
-            // const next = vm.tier[nextIdx];
-            vm.deleteTierValue(vm.title, nextIdx);
-            vm.deleteTierValue(vm.title, item.idx);
-            vm.addTierValue(vm.title, {
-              time: duration,
-              text: "" // 本来は後のテキストを反映すべき
-            });
-          }
         } else {
           vm.deleteTierValue(vm.title, item.idx);
         }
-      }, 1);
+      }, 100);
+    },
+    trimVideo(start, end) {
+      const src = this.$store.state.current.video.source;
+      const bname = this.$store.state.current.video.filename.split(".")[0];
+      const info =
+        String(math.round(start, 3)) + "-" + String(math.round(end, 3));
+      const name = `${bname}-${info}.mp4`;
+      if (src) {
+        const buff = io.file.toBuff(src);
+        const result = io.video.trim(buff, start, end);
+        const out = result.MEMFS[0];
+        const blob = io.video.toBlob(Buffer(out.data));
+        io.file.download(blob, name);
+      }
     },
     close() {
       this.$nextTick(() => {

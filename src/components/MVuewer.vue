@@ -2,6 +2,7 @@
   <m-vuwer-layout ref="layout" @resize="onResize">
     <template v-slot:video>
       <m-video-array
+        ref="videoArray"
         :src="src"
         :fps="fps"
         :frameOffset="frameOffset"
@@ -194,6 +195,8 @@ export default {
     videoHeight: null, // ビデオ表示領域の最大幅
     isLoading: false, // WS がレンダ中か否か
     isSyncing: false, // 過去データを反映中か否か
+    lazyRular: false,
+    lazyImageEdit: false,
     dialog: {
       detail: {
         show: false
@@ -347,6 +350,12 @@ export default {
         }
       }
     },
+    seekTo: function(time) {
+      const d = this.wavesurfer.getDuration();
+      const p = time / d;
+      const progress = p > 1 ? 1 : p < 0 ? 0 : p;
+      this.wavesurfer.seekTo(progress);
+    },
     // 動画表示領域の最大高さが決定された場合の動作
     onResize: function(payload) {
       this.videoHeight = payload;
@@ -367,6 +376,14 @@ export default {
     // 動画現在画像が変更された場合の動作
     onFrameUpdated(payload) {
       this.current.frame = payload;
+      if (this.lazyRular) {
+        this.dialog.ruler.show = true;
+        this.lazyRular = false;
+      }
+      if (this.lazyImageEdit) {
+        this.dialog.imageEdit.show = true;
+        this.lazyImageEdit = false;
+      }
     },
 
     // スペクトログラムのレンダが始まった場合の動作
@@ -425,7 +442,7 @@ export default {
         if (this.deleteRecordKey == "alt") {
           if (payload.alt) this.deleteRecord(item.key, item.index);
         } else if (this.deleteRecordKey == "ctrl") {
-          if (payload.alt) this.deleteRecord(item.key, item.index);
+          if (payload.ctrl) this.deleteRecord(item.key, item.index);
         } else {
           this.deleteRecord(item.key, item.index);
         }
@@ -493,13 +510,21 @@ export default {
     },
     // 画像編集モードを要求された場合の動作
     onClickRuler: function(payload) {
-      console.log("onClickRuler", payload);
-      this.dialog.ruler.show = true;
+      if (payload) {
+        this.lazyRular = true;
+        this.seekTo(payload);
+      } else {
+        this.dialog.ruler.show = true;
+      }
     },
     // 画像編集モードを要求された場合の動作
     onClickImageEdit: function(payload) {
-      console.log("onClickImageEdit", payload);
-      this.dialog.imageEdit.show = true;
+      if (payload) {
+        this.lazyImageEdit = true;
+        this.seekTo(payload);
+      } else {
+        this.dialog.imageEdit.show = true;
+      }
     },
     // 新規アノテーション階層作成ダイアログが要求された場合の動作
     onClickTierAdd: function() {
@@ -512,8 +537,12 @@ export default {
       this.dialog.tierDelete.show = true;
     }
   },
-  mounted: function() {},
-  beforeDestroy: function() {}
+  mounted: function() {
+    this.$store.dispatch("search/show");
+  },
+  beforeDestroy: function() {
+    this.$store.dispatch("search/init");
+  }
 };
 </script>
 

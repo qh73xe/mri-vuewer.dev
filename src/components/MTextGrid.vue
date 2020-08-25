@@ -5,8 +5,8 @@
         v-if="tab.i == 0"
         :frames="frames"
         :video-height="videoHeight"
-        @click-image-edit="$emit('click-image-edit')"
-        @click-ruler="$emit('click-ruler')"
+        @click-image-edit="$emit('click-image-edit', $event)"
+        @click-ruler="$emit('click-ruler', $event)"
       />
       <m-text-grid-table
         v-if="tab.i > 0"

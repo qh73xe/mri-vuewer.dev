@@ -52,6 +52,9 @@ export default {
   },
   mounted: function() {
     this.$store.dispatch("search/show");
+  },
+  beforeDestroy: function() {
+    this.$store.dispatch("search/init");
   }
 };
 </script>

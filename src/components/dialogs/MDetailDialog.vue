@@ -7,7 +7,7 @@
     <template v-slot:activator="{ on, attrs }">
       <slot name="activator" :on="on" :attrs="attrs"></slot>
     </template>
-    <v-card>
+    <v-card tile>
       <v-img
         v-if="src"
         :src="src"

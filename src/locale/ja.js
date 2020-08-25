@@ -150,7 +150,7 @@ export default {
       title: `${TEXTGRID.tier.name}${DELETE}${FORM}`
     },
     detail: {
-      title: "${VIDEO} 詳細情報"
+      title: `${VIDEO} 詳細情報`
     },
     ruler: {
       title: "フレーム計測ダイアログ"
