@@ -114,6 +114,8 @@
       <m-image-edit-dialog
         v-if="current.frame.src"
         v-model="dialog.imageEdit.show"
+        @rects-updated="onRectsUpdated"
+        @points-updated="onPointsUpdated"
         :src="current.frame.src"
       />
     </template>
@@ -573,6 +575,14 @@ export default {
     },
     onClickTierDelete: function() {
       this.dialog.tierDelete.show = true;
+    },
+    onRectsUpdated: function(rects) {
+      this.current.frame.rects = rects;
+      this.$emit("frame-updated", this.frames, this.current.frame);
+    },
+    onPointsUpdated: function(points) {
+      this.current.frame.points = points;
+      this.$emit("frame-updated", this.current.frame);
     }
   },
   mounted: function() {

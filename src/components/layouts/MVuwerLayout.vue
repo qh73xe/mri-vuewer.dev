@@ -22,7 +22,6 @@
           </v-col>
         </v-row>
       </v-card>
-
       <v-card
         :style="`max-height: ${wsMaxHeight}px`"
         class="d-flex mt-3 overflow-y-auto overflow-x-hidden"

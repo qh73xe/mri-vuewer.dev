@@ -13,7 +13,11 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </template>
-    <m-frame-editor :src="src" />
+    <m-frame-editor
+      :src="src"
+      @rects-updated="$emit('rects-updated', $event)"
+      @points-updated="$emit('points-updated', $event)"
+    />
   </m-card-dialog>
 </template>
 <script>

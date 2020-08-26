@@ -9,6 +9,7 @@
       :origin-size="$originSize"
       :old-textgrid="textgrid"
       @textgrid-updated="onTextGridUpdated"
+      @frame-updated="onFrameUpdated"
     />
     <m-loading-dialog v-model="isLoading">
       {{ $vuetify.lang.t("$vuetify.loading") }}
@@ -114,6 +115,25 @@ export default {
           console.error(error);
         });
     },
+    updateFrames: function(frame) {
+      const vm = this;
+      const idx = this.item.frames.findIndex(x => x.i == frame.i);
+      if (idx != -1) {
+        this.item.frames[idx] = frame;
+        console.log("onFrameUpdated", this.item.frames[idx]);
+        db.files
+          .put(this.item)
+          .then(id => {
+            const msg = `update the frames of a file (id=${id})`;
+            vm.log({ msg: msg });
+          })
+          .catch(error => {
+            const msg = `failed: update the frames of a file (id=${this.item.id})`;
+            vm.error({ msg: msg, error: error });
+            console.error(error);
+          });
+      }
+    },
     log: function(payload) {
       this.$store.commit("logging/log", payload);
     },
@@ -124,6 +144,9 @@ export default {
       if (payload) {
         this.updateTextGrid(payload);
       }
+    },
+    onFrameUpdated: function(frame) {
+      this.updateFrames(frame);
     }
   },
   watch: {

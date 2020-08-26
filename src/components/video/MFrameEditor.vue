@@ -75,6 +75,9 @@ export default {
     src: {
       type: String,
       required: true
+    },
+    frame: {
+      type: Object
     }
   },
   data: () => ({
@@ -111,9 +114,7 @@ export default {
         // 元画像サイズを記録
         this.originSize.width = img.width;
         this.originSize.height = img.height;
-
         this.background.image = img;
-
         this.onResize();
       };
     },
@@ -128,6 +129,7 @@ export default {
         size: size,
         color: color
       });
+      this.$emit("rects-updated", this.rects);
     },
     addPoint: function(x, y, color, size) {
       this.points.push({
@@ -136,6 +138,7 @@ export default {
         size: size,
         color: color
       });
+      this.$emit("points-updated", this.points);
     },
     onResize: function() {
       const ow = this.originSize.width;
@@ -232,6 +235,13 @@ export default {
   },
   mounted: function() {
     this.loadImage(this.src);
+    if (this.frame) {
+      if (this.frame.points) {
+        for (const p of this.frame.points) {
+          this.addPoint(p.x, p.y, p.color, p.size);
+        }
+      }
+    }
   }
 };
 </script>
