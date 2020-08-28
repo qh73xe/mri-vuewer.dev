@@ -75,13 +75,11 @@ export default {
             this.item = x;
             this.$source = x.source;
             this.$fps = x.fps;
-
             this.$name = x.name;
             this.$duration = x.duration;
             this.$videoStream = x.videoStream;
             this.$audioStream = x.audioStream;
             this.$originSize = x.originSize;
-
             this.frames = x.frames;
             this.textgrid = x.textgrid || null;
           })
@@ -120,7 +118,6 @@ export default {
       const idx = this.item.frames.findIndex(x => x.i == frame.i);
       if (idx != -1) {
         this.item.frames[idx] = frame;
-        console.log("onFrameUpdated", this.item.frames[idx]);
         db.files
           .put(this.item)
           .then(id => {

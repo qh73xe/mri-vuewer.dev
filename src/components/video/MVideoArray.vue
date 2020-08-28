@@ -145,7 +145,7 @@ export default {
     // イベント発火
     onLoadeddata(elm) {
       // 完全に 0 にすると画像取得ができない
-      this.$refs.video.setCurrentTime(0.0001);
+      this.$refs.video.setCurrentTime(0);
       this.$emit("loadeddata", elm);
     },
     onTimeupdate: function(time) {

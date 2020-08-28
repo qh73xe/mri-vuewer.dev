@@ -142,7 +142,7 @@ export default {
                   y: originSize.height
                     ? (x.y * this.canvas.height) / originSize.height
                     : x.y,
-                  radius: x.size || 3,
+                  radius: 3,
                   fill: utils.color.toCss(
                     x.color || this.defaultPointColor,
                     this.$vuetify

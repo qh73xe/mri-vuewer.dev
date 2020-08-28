@@ -15,7 +15,9 @@
     </template>
     <m-frame-editor
       :src="src"
-      @rects-updated="$emit('rects-updated', $event)"
+      :frame="frame"
+      :origin-size="originSize"
+      @rect-updated="$emit('rect-updated', $event)"
       @points-updated="$emit('points-updated', $event)"
     />
   </m-card-dialog>
@@ -36,6 +38,12 @@ export default {
     src: {
       type: String,
       required: true
+    },
+    frame: {
+      type: Object
+    },
+    originSize: {
+      type: Object
     }
   },
   computed: {

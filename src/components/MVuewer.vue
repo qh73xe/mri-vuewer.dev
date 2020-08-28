@@ -116,7 +116,9 @@
         v-model="dialog.imageEdit.show"
         @rects-updated="onRectsUpdated"
         @points-updated="onPointsUpdated"
+        :frame="current.frame"
         :src="current.frame.src"
+        :origin-size="originSize"
       />
     </template>
   </m-vuwer-layout>
@@ -578,7 +580,7 @@ export default {
     },
     onRectsUpdated: function(rects) {
       this.current.frame.rects = rects;
-      this.$emit("frame-updated", this.frames, this.current.frame);
+      this.$emit("frame-updated", this.current.frame);
     },
     onPointsUpdated: function(points) {
       this.current.frame.points = points;
