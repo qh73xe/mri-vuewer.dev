@@ -1,6 +1,7 @@
 import Dexie from "dexie";
+import relationships from "dexie-relationships";
 import io from "@/io";
-const db = new Dexie("mri_vuewer");
+const db = new Dexie("mri_vuewer", { addons: [relationships] });
 db.version(1).stores({
   files:
     "++id,name,source,fps,duration,originSize,videoStream,audioStream,meta,frames,textgrid"
@@ -8,6 +9,14 @@ db.version(1).stores({
 db.version(2).stores({
   files:
     "++id,name,source,fps,duration,originSize,videoStream,audioStream,metaData,frames,textgrid"
+});
+db.version(3).stores({
+  files:
+    "++id,name,source,fps,duration,originSize,videoStream,audioStream,metaData,textgrid",
+  frames: "++id, idx, time, fileId -> files.id",
+  points: "++id, x, y, size, color, frameId -> frames.id",
+  rects:
+    "++id, x, y, width, height, rotation, scaleX, scaleY, size, color, frameId -> frames.id"
 });
 
 const dump = function() {
@@ -52,6 +61,9 @@ const load = function(json) {
 
 export default {
   files: db.files,
+  frames: db.frames,
+  points: db.points,
+  rects: db.rects,
   dump: dump,
   load: load
 };

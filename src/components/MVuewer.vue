@@ -279,7 +279,6 @@ export default {
     frameRate: function() {
       return 1 / this.fps;
     },
-
     // スキップ時の長さ
     skipLength: function() {
       return this.frameOffset * this.frameRate;
@@ -308,7 +307,6 @@ export default {
     }
   },
   methods: {
-    // レコードを追加
     addRecord: function(key, time) {
       const item = { time: time, text: "" };
       this.wavesurfer.addTierValue(key, item);
@@ -341,7 +339,6 @@ export default {
         }
       }
     },
-
     skipForwardRecord(key, idx) {
       const target = this.textgrid[key].values[idx];
       const d = this.wavesurfer.getDuration();
@@ -351,7 +348,6 @@ export default {
         this.wavesurfer.setTierValue(key, idx, item);
       }
     },
-    // 現在のRECORD の範囲を 1 フレーム分短くする
     skipBackwardRecord(key, idx) {
       const target = this.textgrid[key].values[idx];
       const type = this.textgrid[key].type;
@@ -371,7 +367,6 @@ export default {
       const progress = p > 1 ? 1 : p < 0 ? 0 : p;
       this.wavesurfer.seekTo(progress);
     },
-    // 動画表示領域の最大高さが決定された場合の動作
     onResize: function(payload) {
       this.videoHeight = payload;
     },
@@ -402,7 +397,6 @@ export default {
         this.showWarning(msg);
       }
     },
-    // 動画の読み込みが終了した場合の動作
     onLoadeddata: function(payload) {
       if (payload) {
         this.videoElm = payload;
@@ -414,8 +408,6 @@ export default {
         });
       }
     },
-
-    // 動画現在画像が変更された場合の動作
     onFrameUpdated(payload) {
       this.current.frame = payload;
       if (this.lazyRular) {
@@ -427,15 +419,10 @@ export default {
         this.lazyImageEdit = false;
       }
     },
-
-    // スペクトログラムのレンダが始まった場合の動作
     onSpectrogramRenderStart() {
       this.isLoading = true;
     },
-
-    // スペクトログラムのレンダが終了した場合の動作
     onSpectrogramRenderEnd() {
-      // 既存のアノテーション情報を反映
       if (this.oldTextgrid) {
         this.isSyncing = true;
         for (const key in this.oldTextgrid) {
@@ -448,8 +435,6 @@ export default {
       }
       this.isLoading = false;
     },
-
-    // TEXTGRID をシングルクリックされた場合の動作
     onTextGridClick: function(payload) {
       if (this.wavesurfer.isPlaying()) this.wavesurfer.pause();
       this.current.key = payload.key;
@@ -469,14 +454,11 @@ export default {
         this.current.time = payload.item.time;
       }
     },
-
-    // TEXTGRID をダブルクリックされた場合の動作
     onTextGridDblClick: function(payload) {
       if (this.addRecordKey == "dbl") {
         this.addRecord(payload.key, payload.time);
       }
     },
-
     onTextGridKeydown: function(payload) {
       const item = payload.current;
       // DELETE 系の動作
@@ -493,7 +475,6 @@ export default {
       if (payload.keycode == 9) {
         this.playRecord(item.key, item.index);
       }
-
       // ← で1フレーム戻す
       if (payload.keycode == 37) {
         if (payload.ctrl) {
@@ -511,7 +492,6 @@ export default {
         }
       }
     },
-    // TEXTGRID の Text field がエンターされた場合
     onUpdateRecordText: function() {
       const tier = this.current.tier;
       const key = tier.key;
@@ -522,7 +502,6 @@ export default {
       const idx = this.current.tier.item.idx;
       this.wavesurfer.setTierValue(key, idx, item);
     },
-    // TEXTGRID 情報が更新された場合の動作
     onTextGridUpdate: function(textgrid) {
       if (textgrid) {
         this.textgrid = Object.assign({}, textgrid);
@@ -531,12 +510,9 @@ export default {
         }
       }
     },
-
-    // TEXTGRID のフォーカス情報が更新された場合の動作
     onTextGridCurrentUpdate: function(payload) {
       this.current.tier.key = payload.key;
       this.current.tier.item.idx = payload.index;
-
       if (payload.item) {
         this.current.tier.item.time = payload.item.time;
         this.current.tier.item.text = payload.item.text;
@@ -545,12 +521,9 @@ export default {
         this.current.tier.item.text = "";
       }
     },
-
-    // 動画情報出力ダイアログが要求された場合の動作
     onClickDetail: function() {
       this.dialog.detail.show = true;
     },
-    // 画像編集モードを要求された場合の動作
     onClickRuler: function(payload) {
       if (payload) {
         this.lazyRular = true;
@@ -559,7 +532,6 @@ export default {
         this.dialog.ruler.show = true;
       }
     },
-    // 画像編集モードを要求された場合の動作
     onClickImageEdit: function(payload) {
       if (payload) {
         this.lazyImageEdit = true;
@@ -568,7 +540,6 @@ export default {
         this.dialog.imageEdit.show = true;
       }
     },
-    // 新規アノテーション階層作成ダイアログが要求された場合の動作
     onClickTierAdd: function() {
       this.dialog.tier.show = true;
     },

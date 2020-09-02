@@ -8,7 +8,6 @@
       :muted="muted"
       :src="src"
     />
-
     <v-stage
       @click="onClickEvent($event, 'click')"
       @dblclick="onClickEvent($event, 'dblclick')"
@@ -167,8 +166,8 @@ export default {
                     ? (x.height * this.canvas.height) / originSize.height
                     : x.height,
                   rotation: x.rotation || 0,
-                  scaleX: 1,
-                  scaleY: 1,
+                  scaleX: x.scaleX || 1,
+                  scaleY: x.scaleY || 1,
                   strokeWidth: x.size || 3,
                   stroke: utils.color.toCss(
                     x.color || this.defaultRectColor,

@@ -12,6 +12,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "dexie": "^3.0.2",
+    "dexie-relationships": "^1.2.11",
     "ffmpeg.js": "^4.2.9003",
     "konva": "^7.0.5",
     "vue": "^2.6.11",

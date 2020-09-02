@@ -49,7 +49,6 @@
             {
               idx: null,       // フレーム番号
               time: float,     // 時間
-              source: String,  // Base64 形式で文字列化された画像
               points: [
                 {
                   label: String,

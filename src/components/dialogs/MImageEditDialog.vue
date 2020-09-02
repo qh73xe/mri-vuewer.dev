@@ -17,7 +17,7 @@
       :src="src"
       :frame="frame"
       :origin-size="originSize"
-      @rect-updated="$emit('rect-updated', $event)"
+      @rects-updated="$emit('rects-updated', $event)"
       @points-updated="$emit('points-updated', $event)"
     />
   </m-card-dialog>

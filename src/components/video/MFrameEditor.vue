@@ -15,7 +15,6 @@
         </v-btn>
       </v-btn-toggle>
     </v-toolbar>
-
     <v-stage
       ref="stage"
       :config="canvas"
@@ -53,16 +52,19 @@
           :config="{
             name: x.name,
             x: x.x,
-            y: x.x,
+            y: x.y,
             width: x.width,
             height: x.height,
-            rotation: x.rotation,
-            scaleX: 1,
-            scaleY: 1,
+            rotation: x.rotation || 1,
+            scaleX: x.scaleX || 1,
+            scaleY: x.scaleY || 1,
             stroke: x.color,
-            strokeWidth: 1,
+            strokeWidth: x.size || 1,
+            opacity: x.opacity || 1,
             draggable: true
           }"
+          @dragstart="onRectDragStart"
+          @dragend="onRectDragEnd"
           @transformend="onTransformEnd"
         />
         <v-transformer ref="transformer" />
@@ -113,10 +115,10 @@ export default {
       const img = new Image();
       img.src = val;
       img.onload = () => {
-        console.log("onload");
         this.onResize();
         this.background.image = img;
         this.syncPoints();
+        this.syncRects();
       };
     },
     addRect: function(x, y, width, height, rotation, color, size) {
@@ -131,7 +133,6 @@ export default {
         color: color
       });
     },
-    // 過去データの内現在に存在しないものがあれば追加
     syncPoints: function() {
       this.points = [];
       if (this.frame) {
@@ -149,6 +150,28 @@ export default {
         }
       }
     },
+    syncRects: function() {
+      this.rects = [];
+      if (this.frame) {
+        const cw = this.canvas.width;
+        const ow = this.originSize.width;
+        const ch = this.canvas.height;
+        const oh = this.originSize.height;
+        for (const r of this.frame.rects) {
+          this.rects.push({
+            x: (r.x * cw) / ow,
+            y: (r.y * ch) / oh,
+            width: (r.width * cw) / ow,
+            height: (r.height * ch) / oh,
+            rotation: r.rotation || 1,
+            scaleX: r.scaleX || 1,
+            scaleY: r.scaleY || 1,
+            size: r.size,
+            color: r.color
+          });
+        }
+      }
+    },
     emitUpdatePoints: function() {
       setTimeout(() => {
         const points = this.points.map(x => {
@@ -160,6 +183,24 @@ export default {
           };
         });
         this.$emit("points-updated", points);
+      }, 1);
+    },
+    emitUpdateRects: function() {
+      setTimeout(() => {
+        const rects = this.rects.map(x => {
+          return {
+            x: (x.x * this.originSize.width) / this.canvas.width,
+            y: (x.y * this.originSize.height) / this.canvas.height,
+            width: (x.width * this.originSize.width) / this.canvas.width,
+            height: (x.height * this.originSize.width) / this.canvas.width,
+            rotation: x.rotation || 1,
+            scaleX: x.scaleX || 1,
+            scaleY: x.scaleY || 1,
+            size: x.size,
+            color: x.color
+          };
+        });
+        this.$emit("rects-updated", rects);
       }, 1);
     },
     addPoint: function(x, y, color, size) {
@@ -233,6 +274,18 @@ export default {
       this.points[i].size = this.size;
       this.emitUpdatePoints();
     },
+    onRectDragStart: function(e) {
+      const i = e.target.index;
+      this.rects[i].opacity = 0.5;
+    },
+    onRectDragEnd: function(e) {
+      console.log("onRectDragEnd");
+      const i = e.target.index;
+      this.rects[i].x = e.target.x();
+      this.rects[i].y = e.target.y();
+      this.rects[i].opacity = 1;
+      this.emitUpdateRects();
+    },
     onStageMouseDown(e) {
       if (e.target === e.target.getStage()) {
         this.selectedShapeName = "";
@@ -254,15 +307,15 @@ export default {
       this.updateTransformer();
     },
     onTransformEnd(e) {
-      console.log("transformend");
-      const rect = this.rects.find(r => r.name === this.selectedShapeName);
-      console.log(rect, e);
-      // TODO ここで更新式を記述
-      // rect.x = e.target.x();
-      // rect.y = e.target.y();
-      // rect.rotation = e.target.rotation();
-      // rect.scaleX = e.target.scaleX();
-      // rect.scaleY = e.target.scaleY();
+      const idx = this.rects.findIndex(r => r.name == this.selectedShapeName);
+      if (idx !== -1) {
+        this.rects[idx].rotation = e.target.rotation();
+        this.rects[idx].width = e.target.width();
+        this.rects[idx].scaleX = e.target.scaleX();
+        this.rects[idx].height = e.target.height();
+        this.rects[idx].scaleY = e.target.scaleY();
+        this.emitUpdateRects();
+      }
     },
     updateTransformer() {
       const transformerNode = this.$refs.transformer.getNode();
