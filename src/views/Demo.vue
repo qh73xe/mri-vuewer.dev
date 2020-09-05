@@ -35,6 +35,7 @@
             ref="video"
             :src="$source"
             :fps="$fps"
+            :frames="frames"
             :origin-size="$originSize"
           />
         </v-container>
@@ -60,6 +61,7 @@ export default {
     heading: "Live Demo",
     sample: null,
     samples: ["sample1.mp4", "sample2.mp4", "sample3.mp4"],
+    frames: [],
     loading: {
       isloading: false,
       status: null
@@ -87,6 +89,7 @@ export default {
           return null;
         });
       if (file) {
+        this.frames = [];
         this.loading.status = "load vide info...";
         if (file.arrayBuffer) {
           const buff = await file.arrayBuffer();
@@ -96,12 +99,23 @@ export default {
             this.$audioStream = res.audioStream;
             this.$originSize = res.size;
             this.$duration = res.duration;
-
             this.loading.status = "load vide file...";
             io.file.toBase64(file).then(res => {
               if (res) {
                 this.$source = res;
                 this.$name = filename;
+                let step = 0;
+                let currentTime = 0;
+                const total = Math.floor(this.$duration * this.$fps);
+                const frameRate = 1 / this.$fps;
+                while (step < total) {
+                  step++;
+                  currentTime = currentTime + frameRate;
+                  this.frames.push({
+                    idx: step,
+                    time: currentTime
+                  });
+                }
               }
               this.loading.isloading = false;
             });

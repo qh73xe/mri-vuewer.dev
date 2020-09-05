@@ -93,7 +93,6 @@ export default {
       if (this.pxPerSec < 500) {
         this.pxPerSec = this.pxPerSec + 50;
         this.zoom(this.pxPerSec);
-        console.log(this.pxPerSec);
       }
     },
     decPxPerSec: function() {

@@ -80,7 +80,6 @@
         <template v-slot:activator>
           <v-list-item-title>DATABASE</v-list-item-title>
         </template>
-
         <v-list-item @click="dbDump" link>
           <v-list-item-icon>
             <v-icon>mdi-database-export</v-icon>
@@ -113,7 +112,6 @@
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-
         <v-list-item @click="dbClear" link>
           <v-list-item-icon>
             <v-icon color="error">mdi-database-remove</v-icon>

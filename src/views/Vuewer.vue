@@ -7,9 +7,12 @@
       :fps="$fps"
       :frames="frames"
       :origin-size="$originSize"
-      :old-textgrid="textgrid"
+      :textgrid="textgrid"
       @textgrid-updated="onTextGridUpdated"
-      @frame-updated="onFrameUpdated"
+      @frame-point-updated="onFramePointUpdated"
+      @frame-rect-updated="onFrameRectUpdated"
+      @frame-point-deleted="onFramePointDeleted"
+      @frame-rect-deleted="onFrameRectDeleted"
     />
     <m-loading-dialog v-model="isLoading">
       {{ $vuetify.lang.t("$vuetify.loading") }}
@@ -63,72 +66,37 @@ export default {
      * これは id を元に動画の情報を取得し,
      * this.$store.state.current 以下の情報を書き換えます.
      */
-    onIdChanged: function(id) {
+    onIdChanged: async function(id) {
       if (id) {
         this.log({ msg: `change id ${id}` });
         this.isLoading = true;
         // 画面表示する動画情報を初期化する
         this.$initVideo();
-        db.files
-          .get(Number(id))
-          .then(x => {
-            this.item = x;
-            this.$source = x.source;
-            this.$fps = x.fps;
-            this.$name = x.name;
-            this.$duration = x.duration;
-            this.$videoStream = x.videoStream;
-            this.$audioStream = x.audioStream;
-            this.$originSize = x.originSize;
-            this.frames = x.frames;
-            this.textgrid = x.textgrid || null;
-          })
-          .catch(error => this.showError(error))
-          .finally(() => {
-            this.isLoading = false;
-          });
+        try {
+          const file = await db.files.get(Number(id));
+          if (file) {
+            this.item = file;
+            this.$source = file.source;
+            this.$fps = file.fps;
+            this.$name = file.name;
+            this.$duration = file.duration;
+            this.$videoStream = file.videoStream || {};
+            this.$audioStream = file.audioStream || {};
+            this.$originSize = file.originSize || {};
+            this.textgrid = file.textgrid || {};
+            this.frames = await db.frames
+              .where({ fileId: file.id })
+              .with({ points: "points", rects: "rects" });
+          } else {
+            this.showError("No file");
+            this.$router.push({ name: "Home" });
+          }
+        } catch (error) {
+          this.showError(error);
+        }
+        this.isLoading = false;
       } else {
         this.showError("no id");
-      }
-    },
-    // DB ファイルのテキストグリッド情報を更新する
-    updateTextGrid: function(textgrid) {
-      const vm = this;
-      this.item.textgrid = Object.assign({}, textgrid);
-      for (const key in this.item.textgrid) {
-        this.item.textgrid[key] = {
-          type: textgrid[key].type,
-          values: textgrid[key].values
-        };
-      }
-      db.files
-        .put(this.item)
-        .then(id => {
-          const msg = `update the textgrid of a file (id=${id})`;
-          vm.log({ msg: msg });
-        })
-        .catch(error => {
-          const msg = `failed: update the textgrid of a file (id=${this.item.id})`;
-          vm.error({ msg: msg, error: error });
-          console.error(error);
-        });
-    },
-    updateFrames: function(frame) {
-      const vm = this;
-      const idx = this.item.frames.findIndex(x => x.i == frame.i);
-      if (idx != -1) {
-        this.item.frames[idx] = frame;
-        db.files
-          .put(this.item)
-          .then(id => {
-            const msg = `update the frames of a file (id=${id})`;
-            vm.log({ msg: msg });
-          })
-          .catch(error => {
-            const msg = `failed: update the frames of a file (id=${this.item.id})`;
-            vm.error({ msg: msg, error: error });
-            console.error(error);
-          });
       }
     },
     log: function(payload) {
@@ -137,13 +105,66 @@ export default {
     error: function(payload) {
       this.$store.commit("logging/error", payload);
     },
-    onTextGridUpdated: function(payload) {
-      if (payload) {
-        this.updateTextGrid(payload);
+    onTextGridUpdated: function(textgrid) {
+      if (textgrid) {
+        const vm = this;
+        this.item.textgrid = Object.assign({}, textgrid);
+        for (const key in this.item.textgrid) {
+          this.item.textgrid[key] = {
+            type: textgrid[key].type,
+            values: textgrid[key].values
+          };
+        }
+        db.files
+          .put(this.item)
+          .then(id => {
+            const msg = `update the textgrid of a file (id=${id})`;
+            vm.log({ msg: msg });
+          })
+          .catch(error => {
+            const msg = `failed: update the textgrid of a file (id=${this.item.id})`;
+            vm.error({ msg: msg, error: error });
+            console.error(error);
+          });
       }
     },
-    onFrameUpdated: function(frame) {
-      this.updateFrames(frame);
+    onFrameRectUpdated: function(frame) {
+      for (const r of frame.rects) {
+        const item = {
+          id: r.id,
+          x: r.x,
+          y: r.y,
+          width: r.width,
+          height: r.height,
+          rotation: r.rotation,
+          scaleX: r.scaleX,
+          scaleY: r.scaleY,
+          size: r.size,
+          color: r.color,
+          frameId: frame.id
+        };
+        db.rects.put(item).catch(error => this.showError(error));
+      }
+    },
+    onFramePointUpdated: async function(frame) {
+      for (const i in frame.points) {
+        const p = frame.points[i];
+        const item = {
+          id: p.id,
+          x: p.x,
+          y: p.y,
+          color: p.color,
+          size: p.size,
+          frameId: frame.id
+        };
+        db.points.put(item).catch(error => this.showError(error));
+      }
+    },
+    onFramePointDeleted: function(point) {
+      db.points.delete(point.id).catch(error => this.showError(error));
+    },
+    onFrameRectDeleted: function(rect) {
+      db.rects.delete(rect.id).catch(error => this.showError(error));
     }
   },
   watch: {

@@ -6,8 +6,8 @@
         :src="src"
         :fps="fps"
         :frameOffset="frameOffset"
+        :frames="$frames"
         :origin-size="originSize"
-        :frames="frames"
         @resize="onResize"
         @loadeddata="onLoadeddata"
         @frame-updated="onFrameUpdated"
@@ -23,8 +23,8 @@
       <m-text-grid
         @click-image-edit="onClickImageEdit"
         @click-ruler="onClickRuler"
-        :frames="frames"
-        :textgrid="textgrid"
+        :frames="$frames"
+        :textgrid="$textgrid"
         :video-height="videoHeight"
       />
     </template>
@@ -116,6 +116,8 @@
         v-model="dialog.imageEdit.show"
         @rects-updated="onRectsUpdated"
         @points-updated="onPointsUpdated"
+        @rect-deleted="onRectDeleted"
+        @point-deleted="onPointDeleted"
         :frame="current.frame"
         :src="current.frame.src"
         :origin-size="originSize"
@@ -131,7 +133,6 @@
  * このコンポーネントの役割は種々アノテーション画面情報の受け渡しです.
  * 基本的にそれ以外のことはしないことに注意してください.
  */
-
 import WaveSurfer from "wavesurfer.vue";
 import MVuwerLayout from "@/components/layouts/MVuwerLayout";
 import MVideoArray from "@/components/video/MVideoArray";
@@ -186,7 +187,7 @@ export default {
       required: true
     },
     // 既存アノテーション情報
-    oldTextgrid: {
+    textgrid: {
       type: Object,
       default: function() {
         return {};
@@ -267,12 +268,20 @@ export default {
         this.$store.commit("current/waveSurfer", val);
       }
     },
-    textgrid: {
+    $textgrid: {
       get() {
         return this.$store.state.current.textgrid;
       },
       set(val) {
         this.$store.commit("current/textGrid", val);
+      }
+    },
+    $frames: {
+      get() {
+        return this.$store.state.current.frames;
+      },
+      set(val) {
+        this.$store.commit("current/frames", val);
       }
     },
     // fps の逆数
@@ -286,8 +295,8 @@ export default {
     // 転記階層記入欄を表示するか否か
     showTextField: function() {
       if (this.videoElm) {
-        if (this.textgrid) {
-          return Object.keys(this.textgrid).length > -1;
+        if (this.$textgrid) {
+          return Object.keys(this.$textgrid).length > -1;
         }
       }
       return false;
@@ -320,10 +329,10 @@ export default {
       if (this.wavesurfer.isPlaying()) {
         this.wavesurfer.pause();
       } else {
-        const current = this.textgrid[key].values[idx];
-        if (this.textgrid[key].type == "interval") {
+        const current = this.$textgrid[key].values[idx];
+        if (this.$textgrid[key].type == "interval") {
           if (idx > 0) {
-            const prev = this.textgrid[key].values[idx - 1];
+            const prev = this.$textgrid[key].values[idx - 1];
             if (current.time && prev.time) {
               this.wavesurfer.play(prev.time, current.time);
             }
@@ -340,7 +349,7 @@ export default {
       }
     },
     skipForwardRecord(key, idx) {
-      const target = this.textgrid[key].values[idx];
+      const target = this.$textgrid[key].values[idx];
       const d = this.wavesurfer.getDuration();
       const time = target.time + this.frameRate;
       if (time < d) {
@@ -349,12 +358,15 @@ export default {
       }
     },
     skipBackwardRecord(key, idx) {
-      const target = this.textgrid[key].values[idx];
-      const type = this.textgrid[key].type;
+      const target = this.$textgrid[key].values[idx];
+      const type = this.$textgrid[key].type;
       const time = target.time - this.frameRate;
       if (time > 0) {
         const item = { text: target.text, time: time };
-        if (type == "interval" && idx == this.textgrid[key].values.length - 1) {
+        if (
+          type == "interval" &&
+          idx == this.$textgrid[key].values.length - 1
+        ) {
           return;
         } else {
           this.wavesurfer.setTierValue(key, idx, item);
@@ -373,7 +385,7 @@ export default {
     onDownloadClick: function(payload) {
       const bname = this.$store.state.current.video.filename.split(".")[0];
       if (payload == "JSON") {
-        const blob = new Blob([JSON.stringify(this.textgrid, null, "  ")], {
+        const blob = new Blob([JSON.stringify(this.$textgrid, null, "  ")], {
           type: "application/json"
         });
         io.file.download(blob, `${bname}.json`);
@@ -423,11 +435,11 @@ export default {
       this.isLoading = true;
     },
     onSpectrogramRenderEnd() {
-      if (this.oldTextgrid) {
+      if (this.textgrid) {
         this.isSyncing = true;
-        for (const key in this.oldTextgrid) {
-          this.wavesurfer.addTier(key, this.oldTextgrid[key].type);
-          for (const val of this.oldTextgrid[key].values) {
+        for (const key in this.textgrid) {
+          this.wavesurfer.addTier(key, this.textgrid[key].type);
+          for (const val of this.textgrid[key].values) {
             if (val) this.wavesurfer.addTierValue(key, val);
           }
         }
@@ -504,9 +516,9 @@ export default {
     },
     onTextGridUpdate: function(textgrid) {
       if (textgrid) {
-        this.textgrid = Object.assign({}, textgrid);
+        this.$textgrid = Object.assign({}, textgrid);
         if (!this.isSyncing) {
-          this.$emit("textgrid-updated", this.textgrid);
+          this.$emit("textgrid-updated", this.$textgrid);
         }
       }
     },
@@ -549,19 +561,40 @@ export default {
     onClickTierDelete: function() {
       this.dialog.tierDelete.show = true;
     },
-    onRectsUpdated: function(rects) {
-      this.current.frame.rects = rects;
-      this.$emit("frame-updated", this.current.frame);
-    },
     onPointsUpdated: function(points) {
       this.current.frame.points = points;
-      this.$emit("frame-updated", this.current.frame);
+      this.$store.dispatch("current/updateFrame", this.current.frame);
+      this.$emit("frame-point-updated", this.current.frame);
+    },
+    onRectsUpdated: function(rects) {
+      this.current.frame.rects = rects;
+      this.$store.dispatch("current/updateFrame", this.current.frame);
+      this.$emit("frame-rect-updated", this.current.frame);
+    },
+    onPointDeleted: function(point) {
+      const i = this.current.frame.points.findIndex(x => x.id == point.id);
+      if (i !== -1) {
+        this.current.frame.points.splice(i, 1);
+        this.$store.dispatch("current/updateFrame", this.current.frame);
+        this.$emit("frame-point-deleted", point);
+      }
+    },
+    onRectDeleted: function(rect) {
+      const i = this.current.frame.rects.findIndex(x => x.id == rect.id);
+      if (i !== -1) {
+        this.current.frame.rects.splice(i, 1);
+        this.$store.dispatch("current/updateFrame", this.current.frame);
+        this.$emit("frame-rect-deleted", rect);
+      }
     }
   },
   mounted: function() {
+    this.$frames = [];
+    this.$frames = this.frames;
     this.$store.dispatch("search/show");
   },
   beforeDestroy: function() {
+    this.$store.dispatch("current/init");
     this.$store.dispatch("search/init");
   }
 };

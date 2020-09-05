@@ -19,6 +19,8 @@
       :origin-size="originSize"
       @rects-updated="$emit('rects-updated', $event)"
       @points-updated="$emit('points-updated', $event)"
+      @rect-deleted="$emit('rect-deleted', $event)"
+      @point-deleted="$emit('point-deleted', $event)"
     />
   </m-card-dialog>
 </template>

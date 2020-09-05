@@ -34,17 +34,6 @@
       </span>
       <span v-else>0</span>
     </template>
-    <template v-slot:item.texts="{ item }">
-      <span
-        class="d-inline-block text-truncate"
-        style="max-width: 30px;"
-        v-if="item.texts"
-      >
-        {{ item.texts.length }}
-      </span>
-      <span v-else>0</span>
-    </template>
-
     <template v-slot:item.actions="{ item }">
       <v-btn class="mr-1" fab dark x-small @click="seek(item.time)">
         <v-icon>
@@ -91,24 +80,23 @@ export default {
   name: "m-frame-table",
   mixins: [MWavesurferMixin],
   props: {
+    videoHeight: {
+      default: null
+    },
     frames: {
       type: Array,
       default: function() {
         return [];
       }
-    },
-    videoHeight: {
-      default: null
     }
   },
   data: () => ({
     rulerDialog: false,
     headers: [
-      { text: "id", value: "i" },
+      { text: "id", value: "idx" },
       { text: "time", value: "time" },
       { text: "points", value: "points" },
       { text: "rects", value: "rects" },
-      { text: "texts", value: "texts" },
       {
         text: "Actions",
         value: "actions",

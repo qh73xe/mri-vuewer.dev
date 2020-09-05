@@ -195,14 +195,10 @@ export default {
         this.converting.step++;
         currentTime = currentTime + frameRate;
         this.video.frames.push({
-          i: this.converting.step,
-          time: currentTime,
-          points: [],
-          rects: [],
-          texts: []
+          idx: this.converting.step,
+          time: currentTime
         });
       }
-
       this.converting.doing = false;
       if (this.isFinishEditMeta) {
         this.pushFile();

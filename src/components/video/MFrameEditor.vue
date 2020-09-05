@@ -63,6 +63,7 @@
             opacity: x.opacity || 1,
             draggable: true
           }"
+          @click="onRectClick"
           @dragstart="onRectDragStart"
           @dragend="onRectDragEnd"
           @transformend="onTransformEnd"
@@ -74,6 +75,7 @@
 </template>
 <script>
 import MColorMenu from "@/components/menus/MColorMenu";
+import db from "@/storage/db";
 export default {
   name: "m-frame-editor",
   components: {
@@ -121,18 +123,6 @@ export default {
         this.syncRects();
       };
     },
-    addRect: function(x, y, width, height, rotation, color, size) {
-      this.rects.push({
-        name: `rect-${this.rects.length}`,
-        x: x,
-        y: y,
-        width: width,
-        height: height,
-        rotation: rotation,
-        size: size,
-        color: color
-      });
-    },
     syncPoints: function() {
       this.points = [];
       if (this.frame) {
@@ -140,8 +130,9 @@ export default {
         const ow = this.originSize.width;
         const ch = this.canvas.height;
         const oh = this.originSize.height;
-        for (const p of this.frame.points) {
+        for (const p of this.frame.points || []) {
           this.points.push({
+            id: p.id || null,
             x: (p.x * cw) / ow,
             y: (p.y * ch) / oh,
             size: p.size,
@@ -157,8 +148,10 @@ export default {
         const ow = this.originSize.width;
         const ch = this.canvas.height;
         const oh = this.originSize.height;
-        for (const r of this.frame.rects) {
+        for (const r of this.frame.rects || []) {
           this.rects.push({
+            id: r.id || null,
+            name: `rect-${r.id}`,
             x: (r.x * cw) / ow,
             y: (r.y * ch) / oh,
             width: (r.width * cw) / ow,
@@ -173,44 +166,78 @@ export default {
       }
     },
     emitUpdatePoints: function() {
+      const ow = this.originSize.width;
+      const oh = this.originSize.width;
+      const cw = this.canvas.width;
+      const ch = this.canvas.height;
       setTimeout(() => {
-        const points = this.points.map(x => {
+        const points = this.points.map(item => {
           return {
-            x: (x.x * this.originSize.width) / this.canvas.width,
-            y: (x.y * this.originSize.height) / this.canvas.height,
-            size: x.size,
-            color: x.color
+            id: item.id || null,
+            x: (item.x / cw) * ow,
+            y: (item.y / ch) * oh,
+            size: item.size,
+            color: item.color
           };
         });
         this.$emit("points-updated", points);
       }, 1);
     },
     emitUpdateRects: function() {
+      const ow = this.originSize.width;
+      const oh = this.originSize.width;
+      const cw = this.canvas.width;
+      const ch = this.canvas.height;
       setTimeout(() => {
-        const rects = this.rects.map(x => {
+        const rects = this.rects.map(item => {
           return {
-            x: (x.x * this.originSize.width) / this.canvas.width,
-            y: (x.y * this.originSize.height) / this.canvas.height,
-            width: (x.width * this.originSize.width) / this.canvas.width,
-            height: (x.height * this.originSize.width) / this.canvas.width,
-            rotation: x.rotation || 1,
-            scaleX: x.scaleX || 1,
-            scaleY: x.scaleY || 1,
-            size: x.size,
-            color: x.color
+            id: item.id,
+            x: (item.x / cw) * ow,
+            y: (item.y / ch) * oh,
+            width: (item.width / cw) * ow,
+            height: (item.height / ch) * oh,
+            rotation: item.rotation || 1,
+            scaleX: item.scaleX || 1,
+            scaleY: item.scaleY || 1,
+            size: item.size,
+            color: item.color
           };
         });
         this.$emit("rects-updated", rects);
       }, 1);
     },
-    addPoint: function(x, y, color, size) {
-      this.points.push({
+    addPoint: async function(x, y, color, size) {
+      const item = {
+        id: this.points.length + 1,
         x: x,
         y: y,
         size: size,
         color: color
-      });
+      };
+      if (this.frame.id) {
+        const count = await db.points.count();
+        item.id = count + 1;
+      }
+      this.points.push(item);
       this.emitUpdatePoints();
+    },
+    addRect: async function(x, y, width, height, rotation, color, size) {
+      const item = {
+        id: this.rects.length + 1,
+        x: x,
+        y: y,
+        width: width,
+        height: height,
+        rotation: rotation,
+        size: size,
+        color: color
+      };
+      if (this.frame.id) {
+        const count = await db.rects.count();
+        item.id = count + 1;
+      }
+      this.rects.push(item);
+      this.emitUpdateRects();
     },
     onResize: function() {
       const cw = this.$refs.card.$el.clientWidth || 500;
@@ -243,8 +270,17 @@ export default {
     onPointClick: function(e) {
       // ポイントがクリックされた場合, mode が 2 であればデータを削除する
       if (this.mode == 2) {
-        this.points.splice(e.target.index, 1);
-        this.emitUpdatePoints();
+        const i = e.target.index;
+        this.$emit("point-deleted", this.points[i]);
+        this.points.splice(i, 1);
+      }
+    },
+    onRectClick: function(e) {
+      // ポイントがクリックされた場合, mode が 2 であればデータを削除する
+      if (this.mode == 2) {
+        const i = e.target.index;
+        this.$emit("rect-deleted", this.rects[i]);
+        this.rects.splice(i, 1);
       }
     },
     onPointMouseEnter: function(e) {
@@ -279,7 +315,6 @@ export default {
       this.rects[i].opacity = 0.5;
     },
     onRectDragEnd: function(e) {
-      console.log("onRectDragEnd");
       const i = e.target.index;
       this.rects[i].x = e.target.x();
       this.rects[i].y = e.target.y();

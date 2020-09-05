@@ -98,7 +98,7 @@ export default {
     },
     // 動画現在時刻のフレーム
     frame: {
-      i: null,
+      idx: null,
       time: null,
       circles: [],
       rects: [],
@@ -122,12 +122,22 @@ export default {
       left: 0
     }
   }),
+  watch: {
+    frames: function() {
+      const currentTime = this.getCurrentTime();
+      this.syncFrame(currentTime);
+    }
+  },
   computed: {
     $frames: function() {
-      const originSize = this.originSize;
+      const ow = this.originSize.width;
+      const oh = this.originSize.height;
+      const cw = this.canvas.width;
+      const ch = this.canvas.height;
       return this.frames.map(f => {
         return {
-          i: f.i,
+          id: f.id,
+          idx: f.idx,
           time: f.time,
           // 表示対象の点群データ
           circles: f.points
@@ -135,12 +145,8 @@ export default {
                 return {
                   stroke: "white",
                   strokeWidth: 1,
-                  x: originSize.width
-                    ? (x.x * this.canvas.width) / originSize.width
-                    : x.x,
-                  y: originSize.height
-                    ? (x.y * this.canvas.height) / originSize.height
-                    : x.y,
+                  x: ow ? (x.x * cw) / ow : x.x,
+                  y: oh ? (x.y * ch) / oh : x.y,
                   radius: 3,
                   fill: utils.color.toCss(
                     x.color || this.defaultPointColor,
@@ -153,22 +159,14 @@ export default {
           rects: f.rects
             ? f.rects.map(x => {
                 return {
-                  x: originSize.width
-                    ? (x.x * this.canvas.width) / originSize.width
-                    : x.x,
-                  y: originSize.height
-                    ? (x.y * this.canvas.height) / originSize.height
-                    : x.y,
-                  width: originSize.width
-                    ? (x.width * this.canvas.width) / originSize.width
-                    : x.width,
-                  height: originSize.height
-                    ? (x.height * this.canvas.height) / originSize.height
-                    : x.height,
+                  x: ow ? (x.x * cw) / ow : x.x,
+                  y: oh ? (x.y * ch) / oh : x.y,
+                  width: ow ? (x.width * cw) / ow : x.width,
+                  height: oh ? (x.height * ch) / oh : x.height,
                   rotation: x.rotation || 0,
                   scaleX: x.scaleX || 1,
                   scaleY: x.scaleY || 1,
-                  strokeWidth: x.size || 3,
+                  strokeWidth: 2,
                   stroke: utils.color.toCss(
                     x.color || this.defaultRectColor,
                     this.$vuetify
@@ -180,12 +178,8 @@ export default {
           texts: f.texts
             ? f.texts.map(x => {
                 return {
-                  x: originSize.width
-                    ? (x.x * this.canvas.width) / originSize.width
-                    : x.x,
-                  y: originSize.height
-                    ? (x.y * this.canvas.height) / originSize.height
-                    : x.y,
+                  x: ow ? (x.x * this.canvas.width) / ow : x.x,
+                  y: oh ? (x.y * this.canvas.height) / oh : x.y,
                   text: x.text,
                   fontSize: x.size,
                   fontFamily: x.fontFamily || "Arial",
@@ -223,7 +217,7 @@ export default {
     downloadImage: async function() {
       let name = `time-${this.getCurrentTime()}.png`;
       if (this.frames.length > 0) {
-        name = `frame-${this.frame.i}.png`;
+        name = `frame-${this.frame.idx}.png`;
       }
       const dataURL = await this.toDataURL();
       const link = document.createElement("a");
@@ -292,6 +286,10 @@ export default {
           const frame = utils.math.nearest(this.$frames, "time", currentTime);
           if (frame.time >= currentTime) {
             this.frame = frame;
+            const i = this.frames.findIndex(x => x.id == frame.id);
+            if (i !== -1) {
+              this.$emit("frame-updated", this.frames[i]);
+            }
           }
         }
       }

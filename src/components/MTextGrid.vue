@@ -3,8 +3,8 @@
     <m-tab v-slot="tab" :tabs="tabs">
       <m-frame-table
         v-if="tab.i == 0"
-        :frames="frames"
         :video-height="videoHeight"
+        :frames="frames"
         @click-image-edit="$emit('click-image-edit', $event)"
         @click-ruler="$emit('click-ruler', $event)"
       />
@@ -30,12 +30,6 @@ export default {
     MFrameTable
   },
   props: {
-    frames: {
-      type: Array,
-      default: function() {
-        return [];
-      }
-    },
     videoHeight: {
       default: null
     },
@@ -43,6 +37,12 @@ export default {
       type: Object,
       default: function() {
         return {};
+      }
+    },
+    frames: {
+      type: Array,
+      default: function() {
+        return [];
       }
     }
   },
