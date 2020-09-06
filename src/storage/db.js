@@ -18,6 +18,15 @@ db.version(3).stores({
   rects:
     "++id, x, y, width, height, rotation, scaleX, scaleY, size, color, frameId -> frames.id"
 });
+db.version(4).stores({
+  files:
+    "++id,name,source,fps,duration,originSize,videoStream,audioStream,metaData,textgrid",
+  frames: "++id, idx, time, fileId -> files.id",
+  points: "++id, x, y, size, color, label, frameId -> frames.id",
+  rects:
+    "++id, x, y, width, height, rotation, scaleX, scaleY, size, color, label, frameId -> frames.id"
+});
+
 const dump = function() {
   return new Promise((resolve, reject) => {
     db.files

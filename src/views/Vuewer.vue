@@ -141,6 +141,7 @@ export default {
           scaleY: r.scaleY,
           size: r.size,
           color: r.color,
+          label: r.label || `rect-${r.id}`,
           frameId: frame.id
         };
         db.rects.put(item).catch(error => this.showError(error));
@@ -155,6 +156,7 @@ export default {
           y: p.y,
           color: p.color,
           size: p.size,
+          label: p.label || `point-${p.id}`,
           frameId: frame.id
         };
         db.points.put(item).catch(error => this.showError(error));

@@ -14,6 +14,10 @@
           <v-icon>mdi-eraser</v-icon>
         </v-btn>
       </v-btn-toggle>
+      <v-btn @click="downloadImage" class="ml-1" dark>
+        png
+        <v-icon>mdi-download</v-icon>
+      </v-btn>
     </v-toolbar>
     <v-stage
       ref="stage"
@@ -71,15 +75,41 @@
         <v-transformer ref="transformer" />
       </v-layer>
     </v-stage>
+    <v-tabs v-model="tab" fixed-tabs background-color="primary" dark>
+      <v-tab> Points </v-tab>
+      <v-tab> Rects </v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="tab">
+      <v-tab-item>
+        <m-point-table
+          :points="points"
+          :origin-size="originSize"
+          :canvas-size="canvas"
+          @update-point="onUpdatePoint"
+        />
+      </v-tab-item>
+      <v-tab-item>
+        <m-rect-table
+          :rects="rects"
+          :origin-size="originSize"
+          :canvas-size="canvas"
+          @update-rect="onUpdateRect"
+        />
+      </v-tab-item>
+    </v-tabs-items>
   </v-card>
 </template>
 <script>
 import MColorMenu from "@/components/menus/MColorMenu";
+import MPointTable from "@/components/table/MPointTable";
+import MRectTable from "@/components/table/MRectTable";
 import db from "@/storage/db";
 export default {
   name: "m-frame-editor",
   components: {
-    MColorMenu
+    MColorMenu,
+    MPointTable,
+    MRectTable
   },
   props: {
     src: {
@@ -104,13 +134,14 @@ export default {
     rects: [],
     selectedShapeName: "",
     canvas: {
-      width: 500,
-      height: 500
+      width: 600,
+      height: 600
     },
     mouse: {
       x: null,
       y: null
-    }
+    },
+    tab: null
   }),
   methods: {
     loadImage: function(val) {
@@ -123,6 +154,15 @@ export default {
         this.syncRects();
       };
     },
+    downloadImage: function() {
+      const name = `file-${this.frame.fileId}-frame-${this.frame.idx}.png`;
+      const stage = this.$refs.stage.getStage();
+      const dataURL = stage.toDataURL();
+      const link = document.createElement("a");
+      link.href = dataURL;
+      link.download = name;
+      link.click();
+    },
     syncPoints: function() {
       this.points = [];
       if (this.frame) {
@@ -132,7 +172,8 @@ export default {
         const oh = this.originSize.height;
         for (const p of this.frame.points || []) {
           this.points.push({
-            id: p.id || null,
+            id: p.id || this.frame.points.length + 1,
+            label: p.label || `point-${p.id}`,
             x: (p.x * cw) / ow,
             y: (p.y * ch) / oh,
             size: p.size,
@@ -150,8 +191,9 @@ export default {
         const oh = this.originSize.height;
         for (const r of this.frame.rects || []) {
           this.rects.push({
-            id: r.id || null,
-            name: `rect-${r.id}`,
+            id: r.id || this.frame.rects.length,
+            name: `rect-${r.id || this.frame.rects.length}`,
+            label: r.label || `rect-${r.id}`,
             x: (r.x * cw) / ow,
             y: (r.y * ch) / oh,
             width: (r.width * cw) / ow,
@@ -173,7 +215,8 @@ export default {
       setTimeout(() => {
         const points = this.points.map(item => {
           return {
-            id: item.id || null,
+            id: item.id,
+            label: item.label,
             x: (item.x / cw) * ow,
             y: (item.y / ch) * oh,
             size: item.size,
@@ -192,6 +235,7 @@ export default {
         const rects = this.rects.map(item => {
           return {
             id: item.id,
+            label: item.label,
             x: (item.x / cw) * ow,
             y: (item.y / ch) * oh,
             width: (item.width / cw) * ow,
@@ -209,6 +253,7 @@ export default {
     addPoint: async function(x, y, color, size) {
       const item = {
         id: this.points.length + 1,
+        label: `point-${this.points.length + 1}`,
         x: x,
         y: y,
         size: size,
@@ -217,6 +262,7 @@ export default {
       if (this.frame.id) {
         const count = await db.points.count();
         item.id = count + 1;
+        item.label = `points-${count + 1}`;
       }
       this.points.push(item);
       this.emitUpdatePoints();
@@ -224,6 +270,8 @@ export default {
     addRect: async function(x, y, width, height, rotation, color, size) {
       const item = {
         id: this.rects.length + 1,
+        name: `rect-${this.rects.length + 1}`,
+        label: `rect-${this.rects.length + 1}`,
         x: x,
         y: y,
         width: width,
@@ -235,6 +283,8 @@ export default {
       if (this.frame.id) {
         const count = await db.rects.count();
         item.id = count + 1;
+        item.name = `rect-${count + 1}`;
+        item.label = `rect-${count + 1}`;
       }
       this.rects.push(item);
       this.emitUpdateRects();
@@ -366,6 +416,18 @@ export default {
         transformerNode.nodes([]);
       }
       transformerNode.getLayer().batchDraw();
+    },
+    onUpdatePoint: function(point) {
+      const i = this.points.findIndex(x => x.id == point.id);
+      this.points[i].label = point.label;
+      this.points[i].color = point.color;
+      this.emitUpdatePoints();
+    },
+    onUpdateRect: function(rect) {
+      const i = this.rects.findIndex(x => x.id == rect.id);
+      this.rects[i].label = rect.label;
+      this.rects[i].color = rect.color;
+      this.emitUpdateRects();
     }
   },
   watch: {

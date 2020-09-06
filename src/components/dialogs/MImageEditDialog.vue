@@ -4,6 +4,7 @@
     titleColor="warning darken-1"
     :title="$vuetify.lang.t(title)"
     v-model="dialog"
+    max-width="700"
   >
     <template v-slot:activator="{ on, attrs }">
       <slot name="activator" :on="on" :attrs="attrs"></slot>
@@ -13,20 +14,22 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </template>
-    <m-frame-editor
-      :src="src"
-      :frame="frame"
-      :origin-size="originSize"
-      @rects-updated="$emit('rects-updated', $event)"
-      @points-updated="$emit('points-updated', $event)"
-      @rect-deleted="$emit('rect-deleted', $event)"
-      @point-deleted="$emit('point-deleted', $event)"
-    />
+    <div>
+      <m-frame-editor
+        :src="src"
+        :frame="frame"
+        :origin-size="originSize"
+        @rects-updated="$emit('rects-updated', $event)"
+        @points-updated="$emit('points-updated', $event)"
+        @rect-deleted="$emit('rect-deleted', $event)"
+        @point-deleted="$emit('point-deleted', $event)"
+      />
+    </div>
   </m-card-dialog>
 </template>
 <script>
 import MCardDialog from "@/components/base/dialog/MCardDialog";
-import MFrameEditor from "@/components/video/MFrameEditor.vue";
+import MFrameEditor from "@/components/video/MFrameEditor";
 export default {
   name: "m-image-edit-dialog",
   components: { MCardDialog, MFrameEditor },
