@@ -96,15 +96,15 @@
         @click-tier-edit="onClickTierEdit"
         @click-tier-delete="onClickTierDelete"
       />
-      <m-detail-dialog v-model="dialog.detail.show" :src="current.frame.src" />
-      <m-tier-dialog v-model="dialog.tier.show" :tiers="tiers" />
-      <m-tier-edit-dialog v-model="dialog.tierEdit.show" :tiers="tiers" />
-      <m-tier-delete-dialog
+      <m-detail-dialog
+        v-model="dialog.detail.show"
+        :src="current.frame.src"
         @download-click="onDownloadClick"
         @upload-click="onUploadClick"
-        v-model="dialog.tierDelete.show"
-        :tiers="tiers"
       />
+      <m-tier-dialog v-model="dialog.tier.show" :tiers="tiers" />
+      <m-tier-edit-dialog v-model="dialog.tierEdit.show" :tiers="tiers" />
+      <m-tier-delete-dialog v-model="dialog.tierDelete.show" :tiers="tiers" />
       <m-ruler-dialog
         v-if="originSize.width"
         v-model="dialog.ruler.show"
@@ -384,13 +384,41 @@ export default {
     },
     onDownloadClick: function(payload) {
       const bname = this.$store.state.current.video.filename.split(".")[0];
-      if (payload == "JSON") {
+      if (payload == "XLSX") {
+        const obj = {
+          records: this.$store.getters["current/tgTable"],
+          frames: this.$store.getters["current/frameTable"],
+          points: this.$store.getters["current/pointTable"],
+          rects: this.$store.getters["current/rectTable"]
+        };
+        const blob = io.xlsx.dump(obj);
+        io.file.download(blob, `${bname}.xlsx`);
+      } else if (payload == "TEXTGRID/JSON") {
         const blob = new Blob([JSON.stringify(this.$textgrid, null, "  ")], {
           type: "application/json"
         });
-        io.file.download(blob, `${bname}.json`);
-      } else if (payload == "TEXTGRID") {
+        io.file.download(blob, `${bname}-records.json`);
+      } else if (payload == "TEXTGRID/TEXTGRID") {
         this.wavesurfer.downloadTextGrid(`${bname}.TextGrid`);
+      } else if (payload == "TEXTGRID/XLSX") {
+        const obj = {
+          records: this.$store.getters["current/tgTable"]
+        };
+        const blob = io.xlsx.dump(obj);
+        io.file.download(blob, `${bname}-records.xlsx`);
+      } else if (payload == "FRAME/JSON") {
+        const blob = new Blob([JSON.stringify(this.$frames, null, "  ")], {
+          type: "application/json"
+        });
+        io.file.download(blob, `${bname}-frame.json`);
+      } else if (payload == "FRAME/XLSX") {
+        const obj = {
+          frames: this.$store.getters["current/frameTable"],
+          points: this.$store.getters["current/pointTable"],
+          rects: this.$store.getters["current/rectTable"]
+        };
+        const blob = io.xlsx.dump(obj);
+        io.file.download(blob, `${bname}.xlsx`);
       } else {
         const msg = `${payload} の処理は未実装です`;
         this.showWarning(msg);

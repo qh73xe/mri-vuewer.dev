@@ -280,5 +280,7 @@ export default {
         name: "Time Record"
       }
     }
-  }
+  },
+  annotation: "annotation",
+  frame: "frames"
 };

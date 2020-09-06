@@ -8,7 +8,7 @@ const ANNOTATION = "転記";
 const DB = "データベース";
 const VIDEO = "動画";
 const TEXTGRID = {
-  name: "時系列転記階層",
+  name: "時系列転記",
   tier: {
     name: "時系列転記層",
     option: {
@@ -21,6 +21,9 @@ const TEXTGRID = {
       name: "時刻記述"
     }
   }
+};
+const FRAME = {
+  name: "フレーム転記"
 };
 
 const pages = {
@@ -290,6 +293,8 @@ export default {
     }
   },
   loading: "読み込み中 ...",
-  textgrid: TEXTGRID
+  textgrid: TEXTGRID,
+  annotation: ANNOTATION,
+  frame: FRAME
 };
 //# sourceMappingURL=ja.js.map
