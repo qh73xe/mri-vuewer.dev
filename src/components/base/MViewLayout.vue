@@ -30,9 +30,7 @@ export default {
   computed: {
     showJumbotron: function() {
       if (this.heading) {
-        if (this.desc) {
-          return !this.$vuetify.breakpoint.smAndDown;
-        }
+        return this.desc;
       }
       return false;
     }

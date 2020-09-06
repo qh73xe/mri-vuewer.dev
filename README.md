@@ -1,5 +1,7 @@
 # mri-vuewer.dev
 
+DEMO: https://qh73xe.github.io/mri-vuewer.dev/
+
 ## Project setup
 ```
 yarn install

@@ -7,30 +7,49 @@ export default {
     duration: null,
     videoStream: null,
     audioStream: null,
-    originSize: null
+    originSize: {
+      width: null,
+      height: null
+    }
   }),
   mutations: {
-    setFileName(state, payload) {
+    fileName(state, payload) {
       state.filename = payload;
     },
-    setSource(state, payload) {
+    source(state, payload) {
       state.source = payload;
     },
-    setFps(state, payload) {
+    fps(state, payload) {
       state.fps = payload;
     },
-    setDuration(state, payload) {
+    duration(state, payload) {
       state.duration = payload;
     },
-    setVideoStream(state, payload) {
+    videoStream(state, payload) {
       state.videoStream = payload;
     },
-    setAudioStream(state, payload) {
+    audioStream(state, payload) {
       state.audioStream = payload;
     },
-    setOriginSize(state, payload) {
-      state.originSize = payload;
+    originSize(state, payload) {
+      if (payload.width) {
+        state.originSize.width = payload.width;
+      }
+      if (payload.height) {
+        state.originSize.height = payload.height;
+      }
     }
   },
-  actions: {}
+  actions: {
+    init: function(context) {
+      context.commit("fileName", null);
+      context.commit("source", null);
+      context.commit("fps", null);
+      context.commit("duration", null);
+      context.commit("videoStream", null);
+      context.commit("audioStream", null);
+      context.commit("audioStream", null);
+      context.commit("originSize", { width: null, height: null });
+    }
+  }
 };

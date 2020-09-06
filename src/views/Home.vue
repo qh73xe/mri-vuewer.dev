@@ -12,19 +12,24 @@
         />
       </v-col>
     </v-row>
+    <m-file-upload-dialog v-model="fileRegistDialog" />
   </m-view-layout>
 </template>
 
 <script>
 import MHCard from "@/components/base/card/MHCard.vue";
+import MFileUploadDialog from "@/components/dialogs/MFileUploadDialog";
 import MViewLayout from "@/components/base/MViewLayout";
 export default {
   name: "Home",
   components: {
     MViewLayout,
-    MHCard
+    MHCard,
+    MFileUploadDialog
   },
-  data: () => ({}),
+  data: () => ({
+    fileRegistDialog: false
+  }),
   methods: {
     to: function(payload) {
       this.$router.push(payload);
@@ -54,7 +59,9 @@ export default {
           actions: [
             {
               icon: "mdi-plus",
-              function: () => {}
+              function: () => {
+                this.fileRegistDialog = true;
+              }
             }
           ]
         },
