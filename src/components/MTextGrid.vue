@@ -13,6 +13,7 @@
         :video-height="videoHeight"
         :title="tab.item"
         :tier="textgrid[tab.item]"
+        @click-image-edit="$emit('click-image-edit', $event)"
       />
     </m-tab>
   </v-container>

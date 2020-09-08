@@ -42,6 +42,17 @@
         </v-icon>
       </v-btn>
       <v-btn
+        v-if="tier && tier.type == 'point'"
+        class="mr-1"
+        fab
+        dark
+        x-small
+        color="orange"
+        @click="$emit('click-image-edit', item.time)"
+      >
+        <v-icon>mdi-selection-drag</v-icon>
+      </v-btn>
+      <v-btn
         v-if="tier && tier.type == 'interval'"
         class="mr-1"
         fab
