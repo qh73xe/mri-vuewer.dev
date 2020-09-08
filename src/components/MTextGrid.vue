@@ -10,6 +10,7 @@
       />
       <m-text-grid-table
         v-if="tab.i > 0"
+        :video-height="videoHeight"
         :title="tab.item"
         :tier="textgrid[tab.item]"
       />

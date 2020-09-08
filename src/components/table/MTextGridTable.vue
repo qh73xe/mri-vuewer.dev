@@ -6,7 +6,8 @@
     :search="keyword"
     hide-default-footer
     sort-by="time"
-    class="elevation-1"
+    :style="`max-height: ${videoHeight - 64 || 0}px`"
+    class="overflow-y-auto"
   >
     <template v-slot:item.time="{ item }">
       <span class="d-inline-block text-truncate" style="max-width: 30px;">
@@ -91,6 +92,9 @@ export default {
   },
   mixins: [MWavesurferMixin],
   props: {
+    videoHeight: {
+      default: null
+    },
     title: {
       type: String
     },
