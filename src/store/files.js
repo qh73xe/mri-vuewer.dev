@@ -1,16 +1,22 @@
 import db from "@/storage/db";
+import dropbox from "../utils/dropbox";
 
 export default {
   namespaced: true,
   state: () => ({
     files: [],
-    isLoading: false,
-    count: 0
+    chaches: [],
+    isLoading: false
   }),
   mutations: {
+    chaches: function(state, files) {
+      if (Array.isArray(files)) state.chaches = files;
+    },
+    files: function(state, files) {
+      if (Array.isArray(files)) state.files = files;
+    },
     push: function(state, obj) {
       state.files.push(obj);
-      state.count = state.count + 1;
     },
     update: function(state, obj) {
       const idx = state.files.findIndex(x => x.id == obj.id);
@@ -22,31 +28,141 @@ export default {
       const i = state.files.findIndex(x => x.id == id);
       if (i > -1) {
         state.files.splice(i, 1);
-        state.count = state.count - 1;
       }
     },
     isLoading: function(state, payload) {
       state.isLoading = payload;
-    },
-    count: function(state, payload) {
-      state.count = payload;
     }
   },
   actions: {
-    // ファイルストア初期化
+    // logging
+    getLog: function(context, msg) {
+      context.dispatch(
+        "logging/dblog",
+        { tag: "GET", table: "files", msg: msg },
+        { root: true }
+      );
+    },
+    postLog: function(context, msg) {
+      context.dispatch(
+        "logging/dblog",
+        { tag: "POST", table: "files", msg },
+        { root: true }
+      );
+    },
+    deleteLog: function(context, msg) {
+      context.dispatch(
+        "logging/dblog",
+        { tag: "DELETE", table: "files", msg },
+        { root: true }
+      );
+    },
+    errorLog: function(context, msg) {
+      context.dispatch(
+        "logging/error",
+        { tag: "store/files", msg },
+        { root: true }
+      );
+    },
     init: function(context) {
       return new Promise((resolve, reject) => {
         context.commit("isLoading", true);
+        context.state.files = [];
         db.files
-          .count()
-          .then(x => {
-            context.commit("count", x);
+          .toArray()
+          .then(files => {
+            context.commit("files", files);
+            context.dispatch("getLog", "init current status");
+            context.commit("isLoading", false);
+            resolve(true);
+          })
+          .catch(error => {
+            context.commit("isLoading", false);
+            reject(error);
+          });
+      });
+    },
+    // ファイルストア初期化
+    dropbox: function(context) {
+      return new Promise((resolve, reject) => {
+        if (dropbox.hasToken()) {
+          dropbox
+            .get("/data")
+            .then(res => {
+              const chaches = res.entries.filter(x => x[".tag"] == "file");
+              context.commit("chaches", chaches);
+              resolve(true);
+            })
+            .catch(res => reject(res));
+        } else {
+          resolve(false);
+        }
+      });
+    },
+    // ファイル一覧の取得
+    load: function(context, payload) {
+      return new Promise((resolve, reject) => {
+        context.commit("isLoading", true);
+        db.load(payload)
+          .then(files => {
+            context.commit("files", files);
+            context.dispatch("getLog", "load files");
+            context.commit("isLoading", false);
+            resolve(true);
+          })
+          .catch(error => {
+            context.commit("isLoading", false);
+            reject(error);
+          });
+      });
+    },
+    // ファイル一覧を JSON 形式で出力
+    dump: function(context) {
+      return new Promise((resolve, reject) => {
+        context.commit("isLoading", true);
+        db.dump()
+          .then(() => {
+            context.commit("isLoading", false);
+            resolve(true);
+          })
+          .catch(error => {
+            context.commit("isLoading", false);
+            reject(error);
+          });
+      });
+    },
+    // ファイルDB をクリア
+    clear: function(context) {
+      return new Promise((resolve, reject) => {
+        context.commit("isLoading", true);
+        Promise.all([
+          db.points.clear,
+          db.rects.clear,
+          db.frames.clear,
+          db.files.clear
+        ])
+          .then(() => {
+            context.commit("files", []);
+            context.commit("isLoading", false);
+            resolve(true);
+          })
+          .catch(error => {
+            context.commit("isLoading", false);
+            reject(error);
+          });
+      });
+    },
+    // 一つのファイルを追加
+    push: function(context, obj) {
+      return new Promise((resolve, reject) => {
+        context.commit("isLoading", true);
+        db.put(obj)
+          .then(() => {
             db.files
               .toArray()
-              .then(items => {
-                for (const x of items) {
-                  context.commit("push", x);
-                }
+              .then(files => {
+                context.commit("files", files);
+                context.dispatch("postLog", "add a data.");
                 context.commit("isLoading", false);
                 resolve(true);
               })
@@ -61,116 +177,64 @@ export default {
           });
       });
     },
-    // ファイル一覧の取得
-    load: function(context, payload) {
-      return new Promise((resolve, reject) => {
-        context.commit("isLoading", true);
-        db.load(payload)
-          .then(items => {
-            context.state.files = items;
-            context.commit("count", items.length);
-            resolve(true);
-          })
-          .catch(error => reject(error))
-          .finally(() => context.commit("isLoading", false));
-      });
-    },
-    // ファイル一覧を JSON 形式で出力
-    dump: function(context) {
-      return new Promise((resolve, reject) => {
-        context.commit("isLoading", true);
-        db.dump()
-          .then(() => resolve(true))
-          .catch(error => reject(error))
-          .finally(() => context.commit("isLoading", false));
-      });
-    },
-    // ファイルDB をクリア
-    clear: function(context) {
-      return new Promise((resolve, reject) => {
-        context.commit("isLoading", true);
-        Promise.all([
-          db.points.clear,
-          db.rects.clear,
-          db.frames.clear,
-          db.files.clear
-        ])
-          .then(() => {
-            context.state.files = [];
-            resolve(true);
-          })
-          .catch(error => reject(error))
-          .finally(() => context.commit("isLoading", false));
-      });
-    },
-    // 一つのファイルを追加
-    push: function(context, obj) {
-      return new Promise((resolve, reject) => {
-        const item = {
-          name: obj.name,
-          source: obj.source,
-          fps: obj.fps,
-          duration: obj.duration,
-          originSize: obj.originSize || {},
-          videoStream: obj.videoStream || {},
-          audioStream: obj.audioStream || {},
-          metaData: obj.metaData || {},
-          textgrid: obj.textgrid || {}
-        };
-        context.commit("isLoading", true);
-        db.files
-          .put(item)
-          .then(id => {
-            const frames = obj.frames.map(x => {
-              x.fileId = id;
-              return x;
-            });
-            db.frames
-              .bulkPut(frames)
-              .then(() => {
-                obj.id = id;
-                context.commit("push", obj);
-                resolve(id);
-              })
-              .catch(error => resolve(error))
-              .finally(() => context.commit("isLoading", false));
-          })
-          .catch(error => reject(error))
-          .finally(() => context.commit("isLoading", false));
-      });
-    },
     // 一つのファイルを削除
     destroy: function(context, id) {
-      const $destroy = async (resolve, reject, id) => {
-        context.commit("isLoading", true);
-        try {
-          const frames = await db.frames.where({ fileId: id }).toArray();
-          for (const f of frames) {
-            const points = await db.points.where({ frameId: f.id }).toArray();
-            const rects = await db.rects.where({ frameId: f.id }).toArray();
-            if (points.length > 0) {
-              await db.points.bulkDelete(points.map(x => x.id));
-            }
-            if (rects.length > 0) {
-              await db.rects.bulkDelete(rects.map(x => x.id));
-            }
-          }
-          await db.frames.bulkDelete(frames.map(f => f.id));
-          await db.files.delete(id);
-          context.commit("destroy", id);
-          resolve(id);
-        } catch (error) {
-          reject(error);
-        }
-        context.commit("isLoading", false);
-      };
       return new Promise((resolve, reject) => {
         if (id) {
-          $destroy(resolve, reject, id);
+          context.commit("isLoading", true);
+          db.destory(id)
+            .then(() => {
+              db.files
+                .toArray()
+                .then(files => {
+                  context.commit("files", files);
+                  context.dispatch("deleteLog", `delete files: ${id}`);
+                  context.commit("isLoading", false);
+                  resolve(id);
+                })
+                .catch(error => {
+                  context.commit("isLoading", false);
+                  reject(error);
+                });
+            })
+            .catch(error => {
+              context.commit("isLoading", false);
+              reject(error);
+            });
         } else {
           reject(new Error("no id"));
         }
       });
+    }
+  },
+  getters: {
+    records: function(state) {
+      const records = [];
+      let id = 0;
+      for (const f of state.files) {
+        for (const key in f.textgrid) {
+          const tier = f.textgrid[key];
+          for (const i in tier.values) {
+            const record = tier.values[i];
+            const item = {
+              fileId: f.id,
+              fileName: f.name,
+              fps: f.fps,
+              duration: f.duration,
+              src: f.source,
+              tier: key,
+              type: tier.type,
+              index: i,
+              id: id,
+              time: record.time,
+              text: record.text
+            };
+            records.push(item);
+            id++;
+          }
+        }
+      }
+      return records;
     }
   }
 };

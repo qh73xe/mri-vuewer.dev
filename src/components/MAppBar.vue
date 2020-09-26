@@ -1,20 +1,27 @@
 <template>
   <v-app-bar app color="primary" dark style="z-index:99">
     <v-app-bar-nav-icon @click="drawer = !drawer" />
-    <v-toolbar-title> {{ title }} </v-toolbar-title>
+    <v-toolbar-title v-if="$vuetify.breakpoint.smAndUp">
+      {{ title }}
+    </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-text-field
-      solo
+      flat
       rounded
+      solo-inverted
       hide-details
       label="Search"
       v-model="keyword"
       v-if="isSearch"
       background-color="primary lighten-1"
       prepend-inner-icon="mdi-magnify"
+      :append-icon="recIcon"
+      @click:append="rec"
     />
     <v-spacer />
-    <v-toolbar-title class="mr-3"> {{ fileInfo }} </v-toolbar-title>
+    <v-toolbar-title class="mr-3" v-if="!$store.state.current.layout.mini">
+      {{ fileInfo }}
+    </v-toolbar-title>
     <v-btn icon @click="to({ name: 'Home' })">
       <v-icon>mdi-home</v-icon>
     </v-btn>
@@ -81,11 +88,34 @@ export default {
         return this.$store.state.drawer;
       },
       set(val) {
-        this.$store.commit("setDrawer", val);
+        this.$store.commit("drawer", val);
       }
+    },
+    recog: function() {
+      return window.webkitSpeechRecognition || window.SpeechRecognition || null;
+    },
+    recIcon: function() {
+      return this.recog ? "mdi-microphone" : null;
     }
   },
   methods: {
+    rec: function() {
+      if (this.recog) {
+        this.keyword = "";
+        const rec = new this.recog();
+        rec.lang = this.$vuetify.lang.current == "ja" ? "ja-JP" : "en-US";
+        rec.onresult = e => {
+          if (e.results[0].isFinal) {
+            this.keyword = e.results[0][0].transcript;
+          }
+        };
+        rec.start();
+      } else {
+        this.$vuewer.snackbar.warn(
+          this.$vuetify.lang.t("$vuetify.contexts.browserError")
+        );
+      }
+    },
     to: function(payload) {
       if (payload.name) {
         if (this.$route.name !== payload.name) {
@@ -96,5 +126,4 @@ export default {
   }
 };
 </script>
-
 <style scoped></style>

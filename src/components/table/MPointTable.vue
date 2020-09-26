@@ -17,6 +17,11 @@
         </template>
       </v-edit-dialog>
     </template>
+
+    <template v-if="showFrame" v-slot:item.time="props">
+      {{ $vuewer.math.round(props.item.frame.time, 3) }}
+    </template>
+
     <template v-slot:item.x="props">
       {{ Math.round((props.item.x / cw) * ow) }}
     </template>
@@ -24,36 +29,35 @@
       {{ Math.round((props.item.y / ch) * oh) }}
     </template>
     <template v-slot:item.color="props">
-      <v-edit-dialog
-        ref="colorEditDialog"
-        :return-value.sync="props.item.color"
-        @close="close(props.item)"
-      >
-        {{ props.item.color }}
-        <template v-slot:input>
-          <v-color-picker
-            label="Edit"
-            v-model="props.item.color"
-            show-swatches
-          />
-          <v-text-field v-model="props.item.color" label="Edit" single-line />
-        </template>
-      </v-edit-dialog>
+      <m-color-menu
+        icon
+        v-model="props.item.color"
+        @input="close(props.item)"
+      />
     </template>
   </v-data-table>
 </template>
 <script>
+import MColorMenu from "@/components/menus/MColorMenu";
 export default {
   name: "m-point-table",
+  components: { MColorMenu },
   props: {
+    showFrame: {
+      type: Boolean,
+      default: false
+    },
     points: {
-      type: Array
+      type: Array,
+      require: true
     },
     originSize: {
-      type: Object
+      type: Object,
+      require: true
     },
     canvasSize: {
-      type: Object
+      type: Object,
+      require: true
     }
   },
   computed: {
@@ -68,17 +72,29 @@ export default {
     },
     ch: function() {
       return this.canvasSize.height ? this.canvasSize.width : 0;
+    },
+    headers: function() {
+      if (this.showFrame) {
+        return [
+          { text: "label", value: "label" },
+          { text: "frame", value: "frame.idx" },
+          { text: "time", value: "time" },
+          { text: "x", value: "x" },
+          { text: "y", value: "y" },
+          { text: "color", value: "color" }
+        ];
+      }
+      return [
+        { text: "label", value: "label" },
+        { text: "x", value: "x" },
+        { text: "y", value: "y" },
+        { text: "color", value: "color" }
+      ];
     }
   },
   data: () => ({
     max25chars: v => v.length <= 25 || "Input too long!",
-    pagination: {},
-    headers: [
-      { text: "label", value: "label" },
-      { text: "x", value: "x" },
-      { text: "y", value: "y" },
-      { text: "color", value: "color" }
-    ]
+    pagination: {}
   }),
   methods: {
     close(item) {

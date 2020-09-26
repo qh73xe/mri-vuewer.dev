@@ -12,19 +12,57 @@
       item-value="val"
       :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.type')}`"
     />
+    <v-checkbox
+      v-model="checkbox"
+      :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.showRef')}`"
+    />
+    <v-autocomplete
+      v-if="checkbox"
+      v-model="refName"
+      :rules="refRule"
+      :items="tiers"
+      :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.ref')}`"
+    />
+    <v-checkbox
+      v-if="checkbox"
+      v-model="withText"
+      :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.withText')}`"
+    />
+    <v-checkbox
+      v-if="checkbox"
+      v-model="asParent"
+      :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.asParent')}`"
+    />
   </v-form>
 </template>
 <script>
 export default {
   name: "WTierFrom",
   data: () => ({
+    checkbox: false,
     valid: false,
     name: "",
-    type: ""
+    type: "",
+    refName: "",
+    withText: false,
+    asParent: false
   }),
   props: {
-    tiers: {
-      type: Array
+    tiers: { type: Array },
+    current: { type: String }
+  },
+  watch: {
+    current: function(val, old) {
+      if (val !== old) {
+        if (val) {
+          this.refName = val;
+          const ref = this.$store.state.current.textgrid[this.current];
+          this.name = `${this.current}-copy`;
+          this.type = ref.type;
+          this.checkbox = true;
+          this.refName = this.current;
+        }
+      }
     }
   },
   computed: {
@@ -47,6 +85,13 @@ export default {
       ];
       return rules;
     },
+    refRule: function() {
+      const rules = [
+        v => !!v || this.$vuetify.lang.t("$vuetify.validations.required"),
+        v => this.checkNameNotExist(v)
+      ];
+      return rules;
+    },
     required: function() {
       if (this.$vuetify) {
         return [
@@ -66,6 +111,15 @@ export default {
       }
       return this.$vuetify.lang.t("$vuetify.validations.required");
     },
+    checkNameNotExist: function(v) {
+      if (v) {
+        if (this.tiers.indexOf(v) == -1) {
+          return this.$vuetify.lang.t("$vuetify.validations.notExist");
+        }
+        return true;
+      }
+      return this.$vuetify.lang.t("$vuetify.validations.required");
+    },
     validate: function() {
       this.$refs.form.validate();
       if (this.valid) {
@@ -73,6 +127,11 @@ export default {
           name: this.name,
           type: this.type
         };
+        if (this.checkbox) {
+          item.ref = this.refName || null;
+          item.withText = this.withText;
+          item.parent = this.asParent ? this.refName : null;
+        }
         this.$emit("validated", item);
       }
     },
@@ -81,6 +140,15 @@ export default {
     },
     resetValidation: function() {
       this.$refs.form.resetValidation();
+    }
+  },
+  mounted: function() {
+    if (this.current) {
+      const ref = this.$store.state.current.textgrid[this.current];
+      this.name = `${this.current}-copy`;
+      this.type = ref.type;
+      this.checkbox = true;
+      this.refName = this.current;
     }
   }
 };

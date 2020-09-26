@@ -1,5 +1,9 @@
 <template>
-  <m-card-dialog :title="$vuetify.lang.t(title)" v-model="dialog">
+  <m-card-dialog
+    :fullscreen="$store.state.current.layout.mini"
+    :title="$vuetify.lang.t(title)"
+    v-model="dialog"
+  >
     <template v-slot:activator="{ on, attrs }">
       <slot name="activator" :on="on" :attrs="attrs"></slot>
     </template>
@@ -9,6 +13,7 @@
           ref="form"
           v-if="dialog"
           :tiers="tiers"
+          :current="current"
           @validated="onValidated"
         />
       </v-card-text>
@@ -32,12 +37,9 @@ export default {
     title: "$vuetify.forms.tier.title"
   }),
   props: {
-    value: {
-      type: Boolean
-    },
-    tiers: {
-      type: Array
-    }
+    value: { type: Boolean },
+    current: { type: String },
+    tiers: { type: Array }
   },
   computed: {
     dialog: {
@@ -64,7 +66,17 @@ export default {
       this.$refs.form.validate();
     },
     onValidated: function(payload) {
-      this.addTier(payload.name, payload.type);
+      if (payload.ref) {
+        this.copyTier(
+          payload.ref,
+          payload.name,
+          payload.type,
+          payload.parent,
+          payload.withText
+        );
+      } else {
+        this.addTier(payload.name, payload.type, payload.parent);
+      }
       this.close();
     }
   }

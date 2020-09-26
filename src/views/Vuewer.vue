@@ -8,39 +8,41 @@
       :frames="frames"
       :origin-size="$originSize"
       :textgrid="textgrid"
+      @data-updated="onDataUpdated"
       @textgrid-updated="onTextGridUpdated"
       @frame-point-updated="onFramePointUpdated"
       @frame-rect-updated="onFrameRectUpdated"
       @frame-point-deleted="onFramePointDeleted"
       @frame-rect-deleted="onFrameRectDeleted"
+      @download-json="downloadJson"
     />
-    <m-loading-dialog v-model="isLoading">
-      {{ $vuetify.lang.t("$vuetify.loading") }}
-    </m-loading-dialog>
   </v-container>
 </template>
 <script>
 import db from "@/storage/db";
 import MVuewer from "@/components/MVuewer";
-import MLoadingDialog from "@/components/base/dialog/MLoadingDialog";
-import MSnackbarMixin from "@/mixins/MSnackbarMixin";
 import MVideoTWBMixin from "@/mixins/MVideoTWBMixin";
+import io from "@/io";
 export default {
   name: "vuewer",
-  mixins: [MVideoTWBMixin, MSnackbarMixin],
-  components: {
-    MVuewer,
-    MLoadingDialog
-  },
+  mixins: [MVideoTWBMixin],
+  components: { MVuewer },
   data: () => ({
-    isLoading: false,
-    videoElm: null,
-    frames: [],
-    item: {}, // DB データ更新用オブジェクト
-    textgrid: {}
+    id: null,
+    item: {}, // DB データ登録用オブジェクト
+    frames: [], // フレーム転記情報
+    textgrid: {}, // 時系列転記情報
+    isLoading: false, // 読み込み状態
+    isChange: false // データ変更の有無
   }),
   computed: {
+    tag: () => "views:vuewer", // LOG 用識別子
+    syncDropbox: function() {
+      // ページ離脱時に Dropbox にログを残すか否か
+      return this.$store.state.setting.syncDropbox;
+    },
     source: {
+      // 解析動画データ
       get() {
         return this.$store.state.current.video.source;
       },
@@ -58,6 +60,54 @@ export default {
     }
   },
   methods: {
+    // エラーハンドラ
+    onError: function(error, msg = null, next = false) {
+      if (msg) {
+        this.$vuewer.snackbar.error(msg);
+      } else {
+        this.$vuewer.snackbar.error(error);
+      }
+      this.$vuewer.console.error(this.tag, error);
+      if (next) this.$router.push({ name: next });
+    },
+    // 最新データを JSON 形式でダウンロード
+    downloadJson: async function() {
+      try {
+        const file = await this.$vuewer.db.get(Number(this.id));
+        const blob = this.$vuewer.io.json.toFile(`${file.bname}.json`, file);
+        io.file.download(blob, blob.name);
+      } catch (error) {
+        if (error.name == "DataError") {
+          this.onError(error, "The file does not exist.", "Home");
+        } else {
+          this.onError(error);
+        }
+      }
+    },
+    // DROPBOX 保存関数
+    saveDropbox: async function() {
+      if (this.$vuewer.dropbox.hasToken()) {
+        this.$vuewer.loading.start("$vuetify.sending");
+        const file = await this.$vuewer.db.get(Number(this.id));
+        const name = `${file.name.split(".")[0]}.json`;
+        const blob = this.$vuewer.io.json.toFile(name, file);
+        this.$vuewer.dropbox
+          .write("data/" + name, blob)
+          .then(() => {
+            this.$vuewer.snackbar.success("$vuetify.sended");
+            this.isChange = false;
+          })
+          .catch(res => {
+            const msg = `DROPBOX ERROR: ${res.status} :${res.error.error_summary}`;
+            this.onError(res.error, msg);
+          })
+          .finally(() => {
+            this.$vuewer.loading.end();
+          });
+      } else {
+        this.$vuewer.dropbox.auth();
+      }
+    },
     /**
      * onIdChanged.
      *
@@ -68,12 +118,17 @@ export default {
      */
     onIdChanged: async function(id) {
       if (id) {
-        this.log({ msg: `change id ${id}` });
+        this.id = id;
+        this.$vuewer.console.log(this.tag, `change page id ${id}`);
+
+        this.isChange = false;
         this.isLoading = true;
-        // 画面表示する動画情報を初期化する
-        this.$initVideo();
+        this.$vuewer.loading.start("$vuetify.loading");
+
+        this.$initVideo(); // 画面表示する動画情報を初期化する
         try {
           const file = await db.files.get(Number(id));
+          this.$vuewer.db.log("files", "GET", `get file ${id}`);
           if (file) {
             this.item = file;
             this.$source = file.source;
@@ -88,47 +143,57 @@ export default {
               .where({ fileId: file.id })
               .with({ points: "points", rects: "rects" });
           } else {
-            this.showError("No file");
+            this.$vuewer.console.error(this.tag, "The file does not exist.");
+            this.$vuewer.snackbar.error("The file does not exist.");
             this.$router.push({ name: "Home" });
           }
         } catch (error) {
-          this.showError(error);
+          if (error.name == "DataError") {
+            this.$vuewer.snackbar.error("The file does not exist.");
+            this.$vuewer.console.error(this.tag, error);
+            this.$router.push({ name: "Home" });
+          } else {
+            this.$vuewer.snackbar.error(error);
+            this.$vuewer.console.error(this.tag, error);
+          }
         }
         this.isLoading = false;
+        this.$vuewer.loading.end();
       } else {
-        this.showError("no id");
+        this.$vuewer.snackbar.error("There is no id.");
+        this.$vuewer.console.error(this.tag, "NO ID ACCESS");
+        this.$router.push({ name: "Home" });
       }
     },
-    log: function(payload) {
-      this.$store.commit("logging/log", payload);
-    },
-    error: function(payload) {
-      this.$store.commit("logging/error", payload);
-    },
+    // EVENT ハンドラ
     onTextGridUpdated: function(textgrid) {
       if (textgrid) {
+        this.isChange = true;
         const vm = this;
         this.item.textgrid = Object.assign({}, textgrid);
         for (const key in this.item.textgrid) {
           this.item.textgrid[key] = {
-            type: textgrid[key].type,
-            values: textgrid[key].values
+            values: this.item.textgrid[key].values,
+            type: this.item.textgrid[key].type,
+            parent: this.item.textgrid[key].parent
           };
         }
         db.files
           .put(this.item)
           .then(id => {
             const msg = `update the textgrid of a file (id=${id})`;
-            vm.log({ msg: msg });
+            vm.$vuewer.db.log("textgrid", "PUT", msg);
+            vm.$vuewer.console.log("textgrid", msg);
           })
           .catch(error => {
-            const msg = `failed: update the textgrid of a file (id=${this.item.id})`;
-            vm.error({ msg: msg, error: error });
-            console.error(error);
+            vm.$vuewer.console.error("vuewer:textgrid:put", error);
           });
       }
     },
     onFrameRectUpdated: function(frame) {
+      this.isChange = true;
+      const vm = this;
+      const tag = "vuewer:onFrameRectUpdated";
       for (const r of frame.rects) {
         const item = {
           id: r.id,
@@ -144,10 +209,19 @@ export default {
           label: r.label || `rect-${r.id}`,
           frameId: frame.id
         };
-        db.rects.put(item).catch(error => this.showError(error));
+        db.rects
+          .put(item)
+          .then(() => vm.$vuewer.db.log("rects", "PUT", `change rects`))
+          .catch(error => {
+            vm.$vuewer.snackbar.error(error);
+            vm.$vuewer.console.error(tag, error);
+          });
       }
     },
     onFramePointUpdated: async function(frame) {
+      this.isChange = true;
+      const vm = this;
+      const tag = "vuewer:onFramePointUpdated";
       for (const i in frame.points) {
         const p = frame.points[i];
         const item = {
@@ -159,24 +233,115 @@ export default {
           label: p.label || `point-${p.id}`,
           frameId: frame.id
         };
-        db.points.put(item).catch(error => this.showError(error));
+        db.points
+          .put(item)
+          .then(() => vm.$vuewer.db.log("points", "PUT", `change points`))
+          .catch(error => {
+            vm.$vuewer.snackbar.error(error);
+            vm.$vuewer.console.error(tag, error);
+          });
       }
     },
     onFramePointDeleted: function(point) {
-      db.points.delete(point.id).catch(error => this.showError(error));
+      this.isChange = true;
+      const vm = this;
+      const tag = "vuewer:onFramePointDeleted";
+      db.points
+        .delete(point.id)
+        .then(() =>
+          vm.$vuewer.db.log("points", "DELETE", `delete point ${point.id}`)
+        )
+        .catch(error => {
+          vm.$vuewer.snackbar.error(error);
+          vm.$vuewer.console.error(tag, error);
+        });
     },
     onFrameRectDeleted: function(rect) {
-      db.rects.delete(rect.id).catch(error => this.showError(error));
+      this.isChange = true;
+      const vm = this;
+      const tag = "vuewer:onFrameRectDeleted";
+      db.rects
+        .delete(rect.id)
+        .then(() =>
+          vm.$vuewer.db.log("rects", "DELETE", `delete rects ${rect.id}`)
+        )
+        .catch(error => {
+          vm.$vuewer.snackbar.error(error);
+          vm.$vuewer.console.error(tag, error);
+        });
+    },
+    onDataUpdated: async function(payload) {
+      // DB の保存
+      this.item.textgrid = Object.assign({}, payload.textgrid);
+      for (const key in this.item.textgrid) {
+        this.item.textgrid[key] = {
+          values: this.item.textgrid[key].values,
+          type: this.item.textgrid[key].type,
+          parent: this.item.textgrid[key].parent
+        };
+      }
+      await db.files.put(this.item);
+      for (const frame of payload.frames) {
+        if (frame.points && frame.points.length) {
+          await db.points.bulkPut(frame.points);
+        }
+        if (frame.rects && frame.rects.length) {
+          await db.rects.bulkPut(frame.rects);
+        }
+      }
+      this.saveDropbox();
+    },
+    onUnload: function(event) {
+      if (this.isChange && this.syncDropbox) {
+        if (this.$vuewer.dropbox.hasToken()) {
+          const msg = "Data you've inputted won't be synced in dropbox.";
+          event.returnValue = msg;
+        }
+      }
     }
   },
   watch: {
-    "$route.params.id": function(val) {
-      this.onIdChanged(val);
+    "$route.params.id": function(val, old) {
+      if (val !== old && val) {
+        if (this.syncDropbox && this.isChange) {
+          this.saveDropbox()
+            .then(() => {
+              this.onIdChanged(val);
+            })
+            .catch(error => {
+              this.$vuewer.snackbar.error(error);
+              this.onIdChanged(val);
+            });
+        } else {
+          this.onIdChanged(val);
+        }
+      }
     }
+  },
+  created: function() {
+    window.addEventListener("beforeunload", this.onUnload);
+  },
+  destroyed: function() {
+    window.removeEventListener("beforeunload", this.onUnload);
   },
   mounted: function() {
     const id = this.$route.params.id;
     this.onIdChanged(id);
+  },
+  // ページ遷移時
+  beforeRouteLeave(to, from, next) {
+    this.$initVideo(); // 画面表示する動画情報を初期化する
+    if ((this.isChange, this.syncDropbox)) {
+      if (this.$vuewer.dropbox.hasToken()) {
+        this.saveDropbox()
+          .then(() => next())
+          .catch(() => next(false));
+      } else {
+        next();
+      }
+    } else {
+      next();
+    }
   }
 };
 </script>

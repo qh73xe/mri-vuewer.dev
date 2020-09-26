@@ -2,60 +2,100 @@ import storage from "@/storage/localStorage.js";
 const S = storage.wavesurfer;
 
 const DEFAULTSTATE = {
-  shouldGetVideoInfo: true,
-  shouldGetFrameInfo: true,
+  syncDropbox: false,
+  addRecordKey: "dbl",
+  cursorColor: "#333",
+  deleteRecordKey: "delete",
+  freqRate: 0.25,
   maxVideoSize: 5,
   minPxPerSec: 100,
-  freqRate: 0.25,
-  targetChannel: 0,
-  spectrogramHeight: 256,
-  showTimeLine: true,
-  showSpectrogram: true,
-  showFreqLabel: false,
-  cursorColor: "#333",
-  waveColor: "#333",
-  progressColor: "#555",
   playOffset: 5,
-  addRecordKey: "dbl",
-  deleteRecordKey: "delete"
+  progressColor: "#555",
+  shouldGetFrameInfo: true,
+  shouldGetVideoInfo: true,
+  showDev: false,
+  showFrameInVideo: true,
+  showPointsInVideo: true,
+  showRectsInVideo: true,
+  showFreqLabel: false,
+  showSpectrogram: true,
+  showTimeLine: true,
+  spectrogramHeight: 256,
+  targetChannel: 0,
+  waveColor: "#333"
 };
 const DS = DEFAULTSTATE;
 
 export default {
   namespaced: true,
   state: () => ({
+    addRecordKey: S.get("addRecordKey") || DS.addRecordKey,
+    cursorColor: S.get("cursorColor") || DS.cursorColor,
+    deleteRecordKey: S.get("deleteRecordKey") || DS.deleteRecordKey,
+    freqRate: Number(S.get("freqRate")) || DS.freqRate,
     maxVideoSize: Number(S.get("maxVideoSize")) || DS.maxVideoSize,
-    shouldGetVideoInfo:
-      S.get("shouldGetVideoInfo") == null
-        ? DS.shouldGetVideoInfo
-        : S.get("shouldGetVideoInfo"),
+    minPxPerSec: Number(S.get("minPxPerSec")) || DS.minPxPerSec,
+    playOffset: Number(S.get("playOffset")) || DS.playOffset,
+    progressColor: S.get("progressColor") || DS.progressColor,
+    syncDropbox:
+      S.get("syncDropbox") == null ? DS.syncDropbox : S.get("syncDropbox"),
     shouldGetFrameInfo:
       S.get("shouldGetFrameInfo") == null
         ? DS.shouldGetFrameInfo
         : S.get("shouldGetFrameInfo"),
-    minPxPerSec: Number(S.get("minPxPerSec")) || DS.minPxPerSec,
-    freqRate: Number(S.get("freqRate")) || DS.freqRate,
-    targetChannel: Number(S.get("targetChannel")) || DS.targetChannel,
-    spectrogramHeight:
-      Number(S.get("spectrogramHeight")) || DS.spectrogramHeight,
-    showTimeLine:
-      S.get("showTimeLine") == null ? DS.showTimeLine : S.get("showTimeLine"),
-    showSpectrogram:
-      S.get("showSpectrogram") == null
-        ? DS.showSpectrogram
-        : S.get("showSpectrogram"),
+    shouldGetVideoInfo:
+      S.get("shouldGetVideoInfo") == null
+        ? DS.shouldGetVideoInfo
+        : S.get("shouldGetVideoInfo"),
+    showDev: S.get("showDev") == null ? DS.showDev : S.get("showDev"),
+    showFrameInVideo:
+      S.get("showFrameInVideo") == null
+        ? DS.showFrameInVideo
+        : S.get("showFrameInVideo"),
+    showPointsInVideo:
+      S.get("showPointsInVideo") == null
+        ? DS.showPointsInVideo
+        : S.get("showPointsInVideo"),
+    showRectsInVideo:
+      S.get("showRectsInVideo") == null
+        ? DS.showRectsInVideo
+        : S.get("showRectsInVideo"),
     showFreqLabel:
       S.get("showFreqLabel") == null
         ? DS.showSpectrogram
         : S.get("showFreqLabel"),
-    cursorColor: S.get("cursorColor") || DS.cursorColor,
-    waveColor: S.get("waveColor") || DS.waveColor,
-    progressColor: S.get("progressColor") || DS.progressColor,
-    playOffset: Number(S.get("playOffset")) || DS.playOffset,
-    addRecordKey: S.get("addRecordKey") || DS.addRecordKey,
-    deleteRecordKey: S.get("deleteRecordKey") || DS.deleteRecordKey
+    showSpectrogram:
+      S.get("showSpectrogram") == null
+        ? DS.showSpectrogram
+        : S.get("showSpectrogram"),
+    showTimeLine:
+      S.get("showTimeLine") == null ? DS.showTimeLine : S.get("showTimeLine"),
+    spectrogramHeight:
+      Number(S.get("spectrogramHeight")) || DS.spectrogramHeight,
+    targetChannel: Number(S.get("targetChannel")) || DS.targetChannel,
+    waveColor: S.get("waveColor") || DS.waveColor
   }),
   mutations: {
+    showDev(state, payload) {
+      state.showDev = payload;
+      S.set("showDev", payload);
+    },
+    showFrameInVideo(state, payload) {
+      state.showFrameInVideo = payload;
+      S.set("showFrameInVideo", payload);
+    },
+    syncDropbox(state, payload) {
+      state.syncDropbox = payload;
+      S.set("syncDropbox", payload);
+    },
+    showPointsInVideo(state, payload) {
+      state.showPointsInVideo = payload;
+      S.set("showPointsInVideo", payload);
+    },
+    showRectsInVideo(state, payload) {
+      state.showRectsInVideo = payload;
+      S.set("showRectsInVideo", payload);
+    },
     setMaxVideoSize(state, payload) {
       state.maxVideoSize = Number(payload);
       S.set("maxVideoSize", Number(payload));
@@ -129,6 +169,11 @@ export default {
   },
   actions: {
     setDefault(context) {
+      context.commit("syncDropbox", DS.syncDropbox);
+      context.commit("showDev", DS.showDev);
+      context.commit("showFrameInVideo", DS.showFrameInVideo);
+      context.commit("showPointsInVideo", DS.showPointsInVideo);
+      context.commit("showRectsInVideo", DS.showRectsInVideo);
       context.commit("setMaxVideoSize", DS.maxVideoSize);
       context.commit("setShouldGetVideoInfo", DS.shouldGetVideoInfo);
       context.commit("setShouldGetFrameInfo", DS.shouldGetFrameInfo);

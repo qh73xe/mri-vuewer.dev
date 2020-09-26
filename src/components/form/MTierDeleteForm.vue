@@ -3,7 +3,7 @@
     <v-autocomplete
       :rules="nameRule"
       v-model="names"
-      :items="tiers"
+      :items="tiers || []"
       :label="`${$vuetify.lang.t('$vuetify.textgrid.tier.option.name')}`"
       multiple
     />
@@ -17,9 +17,8 @@ export default {
     names: []
   }),
   props: {
-    tiers: {
-      type: Array
-    }
+    tiers: { type: Array },
+    current: { type: String }
   },
   computed: {
     nameRule: function() {
@@ -57,6 +56,20 @@ export default {
     resetValidation: function() {
       this.$refs.form.resetValidation();
     }
+  },
+  watch: {
+    current: function(val, old) {
+      if (val != old) {
+        if (val) {
+          if (this.names.findIndex(x => x == val) == -1) {
+            this.names.push(val);
+          }
+        }
+      }
+    }
+  },
+  mounted: function() {
+    if (this.current) this.names.push(this.current);
   }
 };
 </script>

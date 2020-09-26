@@ -1,30 +1,46 @@
 <template>
-  <v-card :style="canvasWrapperStyle" :flat="flat" :tile="tile">
-    <video
-      ref="video"
-      :style="videoStyle"
-      @loadeddata="onLoaded"
-      @timeupdate="onTimeupdate"
-      :muted="muted"
-      :src="src"
-    />
-    <v-stage
-      @click="onClickEvent($event, 'click')"
-      @dblclick="onClickEvent($event, 'dblclick')"
-      :style="canvasStyle"
-      ref="stage"
-      :config="canvas"
+  <v-card
+    @mouseover="$emit('mouseover')"
+    v-resize="onResize"
+    :style="canvasWrapperStyle"
+    :flat="flat"
+    :tile="tile"
+    tabindex="0"
+  >
+    <m-key-context
+      ref="keycontext"
+      :style="canvasWrapperStyle"
+      @keyup="onKeyup"
     >
-      <v-layer>
-        <v-circle v-for="(x, i) in frame.circles" :key="i" :config="x" />
-      </v-layer>
-      <v-layer>
-        <v-rect v-for="(x, i) in frame.rects" :key="i" :config="x" />
-      </v-layer>
-      <v-layer>
-        <v-text v-for="(x, i) in frame.texts" :key="i" :config="x" />
-      </v-layer>
-    </v-stage>
+      <video
+        ref="video"
+        :style="videoStyle"
+        @loadeddata="onLoaded"
+        @timeupdate="onTimeupdate"
+        :muted="muted"
+        :src="src"
+      />
+      <v-stage
+        @click="onClickEvent($event, 'click')"
+        @dblclick="onClickEvent($event, 'dblclick')"
+        :style="canvasStyle"
+        ref="stage"
+        :config="canvas"
+      >
+        <v-layer v-if="$store.state.setting.showPointsInVideo">
+          <v-circle v-for="(x, i) in frame.circles" :key="i" :config="x" />
+        </v-layer>
+        <v-layer v-if="$store.state.setting.showRectsInVideo">
+          <v-rect v-for="(x, i) in frame.rects" :key="i" :config="x" />
+        </v-layer>
+        <v-layer>
+          <v-text v-for="(x, i) in frame.texts" :key="i" :config="x" />
+        </v-layer>
+        <v-layer v-if="$store.state.setting.showFrameInVideo">
+          <v-text :config="label" />
+        </v-layer>
+      </v-stage>
+    </m-key-context>
 
     <v-card-actions v-if="controls">
       <v-btn dark icon color="primary" @click="downloadImage">
@@ -43,9 +59,11 @@
 </template>
 <script>
 import utils from "@/utils";
+import MKeyContext from "@/components/contextmenus/MKeyContext";
 
 export default {
   name: "m-video",
+  components: { MKeyContext },
   props: {
     src: {
       type: String,
@@ -129,6 +147,22 @@ export default {
     }
   },
   computed: {
+    label: function() {
+      const idx = this.$vuewer.math.padding(this.frame.idx, 3);
+      const fsize = Math.round(this.canvas.height / 15);
+      return {
+        x: fsize / 2,
+        text: `${idx} / ${this.frames.length}`,
+        y: this.canvas.height - fsize,
+        fontSize: fsize,
+        fontFamily: "Arial",
+        fontStyle: "normal",
+        shadowColor: "black",
+        shadowBlur: 1,
+        fill: utils.color.toCss("green", this.$vuetify)
+      };
+    },
+
     $frames: function() {
       const ow = this.originSize.width;
       const oh = this.originSize.height;
@@ -198,6 +232,13 @@ export default {
     }
   },
   methods: {
+    focus: function() {
+      this.$refs.keycontext.focus();
+    },
+    // 動画再生速度を変更
+    setPlaybackRate: function(val) {
+      this.$refs.video.defaultPlaybackRate = val;
+    },
     // ビデオ操作の再現
     play: function() {
       this.$refs.video.play();
@@ -209,10 +250,18 @@ export default {
       this.$refs.video.currentTime = time;
     },
     getCurrentTime: function() {
-      return this.$refs.video.currentTime;
+      if (this.$refs.video) return this.$refs.video.currentTime;
+      return 0;
     },
     getDuration: function() {
       return this.$refs.video.duration;
+    },
+    copyImage: async function() {
+      const dataURL = await this.toDataURL();
+      const blob = this.$vuewer.io.file.toBlob(dataURL);
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob })
+      ]);
     },
     downloadImage: async function() {
       let name = `time-${this.getCurrentTime()}.png`;
@@ -283,7 +332,11 @@ export default {
     syncFrame: function(currentTime) {
       if (this.$frames.length > 0) {
         if (currentTime) {
-          const frame = utils.math.nearest(this.$frames, "time", currentTime);
+          const frame = this.$vuewer.math.nearest(
+            this.$frames,
+            "time",
+            currentTime
+          );
           if (frame.time >= currentTime) {
             this.frame = frame;
             const i = this.frames.findIndex(x => x.id == frame.id);
@@ -303,11 +356,26 @@ export default {
       this.$emit("loadeddata", this.$refs.video);
       this.show = false;
     },
+    // ウインドウサイズ変更時
+    onResize: function() {
+      this.setCanvasSize();
+    },
+    onKeyup: function(payload) {
+      const { key, xKey } = this.$vuewer.key.summary(event);
+      if (key == "c" && xKey == "ctrl") {
+        this.copyImage();
+      } else {
+        this.$emit("keyup", payload);
+      }
+    },
     // 動画時刻変更時の処理
     onTimeupdate: function() {
-      const currentTime = this.getCurrentTime();
-      this.$emit("timeupdate", currentTime);
-      this.syncFrame(currentTime);
+      const vm = this;
+      setTimeout(() => {
+        const currentTime = vm.getCurrentTime();
+        vm.$emit("timeupdate", currentTime);
+        vm.syncFrame(currentTime);
+      });
     },
     onClickEvent: function(e, key) {
       const payload = {

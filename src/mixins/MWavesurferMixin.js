@@ -55,7 +55,7 @@ export default {
     seek: function(time, isCenter) {
       const duration = this.getDuration();
       let t = time ? time : 0;
-      t = time <= 0 ? 0 : time; // 完全に 0 にすると画像取得ができない
+      t = time <= 0 ? 0 : time;
       t = time > duration ? duration : time;
       const progress = t == 0 ? 0 : t / duration;
       if (isCenter) {
@@ -65,15 +65,35 @@ export default {
       }
     },
     // アノテーション操作
-    addTier: function(key, type) {
-      if (this.$ws) this.$ws.addTier(key, type);
-    },
-    updateTier: function(key, obj) {
-      if (this.$ws) this.$ws.updateTier(key, obj);
+    addTier: function(key, type, parent = null) {
+      this.$vuewer.console.log(
+        "mixin:vuewer",
+        `add tier (key = ${key}, type=${type})`
+      );
+      if (this.$ws) this.$ws.addTier(key, type, parent);
     },
     deleteTier: function(key) {
       if (this.$ws) {
         this.$ws.deleteTier(key);
+        this.$vuewer.console.log("mixin:vuewer", `delete tier (key=${key})`);
+      }
+    },
+    copyTier: function(ref, key, type, parent, withText = true) {
+      if (this.$ws) {
+        this.$ws.copyTier(ref, key, type, parent, withText);
+        this.$vuewer.console.log(
+          "mixin:vuewer",
+          `copy tier (ref=${ref}, key=${key})`
+        );
+      }
+    },
+    updateTier: function(key, obj) {
+      if (this.$ws) {
+        this.$ws.updateTier(key, obj);
+        this.$vuewer.console.log(
+          "mixin:vuewer",
+          `update tier (key=${key}, new key=${name}, type=$.type})`
+        );
       }
     },
     addTierValue: function(key, obj) {
@@ -93,6 +113,24 @@ export default {
     },
     downloadTextGrid: function(filename) {
       if (this.$ws) this.$ws.downloadTextGrid(filename);
+    },
+    // Event 発火
+    $fire: function(event) {
+      if (this.$ws) {
+        const el = this.$ws.wavesurfer;
+        if (el) {
+          const i = Object.keys(el.handlers || {}).findIndex(x => x == event);
+          if (i != -1) {
+            el.fireEvent(event);
+          } else {
+            const el = this.$ws.wavesurfer.drawer;
+            const i = Object.keys(el.handlers || {}).findIndex(x => x == event);
+            if (i != -1) {
+              el.fireEvent(event);
+            }
+          }
+        }
+      }
     }
   }
 };

@@ -13,7 +13,7 @@
       <m-video-meta-data-dialog
         v-if="dialog"
         v-model="dialog"
-        @validated="onValidated($event, item.id)"
+        @validated="onValidated($event)"
         :current-item="metaData"
       />
       <v-row>
@@ -51,13 +51,11 @@
 </template>
 <script>
 import db from "@/storage/db";
-import MSnackbarMixin from "@/mixins/MSnackbarMixin";
 import MVideoMetaDataDialog from "@/components/dialogs/MVideoMetaDataDialog";
 import MAudioStreamList from "@/components/list/MAudioStreamList";
 import MVideoStreamList from "@/components/list/MVideoStreamList";
 export default {
   name: "m-file-table",
-  mixins: [MSnackbarMixin],
   components: {
     MVideoMetaDataDialog,
     MVideoStreamList,
@@ -65,6 +63,7 @@ export default {
   },
   data: () => ({
     dialog: false,
+    id: null,
     files: [],
     fields: [],
     metaData: {},
@@ -135,6 +134,7 @@ export default {
     },
     editItem: function(payload) {
       this.metaData = payload.metaData;
+      this.id = payload.id;
       this.dialog = true;
     },
     deleteItem: function(item) {
@@ -147,38 +147,30 @@ export default {
             "$vuetify.pages.on.destroy",
             name
           );
-          vm.showSuccess(message);
+          vm.$vuewer.snackbar.warning(message);
         })
         .catch(error => {
-          console.error(error);
-          vm.showError(error);
+          vm.$vuewer.console.error(error);
+          vm.$vuewer.snackbar.error(error);
         });
     },
-    onValidated: function(payload, id) {
-      const vm = this;
-      const idx = this.files.findIndex(x => x.id == id);
+    onValidated: function(payload) {
+      const idx = this.files.findIndex(x => x.id == this.id);
       if (idx > -1) {
         const item = this.files[idx];
         item.metaData = payload;
-        vm.files = [];
         db.files
           .put(item)
           .then(id => {
             db.files.get(id).then(x => {
               const msg = `update the metadata of a file (id=${x.id})`;
-              vm.showSuccess(msg);
-              for (const f of this.$store.state.files.files) {
-                if (f.id != x.id) {
-                  vm.files.push(f);
-                } else {
-                  vm.files.push(item);
-                }
-              }
+              this.$vuewer.snackbar.success(msg);
+              this.files.splice(idx, 1, item);
             });
           })
           .catch(error => {
-            vm.showError(error);
-            console.error(error);
+            this.$vuewer.snackbar.error(error);
+            this.$vuewer.console.error(error);
           });
       }
     }

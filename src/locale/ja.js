@@ -13,12 +13,17 @@ const TEXTGRID = {
     name: "時系列転記層",
     option: {
       name: "転記層名",
+      showRef: "時刻情報をコピーする",
+      ref: "対象転記層",
+      withText: "コピー時に文字を含む",
+      asParent: "コピー元を親にする",
       type: "転記層の種類"
     },
     interval: "境界転記層",
     point: "イベント転記層",
     record: {
-      name: "時刻記述"
+      name: "時刻記述",
+      no: "レコードが選択されていません"
     }
   }
 };
@@ -32,6 +37,12 @@ const pages = {
   demo: "ライブデモ",
   setting: "設定",
   about: "このアプリについて",
+  logger: "ロガー",
+  dropbox: {
+    auth: "ドロップボックス連携",
+    connected: "連携済み",
+    load: "ファイル取り込み"
+  },
   db: {
     clear: `${DB}の${DELETE}`,
     dump: `${DB}のエクスポート`,
@@ -76,15 +87,17 @@ const home = {
 
 export default {
   ...ja,
-  prev: "戻る",
   validations: {
     required: "この項目は必須項目です!",
     positiveInteger: "この項目は正の整数です!",
     positiveIntegerOrError: "この項目は正の整数または -1 です",
     positiveFloat: "この項目は正の数値です!",
+    more: "この項目は {0} より大きい必要があります",
+    less: "この項目は {0} より小さい必要があります",
+    times: "この項目は {0} の倍数です",
     maxVideoSize: `登録可能な ${VIDEO} ファイルサイズは ${store.state.setting.maxVideoSize} MB までです!`,
     hasArrayBuffer: "想定外の ${VIDEO} ファイルです [No Array buffer]!",
-    less: "この値は {0} 文字以下です.",
+    shorter: "この値は {0} 文字以下です.",
     alreadyExists: "この値は既に存在しています.",
     notExist: "この値は存在しません"
   },
@@ -182,6 +195,9 @@ export default {
     mVideoInput: {
       title: `${VIDEO}ファイルを選択`,
       hint: `${VIDEO} ファイルは mp4 形式のみをサポートしています`
+    },
+    completes: {
+      title: "補完辞書ファイルを選択 (text/plain)"
     }
   },
   pages: pages,
@@ -211,6 +227,24 @@ export default {
           label: "メッセージタイムアウト",
           hint:
             "システムメッセージのタイムアウト時間を設定します.この項目が -1 の場合, メッセージの自動非表示処理が抑制されます."
+        },
+        showDev: {
+          label: "開発者用デモページを表示する"
+        },
+        syncDropbox: {
+          label: "ページ遷移時に dropbox へ自動バックアップを行う"
+        }
+      },
+      video: {
+        label: "動画設定",
+        showFrameInVideo: {
+          label: "フレーム情報を動画に表示する"
+        },
+        syncPoints: {
+          label: "ポイントを動画に表示する"
+        },
+        syncRects: {
+          label: "矩形を動画に表示する"
         }
       },
       metadata: {
@@ -238,8 +272,12 @@ export default {
         label: "波形表示設定",
         minPxPerSec: {
           label: "pixels per sec",
-          hint:
-            "1 sec を何ピクセルで表示するか? 大まかに時刻方向の拡大比率になります"
+          hint: `
+          1 sec を何ピクセルで表示するか?
+          大まかに時刻方向の拡大比率になります.
+          この値は50 の倍数である必要があり
+          100 - 500 までの値を取ります. 
+          `
         },
         cursorColor: {
           label: "カーソル色"
@@ -267,6 +305,11 @@ export default {
           hint:
             "周波数表示比率. fft の解析結果を低域何パーセントまで表示するかです. 0.25 - 1 までの値にしてください"
         },
+        spectrogramHeight: {
+          label: "スペクトル領域の高さ",
+          hint:
+            "スペクトログラム表示領域の高さです. 解析幅ではないことに注意してください."
+        },
         showFreqLabel: {
           label: "周波数軸ラベルを表示する"
         }
@@ -292,9 +335,92 @@ export default {
       }
     }
   },
-  loading: "読み込み中 ...",
+  contexts: {
+    playPause: "再生/停止",
+    skip: "スキップ",
+    skipBackward: "戻る",
+    skipForward: "進む",
+    zoom: "ズーム",
+    zoom_in: "拡大",
+    zoom_out: "縮小",
+    setting: "設定",
+    save: "保存",
+    saveDropbox: "ドロップボックスに保存",
+    loadDropbox: "ドロップボックスから読み込み",
+    tier: {
+      add: `${TEXTGRID.tier.name} を追加`,
+      edit: `${TEXTGRID.tier.name} を編集`,
+      delete: `${TEXTGRID.tier.name} を削除`
+    },
+    record: {
+      name: `${TEXTGRID.tier.record.name} 操作`,
+      play: `現在${TEXTGRID.tier.record.name}を再生`,
+      copy: `現在${TEXTGRID.tier.record.name}をコピー`,
+      paste: `現在${TEXTGRID.tier.record.name}にペースト`,
+      next: `次の${TEXTGRID.tier.record.name}に移動`,
+      prev: `前の${TEXTGRID.tier.record.name}に移動`,
+      toStart: `現在${TEXTGRID.tier.record.name}の始端に移動`,
+      toEnd: `現在${TEXTGRID.tier.record.name}の終端に移動`,
+      extend: `現在${TEXTGRID.tier.record.name}を終端を延長`,
+      shrink: `現在${TEXTGRID.tier.record.name}を終端を短縮`,
+      splitByFrames: `${TEXTGRID.tier.record.name}の分割 (フレーム毎)`,
+      splitByChars: `${TEXTGRID.tier.record.name}の分割 (文字毎)`,
+      splitBySlash: `${TEXTGRID.tier.record.name}の分割 (区切り文字毎: /)`,
+      owakati: `現在${TEXTGRID.tier.record.name}を分かち書き`,
+      oyomi: `現在${TEXTGRID.tier.record.name}をよみに変換`,
+      opronunciation: `現在${TEXTGRID.tier.record.name}を発音系に変換`,
+      obasic: `現在${TEXTGRID.tier.record.name}を代表系に変換`,
+      opos: `現在${TEXTGRID.tier.record.name}を品詞に変換`
+    },
+    frame: {
+      name: `${FRAME.name}`,
+      edit: `${FRAME.name} 画面の表示`
+    }
+  },
+  uploads: {
+    name: "ファイルアップロード",
+    dict: "テキスト補完辞書 (.dict)",
+    textgrid: {
+      title: `${TEXTGRID.name} のアップロード`,
+      textgrid: `TextGrid 形式`,
+      json: {
+        v1: `JSON 形式 (ver1)`,
+        v1left: `JSON 形式 (ver1:left)`,
+        v1right: `JSON 形式 (ver1:right)`,
+        v2: `JSON 形式 (ver2)`
+      }
+    }
+  },
+  downloads: {
+    name: "ファイルダウンロード",
+    xlsx: "XLSX 形式でダウンロード (ALL)",
+    json: "JSON 形式でダウンロード (ALL)",
+    png: "PNG 形式でダウンロード (現在)",
+    mp4: "MP4 形式でダウンロード (現在)",
+    textgrid: {
+      title: `${TEXTGRID.name} のダウンロード`,
+      textgrid: `TextGrid 形式でダウンロード (${TEXTGRID.name})`,
+      json: `JSON 形式でダウンロード (${TEXTGRID.name})`,
+      xlsx: `XLSX 形式でダウンロード (${TEXTGRID.name})`
+    },
+    frame: {
+      title: `${FRAME.name} のダウンロード`,
+      json: `JSON 形式でダウンロード (${FRAME.name})`,
+      xlsx: `XLSX 形式でダウンロード (${FRAME.name})`
+    }
+  },
   textgrid: TEXTGRID,
+  frame: FRAME,
+  prev: "戻る",
+  yet: "この関数は作成中です",
+  loading: "読み込み中 ...",
+  loaded: "データの読み込みが終了しました",
+  sending: "データ送信中 (ドロップボックス) ...",
+  sended: "ドロップボックスへのデータ送信が終了しました",
+  notFound: "ファイルは存在しません",
+  notAcceptable: "不正なファイルです",
+  browserError: "このブラウザでは, 該当の機能を使用することはできません.",
   annotation: ANNOTATION,
-  frame: FRAME
+  ver1: "MRI Vuewer ver.1 系"
 };
 //# sourceMappingURL=ja.js.map

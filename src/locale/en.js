@@ -6,6 +6,12 @@ const pages = {
   demo: "Line Demo",
   setting: "Setting",
   about: "About",
+  logger: "Logger",
+  dropbox: {
+    auth: "Works with dropbox",
+    connected: "Connected",
+    load: "load dropbox file"
+  },
   db: {
     clear: "Clear DB",
     dump: "Export DB",
@@ -55,9 +61,12 @@ export default {
     positiveInteger: "This is a positive integer field!",
     positiveIntegerOrError: "This is a positive integer or -1 field!",
     positiveFloat: "This is a positive float field!",
+    more: "This value is more then {0}",
+    less: "This value is less then {0}",
+    times: "This value is a multiple of {0}",
     maxVideoSize: `Video size should be less than ${store.state.setting.maxVideoSize} MB!`,
     hasArrayBuffer: "This is an unexpected video file [No Array buffer]!",
-    less: "This field must be less than {0} characters",
+    shorter: "This field must be less than {0} characters",
     alreadyExists: "This value alredy exists",
     notExist: "This value does not exist"
   },
@@ -157,6 +166,9 @@ export default {
     mVideoInput: {
       title: "Select your video file (mp4)",
       hint: "supported format is mp4"
+    },
+    completes: {
+      title: "Select your dict complete file (text/plain)"
     }
   },
   pages: pages,
@@ -184,10 +196,28 @@ export default {
           label: "System message time out",
           hint:
             "Sets the timeout period for system messages. Setting this field to -1 will prevent automatic hiding."
+        },
+        showDev: {
+          label: "Show Develop page"
+        },
+        syncDropbox: {
+          label: "Auto backup in dropbox"
         }
       },
       metadata: {
         label: "New Field"
+      },
+      video: {
+        label: "Video Setting",
+        showFrameInVideo: {
+          label: "Show frame info"
+        },
+        syncPoints: {
+          label: "show points in a video"
+        },
+        syncRects: {
+          label: "show rects in a video"
+        }
       },
       loading: {
         label: "File upload settings",
@@ -240,6 +270,11 @@ export default {
           hint:
             "Frequency display ratio. What percentage of the fft analysis result is displayed.Set a value between 0.25 and 1."
         },
+        spectrogramHeight: {
+          label: "Max Spectrogram Height",
+          hint:
+            "The height of the spectrogram display area. Note that it is not the parsing width."
+        },
         showFreqLabel: {
           label: "Display Frequency Axis Label"
         }
@@ -266,21 +301,108 @@ export default {
     }
   },
   loading: "Now Loading ...",
+  loaded: "The data was loaded",
+  sending: "Sending the data to dropbox ...",
+  sended: "Sended the data to dropbox",
+  notAcceptable: "The data is not acceptable!!",
+  notFound: "Your file is not founded.",
+  yet: "This function is under construction",
   textgrid: {
     name: "TextGrid",
     tier: {
       name: "Tier",
       option: {
         name: "Tier Name",
+        showRef: "Copy Times",
+        ref: "Ref Tier Name",
+        withText: "With Texts",
+        asParent: "Make the copy source as a parent",
         type: "Tier Type"
       },
       interval: "Interval Tier",
       point: "Point Tier",
       record: {
-        name: "Time Record"
+        name: "Time Record",
+        no: "No record was selected!"
       }
     }
   },
+  contexts: {
+    playPause: "play or pause",
+    skip: "skip",
+    skipBackward: "skip backward",
+    skipForward: "skip forward",
+    zoom: "zoom",
+    zoom_in: "zoom in",
+    zoom_out: "zoom out",
+    setting: "setting",
+    save: "save",
+    saveDropbox: "save the data to dropbox",
+    loadDropbox: "load the data from dropbox",
+    tier: {
+      add: "Add a Tier",
+      edit: "Edit a Tier",
+      delete: "Delete a Tier"
+    },
+    record: {
+      name: "Record",
+      play: "play a current record",
+      copy: "copy a text of the current record",
+      paste: "paste a text of the current record",
+      next: "move to a next record",
+      prev: "move to a prev record",
+      toStart: "move to start time of a current record",
+      toEnd: "move to end time of a current record",
+      extend: "extend end time of a current record",
+      shrink: "shrink end time of a current record",
+      splitByFrames: "split a current record by frames.",
+      splitByChars: "split a current record by chars.",
+      splitBySlash: "split a current record by slash.",
+      owakati: "word-separation for the current record",
+      oyomi: "Convert current record to reading",
+      opronunciation: "Convert current record to pronunciation",
+      obasic: "Convert current record to representative type",
+      opos: "Convert current record to part of speech"
+    },
+    frame: {
+      name: `Image Annotation`,
+      edit: `Show an Image Annotation Dialog`
+    }
+  },
+  uploads: {
+    name: "Upload File",
+    dict: "complement dictionary (.dict)",
+    textgrid: {
+      title: `TEXTGRID`,
+      textgrid: `TextGrid`,
+      json: {
+        v1: `JSON (ver1)`,
+        v1left: `JSON (ver1:left)`,
+        v1right: `JSON (ver1:right)`,
+        v2: `JSON (ver2)`
+      }
+    }
+  },
+  downloads: {
+    name: "Download File",
+    xlsx: "Download as xlsx file (ALL)",
+    json: "Download as json file (ALL)",
+    png: "Download as png file (CURRENT)",
+    mp4: "Download as mp4 file (CURRENT)",
+    textgrid: {
+      title: "Download of TextGrid Data.",
+      textgrid: "Download as textgrid file",
+      json: "Download as json file",
+      xlsx: "Download as xlsx file"
+    },
+    frame: {
+      title: "Download of Frame Data.",
+      json: "Download as json file",
+      xlsx: "Download as xlsx file"
+    }
+  },
   annotation: "annotation",
-  frame: "frames"
+  frame: "frames",
+  browserError: "This feature is not available in this browser.",
+  ver1: "MRI Vuewer ver.1"
 };

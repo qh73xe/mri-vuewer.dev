@@ -1,6 +1,9 @@
 <template>
   <v-hover v-slot:default="{ hover }">
-    <v-card-actions :class="`elevation-${hover ? 6 : 4} blue-grey darken-4`">
+    <v-card-actions
+      :class="`elevation-${hover ? 6 : 4} blue-grey darken-4`"
+      @mouseover="$emit('mouseover')"
+    >
       <v-btn
         dark
         icon
@@ -27,8 +30,7 @@
       >
         <v-icon dark>mdi-magnify-minus</v-icon>
       </v-btn>
-      <m-video-upload-menu @click="$emit('upload-click', $event)" />
-
+      <m-video-upload-menu @click="onUploadClick" />
       <v-spacer />
       <v-btn dark icon :class="`elevation-${hover ? 4 : 0}`" @click="playPause">
         <v-icon dark>mdi-play-pause</v-icon>
@@ -75,9 +77,6 @@ export default {
     MVideoDownloadMenu,
     MVideoUploadMenu
   },
-  data: () => ({
-    pxPerSec: 100
-  }),
   props: {
     fps: {
       type: Number,
@@ -88,17 +87,37 @@ export default {
       default: 5
     }
   },
+  computed: {
+    $minPxPerSec: {
+      get() {
+        return this.$store.state.setting.minPxPerSec;
+      },
+      set(val) {
+        const type = typeof val;
+        let minPxPerSec = null;
+        if (type == "number") {
+          minPxPerSec = val;
+        } else if (type == "string") {
+          minPxPerSec = Number(val);
+        }
+        if (minPxPerSec) {
+          this.$store.commit("setting/setMinPxPerSec", minPxPerSec);
+        }
+      }
+    }
+  },
   methods: {
+    onUploadClick(payload) {
+      this.$emit("upload-click", payload);
+    },
     incPxPerSec() {
-      if (this.pxPerSec < 500) {
-        this.pxPerSec = this.pxPerSec + 50;
-        this.zoom(this.pxPerSec);
+      if (this.$minPxPerSec < 500) {
+        this.$minPxPerSec = this.$minPxPerSec + 50;
       }
     },
     decPxPerSec: function() {
-      if (this.pxPerSec > 100) {
-        this.pxPerSec = this.pxPerSec - 50;
-        this.zoom(this.pxPerSec);
+      if (this.$minPxPerSec > 100) {
+        this.$minPxPerSec = this.$minPxPerSec - 50;
       }
     }
   }

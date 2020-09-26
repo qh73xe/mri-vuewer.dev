@@ -45,24 +45,45 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list dense nav class="pa-0">
+          <v-list-item link @click="$store.commit('logging/show', true)">
+            <v-list-item-icon>
+              <v-icon> mdi-console </v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>
+                {{ $vuetify.lang.t("$vuetify.pages.logger") }}
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
       </v-list-group>
       <v-divider />
 
+      <v-list-item v-if="isLoading" sub-group>
+        <v-list-item-icon></v-list-item-icon>
+        <v-list-item-title>
+          Loading files...
+        </v-list-item-title>
+        <v-list-item-action>
+          <v-progress-circular indeterminate color="primary" />
+        </v-list-item-action>
+      </v-list-item>
       <v-list-group
-        v-if="files.length > 0"
-        prepend-icon="mdi-menu-open"
         sub-group
-        :value="false"
+        v-else-if="files.length"
+        :value="true"
+        prepend-icon="mdi-menu-open"
       >
         <template v-slot:activator>
           <v-list-item-title>FILES</v-list-item-title>
         </template>
         <v-divider />
         <v-list-item
-          @click="to({ id: item.id })"
+          link
           v-for="item in files"
           :key="item.id"
-          link
+          @click="to({ id: item.id })"
         >
           <v-list-item-content>
             <v-list-item-title>{{ item.name }}</v-list-item-title>
@@ -75,11 +96,56 @@
         </v-list-item>
       </v-list-group>
       <v-divider />
+      <v-list-group
+        v-if="!isLoading"
+        prepend-icon="mdi-dropbox"
+        sub-group
+        :value="false"
+      >
+        <template v-slot:activator>
+          <v-list-item-title>DROPBOX</v-list-item-title>
+        </template>
+        <v-list-item link @click="dropboxAuth">
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $vuetify.lang.t("$vuetify.pages.dropbox.auth") }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-chip v-if="hasToken" small color="success">
+              {{ $vuetify.lang.t("$vuetify.pages.dropbox.connected") }}
+            </v-chip>
+          </v-list-item-action>
+        </v-list-item>
+        <v-list-item v-if="hasToken" link @click="loadDropbox">
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $vuetify.lang.t("$vuetify.pages.dropbox.load") }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-chip v-if="this.diff.length" small color="success">
+              + {{ this.diff.length }}
+            </v-chip>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list-group>
 
       <v-list-group prepend-icon="mdi-database" sub-group :value="false">
         <template v-slot:activator>
           <v-list-item-title>DATABASE</v-list-item-title>
         </template>
+        <v-list-item @click="dbAdd" link>
+          <v-list-item-icon>
+            <v-icon>mdi-database-plus</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $vuetify.lang.t("$vuetify.pages.db.add") }}
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
         <v-list-item @click="dbDump" link>
           <v-list-item-icon>
             <v-icon>mdi-database-export</v-icon>
@@ -102,16 +168,6 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item @click="dbAdd" link>
-          <v-list-item-icon>
-            <v-icon>mdi-database-plus</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ $vuetify.lang.t("$vuetify.pages.db.add") }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
         <v-list-item @click="dbClear" link>
           <v-list-item-icon>
             <v-icon color="error">mdi-database-remove</v-icon>
@@ -123,8 +179,14 @@
           </v-list-item-content>
         </v-list-item>
       </v-list-group>
+      <v-divider />
 
-      <v-list-group prepend-icon="mdi-flask" sub-group :value="false">
+      <v-list-group
+        v-if="$showDev"
+        prepend-icon="mdi-flask"
+        sub-group
+        :value="false"
+      >
         <template v-slot:activator>
           <v-list-item-title>DEVELOP</v-list-item-title>
         </template>
@@ -143,38 +205,49 @@
 
     <m-file-upload-dialog v-model="uploadDialog" />
     <m-db-import-dialog v-model="dbImportDialog" />
+    <m-dropbox-dialog v-model="dropboxDialog" />
   </v-navigation-drawer>
 </template>
 <script>
 import MFileUploadDialog from "@/components/dialogs/MFileUploadDialog";
+import MDropboxDialog from "@/components/dialogs/MDropboxDialog";
 import MDbImportDialog from "@/components/dialogs/MDbImportDialog";
 export default {
   name: "MNavigationDrawer",
-  components: { MFileUploadDialog, MDbImportDialog },
+  components: { MFileUploadDialog, MDbImportDialog, MDropboxDialog },
   data: () => ({
     current: null,
+    dropboxDialog: false,
     uploadDialog: false,
-    dbImportDialog: false
+    dbImportDialog: false,
+    updateToken: false
   }),
   computed: {
+    $showDev: function() {
+      return this.$store.state.setting.$showDev;
+    },
     isLoading: function() {
       return this.$store.state.files.isLoading;
     },
     files: function() {
-      const files = this.$store.state.files.files;
-      if (!this.isLoading && files.length) {
-        return files.map(x => {
-          return { id: x.id, name: x.name };
-        });
-      }
-      return [];
+      return this.$store.state.files.files || [];
+    },
+    chaches: function() {
+      return this.$store.state.files.chaches || [];
+    },
+    diff: function() {
+      const cnames = this.chaches.map(x => x.name.split(".")[0]);
+      const fnames = this.files.map(x => x.name.split(".")[0]);
+      return cnames.filter(c => {
+        return fnames.indexOf(c) == -1;
+      });
     },
     drawer: {
       get() {
         return this.$store.state.drawer;
       },
       set(val) {
-        this.$store.commit("setDrawer", val);
+        this.$store.commit("drawer", val);
       }
     },
     developPages: function() {
@@ -217,6 +290,10 @@ export default {
           };
           return x;
         });
+    },
+    hasToken: function() {
+      if (this.updateToken) return true;
+      return this.$vuewer.dropbox.hasToken();
     }
   },
   methods: {
@@ -231,6 +308,32 @@ export default {
           this.$router.push({ path: `/files/${payload.id}` });
         }
       }
+    },
+    loadDropbox: function() {
+      const path = this.$store.getters["current/video/dropboxPath"];
+      if (path) {
+        this.$vuewer.loading.start("$vuetify.loading");
+        this.$vuewer.dropbox
+          .read(path)
+          .then(text => {
+            const obj = JSON.parse(text);
+            this.$store.dispatch("current/loadObj", obj);
+            this.$vuewer.snackbar.success("$vuetify.loaded");
+          })
+          .catch(res => {
+            const msg = `DROPBOX ERROR: ${res.status} :${res.error.error_summary}`;
+            this.$vuewer.snackbar.error(msg);
+          })
+          .finally(() => {
+            this.$vuewer.loading.end();
+            this.drawer = false;
+          });
+      } else {
+        this.dropboxDialog = true;
+      }
+    },
+    dropboxAuth: function() {
+      this.$vuewer.dropbox.auth();
     },
     dbAdd: function() {
       this.uploadDialog = true;
@@ -270,15 +373,17 @@ export default {
         });
     },
     fileDestroy: function(item) {
-      const name = item.name;
       this.$store
         .dispatch("files/destroy", item.id)
-        .then(() => {
+        .then(id => {
           const message = this.$vuetify.lang.t(
             "$vuetify.pages.on.destroy",
-            name
+            `file id = ${id}`
           );
           this.$store.dispatch("snackbar/success", message);
+          if (id == this.$route.params.id) {
+            this.$router.push({ name: "Home" });
+          }
         })
         .catch(error => {
           this.$store.dispatch("snackbar/error", error.message);
@@ -286,6 +391,13 @@ export default {
           this.drawer = false;
         });
     }
+  },
+  mounted: function() {
+    if (window.location.hash) {
+      this.$vuewer.dropbox.setToken(window.location.hash);
+      this.updateToken = true;
+    }
+    this.$store.dispatch("files/dropbox");
   }
 };
 </script>

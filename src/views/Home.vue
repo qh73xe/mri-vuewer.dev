@@ -12,7 +12,7 @@
         />
       </v-col>
     </v-row>
-    <m-file-upload-dialog v-model="fileRegistDialog" />
+    <m-file-upload-dialog v-model="dialog" />
   </m-view-layout>
 </template>
 
@@ -36,6 +36,20 @@ export default {
     }
   },
   computed: {
+    dialog: {
+      get() {
+        if (this.$store.state.hash.info["file-update"] || false) {
+          return true;
+        }
+        return this.fileRegistDialog;
+      },
+      set(val) {
+        if (val == false && this.$store.state.hash.info["file-update"]) {
+          this.$store.state.hash.info["file-update"] = false;
+        }
+        this.fileRegistDialog = val;
+      }
+    },
     name: function() {
       return this.$store.state.appName;
     },
@@ -46,7 +60,7 @@ export default {
       return `${this.name} ver.${this.version}`;
     },
     desc: function() {
-      return `${this.$vuetify.lang.t("$vuetify.home.disc")}`;
+      return `${this.$vuewer.t("$vuetify.home.disc")}`;
     },
     navs: function() {
       const vm = this;
@@ -99,6 +113,18 @@ export default {
       const navSize = Object.keys(this.navs).length;
       return Math.round(12 / navSize);
     }
+  },
+  mounted: function() {
+    const nextpage = this.$route.query.nextpage;
+    if (nextpage) {
+      const path = nextpage.replace("-", "/");
+      this.$router.push({ path: path });
+    }
+    this.$nextTick(() => {
+      if (this.$store.state.hash.info["drawer"] || false) {
+        this.$store.commit("drawer", true);
+      }
+    });
   }
 };
 </script>

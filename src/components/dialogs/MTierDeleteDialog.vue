@@ -2,6 +2,7 @@
   <m-card-dialog
     titleColor="error"
     :title="$vuetify.lang.t(title)"
+    :fullscreen="$store.state.current.layout.mini"
     v-model="dialog"
   >
     <template v-slot:activator="{ on, attrs }">
@@ -14,6 +15,7 @@
           v-if="dialog"
           @validated="onValidated"
           :tiers="tiers"
+          :current="current"
         />
       </v-card-text>
       <v-card-actions>
@@ -36,12 +38,9 @@ export default {
     title: "$vuetify.forms.tierDelete.title"
   }),
   props: {
-    value: {
-      type: Boolean
-    },
-    tiers: {
-      type: Array
-    }
+    value: { type: Boolean },
+    current: { type: String },
+    tiers: { type: Array }
   },
   watch: {
     dialog: function(val) {
