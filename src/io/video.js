@@ -101,6 +101,39 @@ const info = (buff, callback) => {
   return result;
 };
 
+const toPng = (buff, fps) => {
+  const video = new Uint8Array(buff);
+  const args = `-i data.mp4 -r ${fps} out%d.png`;
+  const result = ffmpeg({
+    MEMFS: [{ name: "data.mp4", data: video }],
+    arguments: args.split(" "),
+    print: function(data) {
+      console.log(data);
+    },
+    printErr: function(data) {
+      console.log(data);
+    }
+  });
+  return result;
+};
+
+const toWav = buff => {
+  const video = new Uint8Array(buff);
+  const args =
+    "-i data.mp4 -vn -ac 2 -ar 44100 -acodec pcm_s16le -f wav output.wav";
+  const result = ffmpeg({
+    MEMFS: [{ name: "data.mp4", data: video }],
+    arguments: args.split(" "),
+    print: function(data) {
+      console.log(data);
+    },
+    printErr: function(data) {
+      console.log(data);
+    }
+  });
+  return result;
+};
+
 const trim = (buff, start, end) => {
   const video = new Uint8Array(buff);
   const duration = end - start;
@@ -206,6 +239,8 @@ export default {
   trim: trim,
   concat: concat,
   initObj: initVideoObject,
+  toWav: toWav,
+  toPng: toPng,
   toBlob: toBlob,
   toBase64: toBase64
 };

@@ -224,7 +224,7 @@ export default {
   }),
   computed: {
     $showDev: function() {
-      return this.$store.state.setting.$showDev;
+      return this.$store.state.setting.showDev;
     },
     isLoading: function() {
       return this.$store.state.files.isLoading;
