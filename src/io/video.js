@@ -103,16 +103,12 @@ const info = (buff, callback) => {
 
 const toPng = (buff, fps) => {
   const video = new Uint8Array(buff);
-  const args = `-i data.mp4 -r ${fps} out%d.png`;
+  const args = `-i data.mp4 -r ${fps} %d.png -loglevel error`;
   const result = ffmpeg({
     MEMFS: [{ name: "data.mp4", data: video }],
     arguments: args.split(" "),
-    print: function(data) {
-      console.log(data);
-    },
-    printErr: function(data) {
-      console.log(data);
-    }
+    print: function() {},
+    printErr: error => console.error(error)
   });
   return result;
 };
