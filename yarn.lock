@@ -7586,6 +7586,10 @@ open@^6.3.0:
   dependencies:
     is-wsl "^1.1.0"
 
+"opencv.js@https://github.com/qh73xe/opencv.js.git":
+  version "0.0.0"
+  resolved "https://github.com/qh73xe/opencv.js.git#f2e4f46e4df7105f678fd7587200cc30cd86dde3"
+
 opener@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/opener/-/opener-1.5.1.tgz#6d2f0e77f1a0af0032aca716c2c1fbb8e7e8abed"

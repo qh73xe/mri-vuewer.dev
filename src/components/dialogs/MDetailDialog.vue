@@ -52,14 +52,12 @@ export default {
     title: "$vuetify.forms.detail.title"
   }),
   props: {
-    value: {
-      type: Boolean
-    },
-    src: {
-      default: null
-    }
+    value: { type: Boolean, required: true }
   },
   computed: {
+    src() {
+      return this.$store.state.current.frame.src;
+    },
     dialog: {
       get() {
         return this.value;
