@@ -1,19 +1,23 @@
 <template>
   <v-form ref="form">
+    <label>{{ t(`${locale}.loading.label`) }}</label>
     <div class="mb-4">
-      <label>{{ t(`${locale}.loading.label`) }}</label>
       <v-checkbox
         class="mt-0"
         hide-details
         v-model="$shouldGetVideoInfo"
         :label="t(`${locale}.loading.shouldGetVideoInfo.label`)"
       />
-      <v-icon small>mdi-information</v-icon>
-      <span
-        class="caption ml-1"
-        v-text="t(`${locale}.loading.shouldGetVideoInfo.hint`)"
-      />
+      <span class="caption ml-1">
+        <v-icon small>mdi-information</v-icon>
+        {{ t(`${locale}.loading.shouldGetVideoInfo.hint`) }}
+      </span>
     </div>
+    <v-checkbox
+      v-model="$shouldMovePageAferAddingFile"
+      :label="t(`${locale}.loading.shouldMovePageAferAddingFile.label`)"
+    />
+
     <v-text-field
       v-model="$maxVideoSize"
       suffix="MB"
@@ -21,7 +25,6 @@
       :label="t(`${locale}.loading.maxVideoSize.label`)"
       :hint="t(`${locale}.loading.maxVideoSize.hint`)"
     />
-
     <label>{{ t(`${locale}.app.label`) }}</label>
     <v-text-field
       class="mb-5"

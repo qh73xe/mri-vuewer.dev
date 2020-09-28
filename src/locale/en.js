@@ -226,6 +226,9 @@ export default {
           hint:
             "Registerable video size. If this value is large, the number of data that can be registered will decrease."
         },
+        shouldMovePageAferAddingFile: {
+          label: "Move analysis page when uploaded a video file."
+        },
         shouldGetVideoInfo: {
           label: "Get video codec at file upload.",
           hint:

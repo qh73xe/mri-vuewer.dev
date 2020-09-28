@@ -16,7 +16,8 @@ export default {
       state.src = payload;
     },
     id(state, payload) {
-      state.id = Math.round(Number(payload));
+      const id = Number(payload);
+      state.id = Math.round(id);
     },
     idx(state, payload) {
       state.idx = Math.round(Number(payload));
@@ -45,7 +46,8 @@ export default {
         x: payload.x,
         y: payload.y,
         size: payload.size,
-        color: payload.color
+        color: payload.color,
+        frameId: payload.frameId
       };
       state.points.push(item);
     },

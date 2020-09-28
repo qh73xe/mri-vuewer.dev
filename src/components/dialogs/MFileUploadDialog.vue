@@ -47,9 +47,15 @@ export default {
         this.$vuewer.snackbar.warning("$vuetify.forms.video.messages.stop");
       }
     },
-    onLoaded: function() {
+    onLoaded: function(id) {
       this.loaded = true;
       this.$vuewer.snackbar.success("$vuetify.forms.video.messages.success");
+      if (this.$store.state.setting.shouldMovePageAferAddingFile) {
+        this.dialog = false;
+        if (Number(this.$route.params.id) !== Number(id)) {
+          this.$router.push({ path: `/files/${id}` });
+        }
+      }
     },
     onError: function(error) {
       if (~error.message.indexOf("out of memory")) {

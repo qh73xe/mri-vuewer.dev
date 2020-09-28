@@ -13,6 +13,7 @@ const DEFAULTSTATE = {
   progressColor: "#555",
   shouldGetFrameInfo: true,
   shouldGetVideoInfo: true,
+  shouldMovePageAferAddingFile: false,
   showDev: false,
   showFrameInVideo: true,
   showPointsInVideo: true,
@@ -47,6 +48,10 @@ export default {
       S.get("shouldGetVideoInfo") == null
         ? DS.shouldGetVideoInfo
         : S.get("shouldGetVideoInfo"),
+    shouldMovePageAferAddingFile:
+      S.get("shouldMovePageAferAddingFile") == null
+        ? DS.shouldMovePageAferAddingFile
+        : S.get("shouldMovePageAferAddingFile"),
     showDev: S.get("showDev") == null ? DS.showDev : S.get("showDev"),
     showFrameInVideo:
       S.get("showFrameInVideo") == null
@@ -107,6 +112,10 @@ export default {
     setShouldGetFrameInfo(state, payload) {
       state.shouldGetFrameInfo = payload;
       S.set("shouldGetFrameInfo", payload);
+    },
+    shouldMovePageAferAddingFile(state, payload) {
+      state.shouldMovePageAferAddingFile = payload;
+      S.set("shouldMovePageAferAddingFile", payload);
     },
     setMinPxPerSec(state, payload) {
       state.minPxPerSec = Number(payload);

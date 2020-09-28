@@ -257,10 +257,12 @@ export default {
           hint:
             "この項目が大きい場合, 登録可能なファイル数が減ります. 登録可能なファイル数は使用端末のスペックに依存します."
         },
+        shouldMovePageAferAddingFile: {
+          label: "ファイル登録後に解析ページに移動する."
+        },
         shouldGetVideoInfo: {
           label: `ファイル登録時に${VIDEO}コーディックを確認する.`,
-          hint:
-            "この項目が false の場合, ${VIDEO} の時間, fps, 縦横サイズ等を手動で入力することになります."
+          hint: `この項目が false の場合, ${VIDEO} の時間, fps, 縦横サイズ等を手動で入力することになります.`
         },
         shouldGetFrameInfo: {
           label: "ファイル登録時に全てのフレーム画像を取得する.",

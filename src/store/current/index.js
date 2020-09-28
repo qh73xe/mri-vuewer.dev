@@ -52,6 +52,7 @@ export default {
     updateFrame: function(context, payload) {
       const i = context.state.frames.findIndex(x => x.id == payload.id);
       if (i !== -1) {
+        console.log(payload);
         Vue.set(context.state.frames, i, payload);
       }
     }
