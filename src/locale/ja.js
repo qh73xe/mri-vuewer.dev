@@ -416,6 +416,7 @@ export default {
   prev: "戻る",
   yet: "この関数は作成中です",
   loading: "読み込み中 ...",
+  converting: "変換中 ...",
   loaded: "データの読み込みが終了しました",
   sending: "データ送信中 (ドロップボックス) ...",
   sended: "ドロップボックスへのデータ送信が終了しました",

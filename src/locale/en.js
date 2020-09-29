@@ -303,6 +303,7 @@ export default {
       }
     }
   },
+  converting: "Now Converting ...",
   loading: "Now Loading ...",
   loaded: "The data was loaded",
   sending: "Sending the data to dropbox ...",

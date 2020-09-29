@@ -281,6 +281,11 @@ export default {
           text: "video2png",
           icon: "mdi-filmstrip-box-multiple",
           function: () => moveTo("/convarters/video2png")
+        },
+        {
+          text: "video2wav",
+          icon: "mdi-file-music",
+          function: () => moveTo("/convarters/video2wav")
         }
       ];
     },
