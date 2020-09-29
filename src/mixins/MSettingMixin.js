@@ -226,6 +226,22 @@ export default {
           }
         }
       }
+    },
+    $nameSep: {
+      get() {
+        return this.$store.state.setting.nameSep;
+      },
+      set(val) {
+        this.$store.commit("setting/nameSep", val);
+      }
+    },
+    $nameFormat: {
+      get() {
+        return this.$store.state.setting.nameFormat;
+      },
+      set(val) {
+        this.$store.commit("setting/nameFormat", val);
+      }
     }
   },
   methods: {

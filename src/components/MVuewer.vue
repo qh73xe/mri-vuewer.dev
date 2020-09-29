@@ -1483,9 +1483,7 @@ export default {
     const layout = this.$refs.layout;
     if (layout) {
       const el = layout.$el;
-      el.addEventListener("mouseup", this.onLayoutMouseUp, {
-        passive: false
-      });
+      el.addEventListener("mouseup", this.onLayoutMouseUp, { passive: false });
     }
   },
   beforeDestroy: function() {

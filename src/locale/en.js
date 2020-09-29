@@ -221,6 +221,16 @@ export default {
       },
       loading: {
         label: "File upload settings",
+        nameFormat: {
+          label: "File Name Format",
+          hint: [
+            "Meta data is added when registering a video.",
+            "Register some field names you plan to register, separated by'-'.",
+            "No extension required.",
+            "If you do not want to do this, leave it blank",
+            "ex: material-speaker-date-record_id"
+          ].join(" ")
+        },
         maxVideoSize: {
           label: "Max Video Size",
           hint:

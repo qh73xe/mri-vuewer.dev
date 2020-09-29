@@ -8,11 +8,15 @@ export default {
   state: () => ({
     wavesurfer: null,
     textgrid: null,
+    metaData: {},
     frames: []
   }),
   mutations: {
     waveSurfer(state, payload) {
       state.wavesurfer = payload;
+    },
+    metaData(state, payload) {
+      state.metaData = payload;
     },
     textGrid(state, payload) {
       state.textgrid = payload;

@@ -252,6 +252,16 @@ export default {
       },
       loading: {
         label: "ファイル登録設定",
+        nameFormat: {
+          label: "ファイル名フォーマット",
+          hint: [
+            "動画登録時にメタ情報を付与します.",
+            "登録を行う予定のフィールド名を '-' 区切りで登録してください.",
+            "拡張子は不要です.",
+            "この処理を実施しない場合, 空欄にしてください",
+            "ex: material-speaker-date-record_id"
+          ].join(" ")
+        },
         maxVideoSize: {
           label: "ファイル最大容量.",
           hint:

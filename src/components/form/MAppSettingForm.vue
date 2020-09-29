@@ -17,7 +17,12 @@
       v-model="$shouldMovePageAferAddingFile"
       :label="t(`${locale}.loading.shouldMovePageAferAddingFile.label`)"
     />
-
+    <v-text-field
+      v-model="$nameFormat"
+      :suffix="`sep = '${$nameSep}'`"
+      :label="t(`${locale}.loading.nameFormat.label`)"
+      :hint="t(`${locale}.loading.nameFormat.hint`)"
+    />
     <v-text-field
       v-model="$maxVideoSize"
       suffix="MB"
@@ -35,7 +40,6 @@
       persistent-hint
       suffix="Milli Sec"
     />
-
     <v-checkbox
       class="mt-0"
       hide-details
