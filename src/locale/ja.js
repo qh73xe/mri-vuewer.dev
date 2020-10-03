@@ -361,6 +361,9 @@ export default {
     }
   },
   contexts: {
+    denoising: {
+      audio: "音声ノイズ除去"
+    },
     playPause: "再生/停止",
     skip: "スキップ",
     skipBackward: "戻る",

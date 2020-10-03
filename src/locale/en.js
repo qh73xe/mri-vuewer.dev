@@ -343,6 +343,9 @@ export default {
     }
   },
   contexts: {
+    denoising: {
+      audio: "Audio Noise Reduction"
+    },
     playPause: "play or pause",
     skip: "skip",
     skipBackward: "skip backward",

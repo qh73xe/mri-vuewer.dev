@@ -9,6 +9,7 @@
         :frames="frames"
         :origin-size="$originSize"
         :textgrid="textgrid"
+        @run-noise-reduction="onNoiseReduction"
         @data-updated="onDataUpdated"
         @textgrid-updated="onTextGridUpdated"
         @frame-point-updated="onFramePointUpdated"
@@ -71,16 +72,6 @@ export default {
     }
   },
   methods: {
-    // エラーハンドラ
-    onError: function(error, msg = null, next = false) {
-      if (msg) {
-        this.$vuewer.snackbar.error(msg);
-      } else {
-        this.$vuewer.snackbar.error(error);
-      }
-      this.$vuewer.console.error(this.tag, error);
-      if (next) this.$router.push({ name: next });
-    },
     // 最新データを JSON 形式でダウンロード
     downloadJson: async function() {
       try {
@@ -120,11 +111,22 @@ export default {
       }
     },
     /**
+     * エラー発生時に呼ばれます.
+     */
+    onError: function(error, msg = null, next = false) {
+      if (msg) {
+        this.$vuewer.snackbar.error(msg);
+      } else {
+        this.$vuewer.snackbar.error(error);
+      }
+      this.$vuewer.console.error(this.tag, error);
+      if (next) this.$router.push({ name: next });
+    },
+    /**
      * onIdChanged.
      *
      * ルータの id が変更した際に呼ばれます.
-     *
-     * これは id を元に動画の情報を取得し,
+     * id を元に indexeddb から直接的に動画の情報を取得し,
      * this.$store.state.current 以下の情報を書き換えます.
      */
     onIdChanged: async function(id) {
@@ -178,6 +180,38 @@ export default {
       }
     },
     // EVENT ハンドラ
+    onNoiseReduction: function(payload) {
+      this.isLoading = true;
+      this.$vuewer.loading.start("$vuetify.loading");
+      setTimeout(() => {
+        const buff = this.$vuewer.io.file.toBuff(this.$source);
+        let result = null;
+        if (payload.type == "afftdn") {
+          result = this.$vuewer.io.video.afftdn(buff);
+        } else if (payload.type == "anlmdn") {
+          result = this.$vuewer.io.video.anlmdn(buff);
+        } else if (payload.type == "bandpass") {
+          result = this.$vuewer.io.video.bandpass(
+            buff,
+            payload.low,
+            payload.heigh
+          );
+        }
+        if (result !== null && result.MEMFS.length) {
+          const out = result.MEMFS[0];
+          const blob = new Blob([out.data], { type: "video/mp4" });
+          this.$source = null;
+          this.$vuewer.io.video.toBase64(blob).then(dst => {
+            this.$source = dst;
+            this.isLoading = false;
+            this.$vuewer.loading.end();
+          });
+        } else {
+          this.isLoading = false;
+          this.$vuewer.loading.end();
+        }
+      }, 1000);
+    },
     onTextGridUpdated: function(textgrid) {
       if (textgrid) {
         this.isChange = true;

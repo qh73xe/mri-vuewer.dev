@@ -9,6 +9,7 @@
     @click-tier-delete="onClickTierDelete"
     @click-upload="onUploadClick"
     @click-download="onDownloadClick"
+    @click-noise-reduction="onClickNoiseReduction"
     @click-complate="onClickComplate"
     @click-record="onClickRecordContextMenu"
   >
@@ -201,7 +202,6 @@ import MTextgridDialog from "@/components/dialogs/MTextgridDialog";
 import MComplatesDialog from "@/components/dialogs/MComplatesDialog";
 import MSpeedDial from "@/components/MSpeedDial";
 import MSettingMixin from "@/mixins/MSettingMixin";
-import io from "@/io";
 
 export default {
   name: "WVuwer",
@@ -746,8 +746,8 @@ export default {
           points: this.$store.getters["current/pointTable"],
           rects: this.$store.getters["current/rectTable"]
         };
-        const blob = io.xlsx.dump(obj);
-        io.file.download(blob, `${bname}.xlsx`);
+        const blob = this.$vuewer.io.xlsx.dump(obj);
+        this.$vuewer.io.file.download(blob, `${bname}.xlsx`);
       } else if (payload == "JSON") {
         this.$emit("download-json");
       } else if (payload == "PNG") {
@@ -772,38 +772,38 @@ export default {
           }
           const bname = this.$store.state.current.video.filename.split(".")[0];
           const name = `${bname}.mp4`;
-          const buff = io.file.toBuff(this.src);
-          const result = io.video.trim(buff, start, end);
+          const buff = this.$vuewer.io.file.toBuff(this.src);
+          const result = this.$vuewer.io.video.trim(buff, start, end);
           const out = result.MEMFS[0];
-          const blob = io.video.toBlob(Buffer(out.data));
-          io.file.download(blob, name);
+          const blob = this.$vuewer.io.video.toBlob(Buffer(out.data));
+          this.$vuewer.io.file.download(blob, name);
         }
       } else if (payload == "TEXTGRID/JSON") {
         const blob = new Blob([JSON.stringify(this.$textgrid, null, "  ")], {
           type: "application/json"
         });
-        io.file.download(blob, `${bname}-records.json`);
+        this.$vuewer.io.file.download(blob, `${bname}-records.json`);
       } else if (payload == "TEXTGRID/TEXTGRID") {
         this.wavesurfer.downloadTextGrid(`${bname}.TextGrid`);
       } else if (payload == "TEXTGRID/XLSX") {
         const obj = {
           records: this.$store.getters["current/tgTable"]
         };
-        const blob = io.xlsx.dump(obj);
-        io.file.download(blob, `${bname}-records.xlsx`);
+        const blob = this.$vuewer.io.xlsx.dump(obj);
+        this.$vuewer.io.file.download(blob, `${bname}-records.xlsx`);
       } else if (payload == "FRAME/JSON") {
         const blob = new Blob([JSON.stringify(this.$frames, null, "  ")], {
           type: "application/json"
         });
-        io.file.download(blob, `${bname}-frame.json`);
+        this.$vuewer.io.file.download(blob, `${bname}-frame.json`);
       } else if (payload == "FRAME/XLSX") {
         const obj = {
           frames: this.$store.getters["current/frameTable"],
           points: this.$store.getters["current/pointTable"],
           rects: this.$store.getters["current/rectTable"]
         };
-        const blob = io.xlsx.dump(obj);
-        io.file.download(blob, `${bname}.xlsx`);
+        const blob = this.$vuewer.io.xlsx.dump(obj);
+        this.$vuewer.io.file.download(blob, `${bname}.xlsx`);
       } else {
         this.$vuewer.snackbar.warning("$vuetify.yet");
       }
@@ -813,37 +813,43 @@ export default {
       const file = payload.files[0];
       if (file) {
         if (payload.click == "TEXTGRID/JSON") {
-          io.json.read(file).then(obj => {
+          this.$vuewer.io.json.read(file).then(obj => {
             this.wavesurfer.setTextGrid({});
-            const textgrid = io.obj.ver2.loadTextGrid(obj);
+            const textgrid = this.$vuewer.io.obj.ver2.loadTextGrid(obj);
             this.wavesurfer.setTextGrid(textgrid);
             this.$vuewer.snackbar.success("$vuetify.loaded");
           });
         } else if (payload.click == "TEXTGRID/JSON/VER1") {
-          io.json.read(file).then(obj => {
+          this.$vuewer.io.json.read(file).then(obj => {
             this.wavesurfer.setTextGrid({});
-            const textgrid = io.obj.ver1.loadTextGrid(obj, "both");
+            const textgrid = this.$vuewer.io.obj.ver1.loadTextGrid(obj, "both");
             this.wavesurfer.setTextGrid(textgrid);
             this.$vuewer.snackbar.success("$vuetify.loaded");
           });
         } else if (payload.click == "TEXTGRID/JSON/VER1/LEFT") {
-          io.json.read(file).then(obj => {
+          this.$vuewer.io.json.read(file).then(obj => {
             this.wavesurfer.setTextGrid({});
-            const textgrid = io.obj.ver1.loadTextGrid(obj, "left");
+            const textgrid = this.$vuewer.io.obj.ver1.loadTextGrid(obj, "left");
             this.wavesurfer.setTextGrid(textgrid);
             this.$vuewer.snackbar.success("$vuetify.loaded");
           });
         } else if (payload.click == "TEXTGRID/JSON/VER1/RIGHT") {
-          io.json.read(file).then(obj => {
+          this.$vuewer.io.json.read(file).then(obj => {
             this.wavesurfer.setTextGrid({});
-            const textgrid = io.obj.ver1.loadTextGrid(obj, "right");
+            const textgrid = this.$vuewer.io.obj.ver1.loadTextGrid(
+              obj,
+              "right"
+            );
             this.wavesurfer.setTextGrid(textgrid);
             this.$vuewer.snackbar.success("$vuetify.loaded");
           });
         } else if (payload.click == "TEXTGRID/JSON/VER1/UP-DOWN") {
-          io.json.read(file).then(obj => {
+          this.$vuewer.io.json.read(file).then(obj => {
             this.wavesurfer.setTextGrid({});
-            const textgrid = io.obj.ver1.loadTextGrid(obj, "up-down");
+            const textgrid = this.$vuewer.io.obj.ver1.loadTextGrid(
+              obj,
+              "up-down"
+            );
             this.wavesurfer.setTextGrid(textgrid);
             this.$vuewer.snackbar.success("$vuetify.loaded");
           });
@@ -1242,6 +1248,12 @@ export default {
         });
         this.lazyFocusTextField = false;
       }
+    },
+    // ffmpeg を用いたノイズ除去
+    onClickNoiseReduction: function(payload) {
+      setTimeout(() => {
+        this.$emit("run-noise-reduction", payload);
+      }, 100);
     },
     onClickDetail: function() {
       this.$vuewer.console.log(this.tag, `on click detail`);

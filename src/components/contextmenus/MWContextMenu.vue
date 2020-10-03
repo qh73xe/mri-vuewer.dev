@@ -168,10 +168,55 @@ export default {
           ]
         },
         {
+          text: "$vuetify.contexts.denoising.audio",
+          icon: "mdi-headphones-settings",
+          show: false,
+          items: [
+            {
+              text: "AFFTDN FILTER",
+              icon: "",
+              click: () => {
+                setTimeout(() => {
+                  const payload = {
+                    type: "afftdn"
+                  };
+                  vm.$emit("click-noise-reduction", payload);
+                }, 10);
+              }
+            },
+            {
+              text: "ANLMDN FILTER",
+              icon: "",
+              click: () => {
+                setTimeout(() => {
+                  const payload = {
+                    type: "anlmdn"
+                  };
+                  vm.$emit("click-noise-reduction", payload);
+                }, 10);
+              }
+            },
+            {
+              text: "BANDPASS FILTER",
+              icon: "",
+              click: () => {
+                setTimeout(() => {
+                  const payload = {
+                    type: "bandpass",
+                    low: 300,
+                    heigh: 100
+                  };
+                  vm.$emit("click-noise-reduction", payload);
+                }, 10);
+              }
+            }
+          ]
+        },
+        {
           text: "$vuetify.contexts.setting",
           icon: "mdi-cog",
           click: () => {
-            setTimeout(function() {
+            setTimeout(() => {
               vm.$emit("click-setting");
             }, 10);
           }
