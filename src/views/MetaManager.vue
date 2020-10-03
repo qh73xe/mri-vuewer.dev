@@ -1,20 +1,16 @@
 <template>
   <m-drag-context>
     <m-view-layout :heading="heading" :desc="$vuetify.lang.t(desc)">
-      <v-col>
-        <v-text-field
-          solo
-          rounded
-          label="Search"
-          v-model="keyword"
-          prepend-inner-icon="mdi-magnify"
-        />
-
+      <v-col :class="colClass">
         <v-card class="mt-6">
           <v-tabs v-model="tab" fixed-tabs background-color="primary" dark>
             <v-tab>File</v-tab>
-            <v-tab>Intervals</v-tab>
-            <v-tab>Points</v-tab>
+            <v-tab>
+              {{ $vuetify.lang.t("$vuetify.textgrid.tier.interval") }}
+            </v-tab>
+            <v-tab>
+              {{ this.$vuetify.lang.t("$vuetify.textgrid.tier.point") }}
+            </v-tab>
           </v-tabs>
           <v-tabs-items v-model="tab">
             <v-tab-item>
@@ -66,6 +62,9 @@ export default {
     }
   },
   computed: {
+    colClass: function() {
+      return this.$vuetify.breakpoint.smAndUp ? "" : "ma-0 pa-0";
+    },
     keyword: {
       get() {
         return this.$store.state.search.keyword;

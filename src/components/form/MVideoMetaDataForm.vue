@@ -43,6 +43,10 @@ export default {
     MMetaFieldForm
   },
   props: {
+    vname: {
+      type: String,
+      default: ""
+    },
     currentItem: {
       type: Object,
       default: function() {
@@ -86,15 +90,13 @@ export default {
       }
     },
     reset() {
-      this.$refs.form.reset();
       for (const key in this.item) {
         this.item[key] = this.currentItem[key] || "";
       }
     }
   },
   mounted: function() {
-    const fields = this.$store.state.metadata.fields;
-    this.fields = Array.from(fields);
+    this.fields = this.$store.getters["files/fields"];
     for (const key of this.fields) {
       this.item[key] = this.currentItem[key] || "";
     }
