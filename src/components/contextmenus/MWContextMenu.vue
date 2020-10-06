@@ -616,7 +616,7 @@ export default {
       this.$emit("click-upload", item);
     },
     incPxPerSec() {
-      if (this.$minPxPerSec < 500) {
+      if (this.$minPxPerSec < 700) {
         this.$minPxPerSec = this.$minPxPerSec + 50;
       }
     },

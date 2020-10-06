@@ -30,10 +30,14 @@ export default {
     }
   },
   actions: {
-    init: function(context) {
-      context.state.frames = [];
-      context.state.wavesurfer = null;
-      context.state.textgrid = null;
+    init: function({ dispatch, state }) {
+      dispatch("layout/init", { root: true });
+      dispatch("frame/init", { root: true });
+      dispatch("complates/init", { root: true });
+      dispatch("cache/init", { root: true });
+      state.frames = [];
+      state.wavesurfer = null;
+      state.textgrid = null;
     },
     // 現在表示されている VUEWER の転記情報を更新します
     loadObj: function(context, payload) {

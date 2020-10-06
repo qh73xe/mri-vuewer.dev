@@ -13,7 +13,16 @@ export default {
       context.commit("textgrids", []);
     },
     setTextgrid(context, payload) {
-      context.state.textgrids.push(payload);
+      const $payload = JSON.stringify(payload);
+      const tgs = context.state.textgrids;
+      if (tgs.length > 0) {
+        const prev = tgs[tgs.length - 1];
+        if (prev != $payload) {
+          context.state.textgrids.push($payload);
+        }
+      } else {
+        context.state.textgrids.push($payload);
+      }
     }
   },
   getters: {
@@ -22,7 +31,7 @@ export default {
       if (_idx > -1) {
         const data = state.textgrids[_idx];
         state.textgrids.splice(_idx);
-        return data;
+        return JSON.parse(data);
       }
       return null;
     }

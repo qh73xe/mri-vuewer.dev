@@ -14,17 +14,34 @@ describe("store/current/cache.js", () => {
     test("cache/textgrids の 初期化", () => {
       expect($store.state.textgrids).toEqual([]);
     });
+
     test("cache/textgrids のデータ追加", () => {
       expect($store.state.textgrids).toEqual([]);
       const textgrid = { ipu: { values: [{ time: 0, text: "" }] } };
       $store.dispatch("setTextgrid", textgrid);
-      expect($store.state.textgrids).toEqual([textgrid]);
+      expect($store.state.textgrids).toEqual([JSON.stringify(textgrid)]);
     });
-    test("cache/textgrids の初期化", () => {
+    test("cache/textgrids のデータ追加(同じデータの場合追加しない)", () => {
       expect($store.state.textgrids).toEqual([]);
       const textgrid = { ipu: { values: [{ time: 0, text: "" }] } };
       $store.dispatch("setTextgrid", textgrid);
       $store.dispatch("setTextgrid", textgrid);
+      expect($store.state.textgrids.length).toBe(1);
+    });
+
+    test("cache/textgrids の初期化", () => {
+      expect($store.state.textgrids).toEqual([]);
+      $store.dispatch("setTextgrid", {
+        test1: { values: [{ time: 0, text: "" }] }
+      });
+      $store.dispatch("setTextgrid", {
+        test1: {
+          values: [
+            { time: 0, text: "" },
+            { time: 1, text: "" }
+          ]
+        }
+      });
       expect($store.state.textgrids.length).toBe(2);
       $store.dispatch("init");
       expect($store.state.textgrids).toEqual([]);
@@ -68,7 +85,10 @@ describe("store/current/cache.js", () => {
       // 二つ前のキャッシュを取り出し
       const cache = $store.getters["textgrids"](1);
       expect(cache).toEqual(textgrids[2]);
-      expect($store.state.textgrids).toEqual([textgrids[0], textgrids[1]]);
+      expect($store.state.textgrids).toEqual([
+        JSON.stringify(textgrids[0]),
+        JSON.stringify(textgrids[1])
+      ]);
       expect($store.state.textgrids.length).toBe(2);
     });
   });

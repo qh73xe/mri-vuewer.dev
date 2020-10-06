@@ -345,6 +345,7 @@ export default {
       },
       set(val) {
         this.$store.commit("current/textGrid", val);
+        this.$store.dispatch("current/cache/setTextgrid", val);
       }
     },
     $frameIdx() {
@@ -391,7 +392,7 @@ export default {
       deep: true
     },
     $minPxPerSec: function(val) {
-      if ((val > 100) & (val < 500)) {
+      if ((val > 100) & (val < 700)) {
         if (val % 50 == 0) {
           this.wavesurfer.zoom(val);
         }
@@ -419,6 +420,12 @@ export default {
     }
   },
   methods: {
+    rebaseTextgrid: function(n = 1) {
+      const textgrid = this.$store.getters["current/cache/textgrids"](n);
+      if (textgrid !== null) {
+        this.wavesurfer.setTextGrid(textgrid);
+      }
+    },
     playPause: function() {
       const key = this.current.tier.key || null;
       const idx = this.current.tier.record.idx || null;
@@ -990,7 +997,7 @@ export default {
 
       if (key == 187 && xKey == "ctrl+shift") {
         // ctrl + で拡大
-        if (this.$minPxPerSec < 500) this.$minPxPerSec = this.$minPxPerSec + 50;
+        this.$minPxPerSec = this.$minPxPerSec + 50;
       }
       if (key == 189 && xKey == "ctrl") {
         // ctrl - で拡大
@@ -1000,16 +1007,16 @@ export default {
       // 移動系操作
       if (~[37, 74].indexOf(key)) {
         if (xKey == "default") {
-          // ←|j で 1 フレーム戻す
+          // ← | j で 1 フレーム戻す
           this.wavesurfer.skipBackward();
         } else if (xKey == "ctrl") {
-          // ctrl + ←|j で前のレコードに移動
+          // ctrl + ← | j で前のレコードに移動
           this.prevRecord(item.key, item.index, false);
         } else if (xKey == "ctrl+shift") {
-          // ctrl + shift + ←|j で終端時刻を短くする
+          // ctrl + shift + ← | j で終端時刻を短くする
           this.shrinkRecord(item.key, item.index);
         } else if (xKey == "ctrl+alt") {
-          // ctrl + alt + ←|j で現在レコードの先頭に移動
+          // ctrl + alt + ← | j で現在レコードの先頭に移動
           this.toStartRecord(item.key, item.index);
         }
       } else if (~[38, 72].indexOf(key) && xKey == "default") {
@@ -1033,6 +1040,11 @@ export default {
         // ↓|l で下の TIER に移動
         this.nextTier();
       }
+      if (key == 54 && xKey == "shift") {
+        this.toStartRecord(item.key, item.index);
+      } else if (key == 52 && xKey == "shift") {
+        this.toEndRecord(item.key, item.index);
+      }
 
       // ctrl + c でクリップボードにコピー
       if (key == 67 && xKey == "ctrl") {
@@ -1047,7 +1059,6 @@ export default {
       }
 
       // ヤンク操作
-      console.log(key, preKey);
       if (key == 89 && xKey == "default") {
         if (preKey == null) {
           // y のみで現在 Record のテキストをコピー
@@ -1059,14 +1070,20 @@ export default {
       } else if (key == 80 && xKey == "default") {
         this.paste();
       }
-
       // ctrl + s で明示的に保存
-      if (payload.keycode == 83 && payload.ctrl == true) {
+      if (key == 83 && xKey == "ctrl") {
         this.fireUpdateData();
       }
+      // ctrl + z または u で Textgrid の状態を一つ戻す
+      if ((key == 90 && xKey == "ctrl") || (key == 85 && xKey == "default")) {
+        this.rebaseTextgrid();
+      }
+
+      // ctrl + r でドロップボックスからデータをリロード
       if (payload.keycode == 82 && payload.ctrl == true) {
         this.onClickLoadDropbox();
       }
+
       // VIM モード
       if (payload.keycode == 73) {
         // i でインサート
@@ -1107,6 +1124,12 @@ export default {
         this.toEndRecord(item.key, item.idx);
       } else if (key == "s" && xKey == "ctrl") {
         this.fireUpdateData();
+      } else if (
+        (key == "z" && xKey == "ctrl") ||
+        (key == "u" && xKey == "default")
+      ) {
+        // ctrl + z または u で Textgrid の状態を一つ戻す
+        this.rebaseTextgrid();
       } else if (key == "r" && xKey == "ctrl") {
         this.onClickLoadDropbox();
       } else if (key == "i" && xKey == "default") {
@@ -1425,9 +1448,7 @@ export default {
     onForwardBtnUp: function(payload) {
       if (payload.ctrl) {
         // ctrl + next で拡大
-        if (this.$minPxPerSec < 500) {
-          this.$minPxPerSec = this.$minPxPerSec + 50;
-        }
+        this.$minPxPerSec = this.$minPxPerSec + 50;
       } else {
         if (this.where == "wave-surfer") {
           const key = this.current.tier.key;
@@ -1500,6 +1521,7 @@ export default {
     }
   },
   mounted: function() {
+    this.$store.dispatch("current/init");
     this.$frames = [];
     this.$frames = this.frames;
     this.minPxPerSec = this.$minPxPerSec;
