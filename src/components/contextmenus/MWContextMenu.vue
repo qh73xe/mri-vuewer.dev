@@ -185,7 +185,7 @@ export default {
               }
             },
             {
-              text: "ANLMDN FILTER",
+              text: "NON-LOCAL MEANS FILTER",
               icon: "",
               click: () => {
                 setTimeout(() => {

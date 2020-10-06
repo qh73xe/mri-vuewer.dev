@@ -3,7 +3,6 @@ import ffmpeg from "ffmpeg.js/ffmpeg-mp4.js";
 const version = callback => {
   let stdout = "";
   let stderr = "";
-  // Print FFmpeg's version.
   const result = ffmpeg({
     arguments: ["-version"],
     print: function(data) {

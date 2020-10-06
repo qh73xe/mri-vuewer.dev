@@ -2,6 +2,7 @@ import Vue from "vue";
 import video from "./video.js";
 import frame from "./frame.js";
 import layout from "./layout.js";
+import cache from "./cache.js";
 import complates from "./complates.js";
 export default {
   namespaced: true,
@@ -132,5 +133,11 @@ export default {
       return array;
     }
   },
-  modules: { video: video, frame: frame, layout: layout, complates: complates }
+  modules: {
+    video,
+    frame,
+    layout,
+    complates,
+    cache
+  }
 };
