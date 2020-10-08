@@ -9,12 +9,16 @@ export default {
   state: () => ({
     wavesurfer: null,
     textgrid: null,
+    tab: 0,
     metaData: {},
     frames: []
   }),
   mutations: {
     waveSurfer(state, payload) {
       state.wavesurfer = payload;
+    },
+    tab(state, payload) {
+      state.tab = payload;
     },
     metaData(state, payload) {
       state.metaData = payload;
@@ -35,6 +39,7 @@ export default {
       dispatch("frame/init", { root: true });
       dispatch("complates/init", { root: true });
       dispatch("cache/init", { root: true });
+      state.tab = 0;
       state.frames = [];
       state.wavesurfer = null;
       state.textgrid = null;

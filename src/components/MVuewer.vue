@@ -84,27 +84,17 @@
           @tier-update="onTextGridUpdate"
         >
           <template v-slot:textform>
-            <v-text-field
-              dense
-              hide-details
-              outlined
-              append-icon="mdi-microphone"
-              autocomplete="on"
-              label="text"
-              list="complates"
+            <m-record-text-field
               ref="input"
               v-if="showTextField"
               v-model="current.tier.record.text"
+              :complate-key="current.key"
               :disabled="current.tier.key == null"
-              @click:append="onVoiceUpdateRecordText"
-              @keydown.enter="onUpdateRecordText"
-              @keydown.tab="onUpdateRecordText('next')"
-              @keydown.ctrl.219="onEscTextField"
-              @keydown.27.prevent="onEscTextField"
+              @click:prepend-inner-icon="onVoiceUpdateRecordText"
+              @enter="onUpdateRecordText"
+              @next="onUpdateRecordText('next')"
+              @esc="onEscTextField"
             />
-            <datalist id="complates">
-              <option v-for="x in complates" :key="x"> {{ x }} </option>
-            </datalist>
           </template>
 
           <div class="text-center" v-if="isLoading">
@@ -190,6 +180,7 @@ import MVuwerLayout from "@/components/layouts/MVuwerLayout";
 import MVideoArray from "@/components/video/MVideoArray";
 import MTextGrid from "@/components/MTextGrid";
 import MVuwerActions from "@/components/actions/MVuewerActions";
+import MRecordTextField from "@/components/form/MRecordTextField";
 import MWContextMenu from "@/components/contextmenus/MWContextMenu";
 import MDetailDialog from "@/components/dialogs/MDetailDialog";
 import MTierDialog from "@/components/dialogs/MTierDialog";
@@ -222,6 +213,7 @@ export default {
     MTierDeleteDialog,
     MTierDialog,
     MTierEditDialog,
+    MRecordTextField,
     MVuwerActions
   },
   props: {
@@ -327,8 +319,7 @@ export default {
         texts: []
       }
     },
-    tiers: [],
-    complates: []
+    tiers: []
   }),
   computed: {
     wavesurfer: {
@@ -372,7 +363,7 @@ export default {
       if (this.videoElm) {
         if (this.$textgrid) {
           if (!this.isLoading) {
-            return Object.keys(this.$textgrid).length > -1;
+            return Object.keys(this.$textgrid).length > 0;
           }
         }
       }
@@ -397,21 +388,6 @@ export default {
           this.wavesurfer.zoom(val);
         }
       }
-    },
-    current: {
-      handler: function(val) {
-        if (val && val.key) {
-          if (this.$textgrid[val.key]) {
-            // 補完の候補を決定
-            const texts = this.$textgrid[val.key].values.map(x => x.text);
-            const complates = texts.concat(
-              this.$store.state.current.complates.complates[val.key] || []
-            );
-            this.complates = [...new Set(complates)];
-          }
-        }
-      },
-      deep: true
     },
     "dialog.imageEdit.show": function(val) {
       if (val == false) {
@@ -450,12 +426,16 @@ export default {
     },
     deleteRecord: function(key, idx) {
       if (idx > -1) {
-        this.wavesurfer.deleteTierValue(key, idx);
-        if (!this.isSyncing) {
-          this.$vuewer.console.log(
-            this.tag,
-            `delete a record (key: ${key} idx: ${idx})`
-          );
+        const type = this.$textgrid[key].type;
+        const len = this.$textgrid[key].values.length;
+        if (type != "interval" || len > 1) {
+          this.wavesurfer.deleteTierValue(key, idx);
+          if (!this.isSyncing) {
+            this.$vuewer.console.log(
+              this.tag,
+              `delete a record (key: ${key} idx: ${idx})`
+            );
+          }
         }
       }
     },
@@ -941,12 +921,9 @@ export default {
     },
     // key 操作系
     onTextGridKeydown: function(payload) {
-      let preKey = null;
-      if (this.keybuffer.from == "textgrid") {
-        if (Date.now() - this.keybuffer.time < 200) {
-          preKey = this.keybuffer.keycode;
-        }
-      }
+      const time = Number(Date.now() - this.keybuffer.time);
+      const check = (this.keybuffer.from == "textgrid") & (time < 150);
+      const preKey = check ? this.keybuffer.keycode : null;
       const { key, xKey } = this.$vuewer.key.summary(payload);
       const item = payload.current;
 
@@ -1090,7 +1067,9 @@ export default {
         if (payload.ctrl && payload.shift) {
           this.onClickImageEdit();
         } else {
-          setTimeout(() => this.$refs.input.focus());
+          setTimeout(() => {
+            this.$refs.input.focus();
+          });
         }
       }
       this.keybuffer.time = Date.now();
@@ -1139,6 +1118,8 @@ export default {
         });
       } else if (key == "i" && xKey == "ctrl+shift") {
         this.onClickImageEdit();
+      } else if (key == "c" && xKey == "ctrl+shift") {
+        this.onClickTierAdd();
       } else {
         console.log("onWaveSurferKeyup", key, xKey, event);
       }
@@ -1245,8 +1226,17 @@ export default {
     },
     onTextGridUpdate: function(textgrid) {
       if (textgrid) {
+        const oldTierNum = this.$textgrid
+          ? Object.keys(this.$textgrid).length
+          : 0;
         this.$textgrid = Object.assign({}, textgrid);
-        this.fireUpdateTextGrid();
+        const currentTierNum = Object.keys(this.$textgrid).length;
+        if (!this.isSyncing) {
+          if (oldTierNum !== currentTierNum) {
+            this.$store.commit("current/tab", currentTierNum);
+          }
+          this.fireUpdateTextGrid();
+        }
       }
     },
     onRecordUpdated: function(payload) {

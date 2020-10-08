@@ -168,7 +168,8 @@ export default {
       hint: "supported format is mp4"
     },
     completes: {
-      title: "Select your dict complete file (text/plain)"
+      title: "Select your dict complete file (text/plain)",
+      isTextComplated: "Text Select Mode"
     }
   },
   pages: pages,

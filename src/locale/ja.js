@@ -209,7 +209,8 @@ export default {
       hint: `${VIDEO} ファイルは mp4 形式のみをサポートしています`
     },
     completes: {
-      title: "補完辞書ファイルを選択 (text/plain)"
+      title: "補完辞書ファイルを選択 (text/plain)",
+      isTextComplated: "テキスト選択モード"
     }
   },
   pages: pages,
