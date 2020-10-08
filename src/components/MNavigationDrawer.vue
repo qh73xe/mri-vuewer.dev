@@ -27,7 +27,12 @@
     <v-divider />
 
     <v-list dense nav class="pa-0">
-      <v-list-group prepend-icon="mdi-view-list" sub-group value="true">
+      <v-list-group
+        v-model="open.pages"
+        prepend-icon="mdi-view-list"
+        sub-group
+        value="true"
+      >
         <template v-slot:activator>
           <v-list-item-title>PAGES</v-list-item-title>
         </template>
@@ -86,13 +91,23 @@
         </template>
         <v-divider />
         <v-list-item
-          link
           v-for="item in files"
           :key="item.id"
           @click="to({ id: item.id })"
+          :class="activeFile == item.id ? 'highlight' : ''"
         >
           <v-list-item-content>
-            <v-list-item-title>{{ item.name }}</v-list-item-title>
+            <v-list-item-title>
+              {{ item.name }}
+              <v-chip
+                v-if="Object.keys(item.textgrid).length > 0"
+                x-small
+                class="ml-2"
+                color="success"
+              >
+                {{ Object.keys(item.textgrid).length }} Tiers
+              </v-chip>
+            </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn small @click.stop="fileDestroy(item)" icon>
@@ -106,6 +121,7 @@
       <v-list-group
         v-if="!isLoading"
         prepend-icon="mdi-dropbox"
+        v-model="open.dropboxes"
         sub-group
         :value="false"
       >
@@ -138,7 +154,12 @@
         </v-list-item>
       </v-list-group>
 
-      <v-list-group prepend-icon="mdi-database" sub-group :value="false">
+      <v-list-group
+        v-model="open.databases"
+        prepend-icon="mdi-database"
+        sub-group
+        :value="false"
+      >
         <template v-slot:activator>
           <v-list-item-title>DATABASE</v-list-item-title>
         </template>
@@ -188,7 +209,12 @@
       </v-list-group>
       <v-divider />
 
-      <v-list-group prepend-icon="mdi-file-swap" sub-group :value="false">
+      <v-list-group
+        v-model="open.convarters"
+        prepend-icon="mdi-file-swap"
+        sub-group
+        :value="false"
+      >
         <template v-slot:activator>
           <v-list-item-title>CONVATER</v-list-item-title>
         </template>
@@ -210,6 +236,7 @@
 
       <v-list-group
         v-if="$showDev"
+        v-model="open.depelops"
         prepend-icon="mdi-flask"
         sub-group
         :value="false"
@@ -245,7 +272,12 @@ export default {
   data: () => ({
     current: null,
     open: {
-      files: false
+      pages: true,
+      files: false,
+      dropboxes: false,
+      databases: false,
+      convarters: false,
+      depelops: false
     },
     dropboxDialog: false,
     uploadDialog: false,
@@ -255,6 +287,19 @@ export default {
   computed: {
     $showDev: function() {
       return this.$store.state.setting.showDev;
+    },
+    isVuewer: function() {
+      const pathes = this.$route.fullPath.split("/");
+      if (pathes.length > 0 && pathes[1] == "files") {
+        return true;
+      }
+      return false;
+    },
+    activeFile: function() {
+      if (this.isVuewer) {
+        return Number(this.$route.params.id);
+      }
+      return null;
     },
     isLoading: function() {
       return this.$store.state.files.isLoading;
@@ -344,6 +389,15 @@ export default {
     }
   },
   methods: {
+    allClose: function(except = null) {
+      for (const key in this.open) {
+        if (except !== null && key == except) {
+          this.open[key] = true;
+        } else {
+          this.open[key] = false;
+        }
+      }
+    },
     to: function(payload) {
       if (payload.name) {
         if (this.$route.name !== payload.name) {
@@ -439,13 +493,33 @@ export default {
         });
     }
   },
+  watch: {
+    isVuewer: function(val, oldVal) {
+      if (val !== oldVal) {
+        if (val == true) {
+          this.allClose("files");
+        } else {
+          this.allClose("pages");
+        }
+      }
+    }
+  },
   mounted: function() {
     if (window.location.hash) {
       this.$vuewer.dropbox.setToken(window.location.hash);
       this.updateToken = true;
+    } else if (this.isVuewer) {
+      this.allClose("files");
     }
     this.$store.dispatch("files/dropbox");
   }
 };
 </script>
-<style scoped></style>
+<style scoped>
+.highlight {
+  background: #e0e0e0;
+}
+.highlight:hover {
+  background: #e0e0e0;
+}
+</style>

@@ -1,3 +1,4 @@
+import Vue from "vue";
 import db from "@/storage/db";
 import dropbox from "../utils/dropbox";
 
@@ -20,8 +21,10 @@ export default {
     },
     update: function(state, obj) {
       const idx = state.files.findIndex(x => x.id == obj.id);
+      const files = state.files;
       if (idx > -1) {
-        state.files[idx] = obj;
+        files[idx] = obj;
+        Vue.set(state, "files", files);
       }
     },
     destroy: function(state, id) {

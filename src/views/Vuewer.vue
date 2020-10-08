@@ -228,6 +228,7 @@ export default {
           .put(this.item)
           .then(id => {
             const msg = `update the textgrid of a file (id=${id})`;
+            vm.$store.commit("files/update", this.item);
             vm.$vuewer.db.log("textgrid", "PUT", msg);
             vm.$vuewer.console.log("textgrid", msg);
           })
