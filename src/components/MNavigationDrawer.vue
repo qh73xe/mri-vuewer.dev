@@ -91,6 +91,7 @@
         </template>
         <v-divider />
         <v-list-item
+          two-line
           v-for="item in files"
           :key="item.id"
           @click="to({ id: item.id })"
@@ -108,6 +109,10 @@
                 {{ Object.keys(item.textgrid).length }} Tiers
               </v-chip>
             </v-list-item-title>
+            <v-list-item-subtitle>
+              last modify:
+              {{ item.lastModifiedText }}
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn small @click.stop="fileDestroy(item)" icon>
@@ -266,6 +271,8 @@
 import MFileUploadDialog from "@/components/dialogs/MFileUploadDialog";
 import MDropboxDialog from "@/components/dialogs/MDropboxDialog";
 import MDbImportDialog from "@/components/dialogs/MDbImportDialog";
+import moment from "moment";
+
 export default {
   name: "MNavigationDrawer",
   components: { MFileUploadDialog, MDbImportDialog, MDropboxDialog },
@@ -305,7 +312,17 @@ export default {
       return this.$store.state.files.isLoading;
     },
     files: function() {
-      return this.$store.state.files.files || [];
+      console.log("nav/file/update");
+      let dformat = "dddd, MMMM Do YYYY, h:mm:ss a";
+      if (this.$vuetify.lang.current == "ja") {
+        moment.locale("ja");
+        dformat = "YYYY 年 MM 月 DD 日(ddd) a h:mm:ss";
+      }
+      const files = this.$store.state.files.files || [];
+      return files.map(x => {
+        x.lastModifiedText = moment(x.lastModifiedAt).format(dformat);
+        return x;
+      });
     },
     chaches: function() {
       return this.$store.state.files.chaches || [];
@@ -389,6 +406,9 @@ export default {
     }
   },
   methods: {
+    moment: function(now) {
+      return moment(now);
+    },
     allClose: function(except = null) {
       for (const key in this.open) {
         if (except !== null && key == except) {

@@ -20,7 +20,14 @@
     @keydown.prevent.alt.tab="onNext"
     @keydown.ctrl.219="$emit('esc')"
     @keydown.27.prevent="$emit('esc')"
-  />
+  >
+    <template v-slot:item="data">
+      <v-list-item-content>
+        <v-list-item-title v-text="data.item.name" />
+        <v-list-item-subtitle v-text="data.item.rubi" />
+      </v-list-item-content>
+    </template>
+  </v-autocomplete>
 </template>
 <script>
 export default {

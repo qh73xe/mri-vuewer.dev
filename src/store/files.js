@@ -24,7 +24,8 @@ export default {
       const files = state.files;
       if (idx > -1) {
         files[idx] = obj;
-        Vue.set(state, "files", files);
+        files[idx].lastModifiedAt = Date.now();
+        Vue.set(state.files, idx, files[idx]);
       }
     },
     destroy: function(state, id) {

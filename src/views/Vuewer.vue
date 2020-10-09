@@ -258,7 +258,10 @@ export default {
         };
         db.rects
           .put(item)
-          .then(() => vm.$vuewer.db.log("rects", "PUT", `change rects`))
+          .then(() => {
+            vm.$store.commit("files/update", this.item);
+            vm.$vuewer.db.log("rects", "PUT", `change rects`);
+          })
           .catch(error => {
             vm.$vuewer.snackbar.error(error);
             vm.$vuewer.console.error(tag, error);
@@ -282,7 +285,10 @@ export default {
         };
         db.points
           .put(item)
-          .then(() => vm.$vuewer.db.log("points", "PUT", `change points`))
+          .then(() => {
+            vm.$store.commit("files/update", this.item);
+            vm.$vuewer.db.log("points", "PUT", `change points`);
+          })
           .catch(error => {
             vm.$vuewer.snackbar.error(error);
             vm.$vuewer.console.error(tag, error);
