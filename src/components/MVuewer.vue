@@ -439,6 +439,22 @@ export default {
         }
       }
     },
+    updateRecordText(key, idx, text = "") {
+      const time = this.$textgrid[key].values[idx].time;
+      const item = { time, text };
+      this.wavesurfer.setTierValue(key, idx, item);
+    },
+    deleteRecordText(key, idx) {
+      const item = this.$textgrid[key].values[idx];
+      if (item.text) {
+        this.copyRecord(key, idx);
+        item.text = "";
+        this.wavesurfer.setTierValue(key, idx, item);
+        this.current.tier.record.text = null;
+      } else {
+        this.deleteRecord(key, idx);
+      }
+    },
     playRecord: function(key, idx) {
       if (this.wavesurfer.isPlaying()) {
         this.wavesurfer.pause();
@@ -695,6 +711,10 @@ export default {
         tg.tiers[key].canvas.focus();
       });
     },
+    deleteTier(key) {
+      this.copyRecords(key);
+      this.wavesurfer.deleteTier(key);
+    },
     seekTo: function(time, center) {
       const d = this.wavesurfer.getDuration();
       const p = time / d;
@@ -925,6 +945,7 @@ export default {
       const check = (this.keybuffer.from == "textgrid") & (time < 150);
       const preKey = check ? this.keybuffer.keycode : null;
       const { key, xKey } = this.$vuewer.key.summary(payload);
+
       const item = payload.current;
 
       // DELETE 系の動作
@@ -937,28 +958,11 @@ export default {
         }
       } else if (key == 68) {
         if (preKey == null && xKey == "default") {
-          const tier = this.current.key;
-          const idx = this.current.tier.record.idx;
-          if (this.current.tier.record.text) {
-            const item = {
-              time: this.current.tier.record.time,
-              text: ""
-            };
-            this.copyRecord(tier, idx);
-            this.wavesurfer.setTierValue(tier, idx, item);
-            this.current.tier.record.text = null;
-          } else {
-            this.deleteRecord(tier, idx);
-          }
+          // d で現在 Tier のテキストを削除
+          this.deleteRecordText(item.key, item.index);
         } else if (preKey == 68 && xKey == "default") {
           // dd で現在 Tier の削除
-          const x = this.current.key;
-          const tiers = Object.keys(this.$textgrid);
-          const idx = tiers.findIndex(t => t == x);
-          const next = tiers[idx - 1];
-          this.copyRecords(x);
-          this.wavesurfer.deleteTier(x);
-          if (next) this.focusRecord(next);
+          this.deleteTier(item.key);
         }
       }
 
@@ -1057,21 +1061,26 @@ export default {
       }
 
       // ctrl + r でドロップボックスからデータをリロード
-      if (payload.keycode == 82 && payload.ctrl == true) {
+      if (key == 82 && xKey == "ctrl") {
         this.onClickLoadDropbox();
       }
 
-      // VIM モード
-      if (payload.keycode == 73) {
-        // i でインサート
-        if (payload.ctrl && payload.shift) {
+      if (key == 73 && xKey == "default") {
+        if (preKey == 73) {
+          // i i で画像編集
           this.onClickImageEdit();
         } else {
-          setTimeout(() => {
-            this.$refs.input.focus();
-          });
+          // i でインサート
+          this.$refs.input.focus();
         }
       }
+
+      // o d で補完設定を開く
+      if (preKey == 79 && key == 68 && xKey == "default") {
+        this.onClickComplate();
+      }
+
+      // キーバッファを更新
       this.keybuffer.time = Date.now();
       this.keybuffer.from = "textgrid";
       this.keybuffer.keycode = payload.keycode;

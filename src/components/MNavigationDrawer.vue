@@ -312,7 +312,6 @@ export default {
       return this.$store.state.files.isLoading;
     },
     files: function() {
-      console.log("nav/file/update");
       let dformat = "dddd, MMMM Do YYYY, h:mm:ss a";
       if (this.$vuetify.lang.current == "ja") {
         moment.locale("ja");
@@ -473,7 +472,6 @@ export default {
         })
         .catch(error => {
           this.$store.dispatch("snackbar/error", error.message);
-          console.error(error);
         })
         .finally(() => {
           this.drawer = false;
@@ -490,7 +488,6 @@ export default {
         })
         .catch(error => {
           this.$store.dispatch("snackbar/error", error.message);
-          console.error(error);
         });
     },
     fileDestroy: function(item) {
@@ -508,7 +505,6 @@ export default {
         })
         .catch(error => {
           this.$store.dispatch("snackbar/error", error.message);
-          console.error(error);
           this.drawer = false;
         });
     }
