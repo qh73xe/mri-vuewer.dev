@@ -33,7 +33,7 @@ const FRAME = {
 
 const pages = {
   home: "ホーム",
-  meta: "メタデータ管理",
+  meta: "ファイル管理",
   demo: "ライブデモ",
   setting: "設定",
   about: "このアプリについて",
@@ -100,6 +100,27 @@ export default {
     shorter: "この値は {0} 文字以下です.",
     alreadyExists: "この値は既に存在しています.",
     notExist: "この値は存在しません"
+  },
+  table: {
+    file: {
+      name: `${VIDEO}名`,
+      fps: "フレームレート (fps)",
+      lastModifiedAt: "最終更新日",
+      duration: `${VIDEO}持続時間 (秒)`,
+      size: `${VIDEO}サイズ(pixels)`,
+      actions: `${VIDEO}操作`,
+      forms: {
+        setTier: {
+          label:
+            "転記階層一括付与 (name:[interval|point] name2:[interval|point]...)",
+          hint: `
+            選択中の${VIDEO}に${TEXTGRID.tier.name}を付与します.
+            例えば IPU という${TEXTGRID.tier.interval}をつけるには "IPU-interval" と入力します.
+            その後, 右のアイコンをクリックすると${TEXTGRID.tier.name}が付与されます.
+          `
+        }
+      }
+    }
   },
   forms: {
     db: {
@@ -216,15 +237,7 @@ export default {
   pages: pages,
   home: home,
   meta: {
-    disc: `
-    このページでは登録された ${VIDEO} ファイルのメタ情報を管理します.
-    </br>
-    メタ情報として付与する内容は自身で設定することが可能です.
-    </br>
-    メタ情報は ${VIDEO} の発話者, 撮影日, 発話内容等が想定されます.
-    </br>
-    メタ情報は ${VIDEO} ファイル検索時に使用されます.
-    `
+    disc: `このページでは登録された ${VIDEO} ファイルの横断検索, 一括操作が実施可能です.`
   },
   demo: {
     disc: `

@@ -229,8 +229,39 @@ export default {
       for (const f of state.files) {
         for (const key in f.textgrid) {
           const tier = f.textgrid[key];
+          const n = tier.values.length - 1;
           for (const i in tier.values) {
             const record = tier.values[i];
+            const prev = i == 0 ? { time: 0, text: "" } : tier.values[i - 1];
+            let releted = {};
+            if (tier.type == "interval") {
+              for (const rkey in f.textgrid) {
+                releted[rkey] = f.textgrid[rkey].values
+                  .filter((x, ri) => {
+                    const rptime =
+                      ri == 0 ? 0 : f.textgrid[rkey].values[ri - 1].time;
+                    const check1 =
+                      rptime <= releted.time && releted.time <= x.time;
+                    const check2 = prev.time <= x.time && x.time <= record.time;
+                    return check1 || check2;
+                  })
+                  .map(x => x.text)
+                  .join(" ");
+              }
+            } else {
+              for (const key in f.textgrid) {
+                const rtier = f.textgrid[key];
+                if (rtier.type == "interval") {
+                  releted[key] = f.textgrid[key].values
+                    .filter(x => x.time <= record.time && record.time <= x.time)
+                    .map(x => x.text);
+                } else {
+                  releted[key] = f.textgrid[key].values.filter(
+                    x => x.time == record.time
+                  );
+                }
+              }
+            }
             const item = {
               fileId: f.id,
               fileName: f.name,
@@ -241,8 +272,21 @@ export default {
               type: tier.type,
               index: i,
               id: id,
+              start: prev.time,
+              end: record.time,
               time: record.time,
-              text: record.text
+              text: record.text,
+              search: {
+                field: key,
+                text: record.text,
+                text__p1: i > 0 ? tier.values[Number(i) - 1].text : "",
+                text__p2: i > 1 ? tier.values[Number(i) - 2].text : "",
+                text__p3: i > 2 ? tier.values[Number(i) - 3].text : "",
+                text__n1: i < n - 1 ? tier.values[Number(i) + 1].text : "",
+                text__n2: i < n - 2 ? tier.values[Number(i) + 2].text : "",
+                text__n3: i < n - 3 ? tier.values[Number(i) + 3].text : "",
+                ...releted
+              }
             };
             records.push(item);
             id++;

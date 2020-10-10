@@ -51,7 +51,7 @@ export default {
     MFilePointTable
   },
   data: () => ({
-    heading: "Meta Data Manager",
+    heading: "Data Manager",
     desc: "$vuetify.meta.disc",
     dialog: false,
     tab: null
@@ -65,13 +65,8 @@ export default {
     colClass: function() {
       return this.$vuetify.breakpoint.smAndUp ? "" : "ma-0 pa-0";
     },
-    keyword: {
-      get() {
-        return this.$store.state.search.keyword;
-      },
-      set(val) {
-        this.$store.commit("search/keyword", val);
-      }
+    keyword: function() {
+      return this.$store.state.search.keyword;
     },
     records: function() {
       return this.$store.getters["files/records"];
