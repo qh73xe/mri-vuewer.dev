@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link rel=icon href=/mri-vuewer.dev/favicon.ico>
+    <title>mri-vuewer.dev</title>
+    <script>
+      const app = "mri-vuewer.dev";
+      const path = window.location.pathname.split("/");
+      const nexts = [];
+      for (const i in path) {
+        if (path[i] && path[i] !== app) nexts.push(path[i]);
+      }
+      const nextpage = nexts.join("-");
+      if (nextpage) {
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const query = window.location.search.split("&");
+        const queries = [];
+        for (const i in query) {
+          if (query[i]) {
+            queries.push(query[i].replace("?", ""));
+          }
+        }
+        const nextquery = queries.join("&");
+        let search = `nextpage=${nextpage}`;
+        if (nextquery) {
+          const search = `nextpage=${nextpage}&{nextquery}`;
+        }
+        const url = `${protocol}//${hostname}/${app}/?${search}`;
+        window.location.replace(url);
+      } else {
+        window.location.pathname = `/${app}/`;
+      }
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <strong>
+        We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
+        properly without JavaScript enabled. Please enable it to continue.
+      </strong>
+    </noscript>
+  </body>
+</html>
